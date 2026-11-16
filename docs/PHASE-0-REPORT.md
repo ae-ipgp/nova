@@ -3,6 +3,10 @@
 **Blueprint:** `docs/NOVA_Product_Blueprint_v1.0.pdf` (v1.0, 16 Nov 2026)
 **Status:** Foundation implemented. Awaiting SUAK/project-owner sign-off before Phase 1.
 
+> **Revision 1 (16 Nov 2026):** storage moved from Supabase to Google Sheets + Drive behind an
+> Apps Script gateway; Supabase is used for login only. See
+> [ADR-0001](adr/0001-google-sheets-drive-storage.md).
+
 ## 1. Repository audit (before Phase 0)
 
 The repository was empty (no commits, no files). No existing framework, package manager,
@@ -19,8 +23,11 @@ scripts or deployment configuration had to be preserved.
 | Fonts       | Manrope (display/heading), Inter (body), IBM Plex Mono (data) — self-hosted via Fontsource, no third-party font CDN |
 | Lint        | oxlint (Vite template default)                            |
 | Tests       | Vitest + Testing Library + jsdom                          |
-| Hosting     | Vercel (`vercel.json`: SPA rewrites + security headers)   |
-| Backend     | Supabase — **not connected yet** (Phase 1)                |
+| Hosting     | Vercel, static site only (`vercel.json`: SPA rewrites + security headers) |
+| Data        | Google Sheets (`NO.VA — Data`, `NO.VA — Audit`) — schema in `shared/schema.ts` |
+| Files       | Google Drive, private folders under `NO.VA/`              |
+| Server      | Google Apps Script web app ("gateway", `backend/`), bundled with esbuild, deployed with clasp |
+| Login       | Supabase Auth only — **not connected yet** (Phase 1)      |
 
 ## 3. Folder structure
 
@@ -37,11 +44,13 @@ src/
     dashboard/     workspace dashboard shell
     shared/        module placeholder, requirement list, 404
   layouts/         PublicLayout, AuthLayout, WorkspaceLayout
-  lib/             cn(), env (browser-safe config only)
+  lib/             cn(), env (browser-safe config only), api.ts (typed gateway client)
   styles/          tokens.css (design tokens), index.css
   types/           domain.ts (roles, statuses, visibilities)
-supabase/          migrations/, functions/, seed.sql (empty)
-tests/             route + module-registry tests
+shared/            schema.ts (sheets, columns, constraints), api-contract.ts
+backend/           Apps Script gateway: router, setup, lock, keep-alive, manifest, build
+supabase/          README only (auth configuration)
+tests/             routes, module registry, schema, API client, gateway (router/setup/lock)
 docs/              blueprint PDF, this report
 ```
 
@@ -75,7 +84,7 @@ all read from it, and tests check it against the counts in Blueprint §07.
 
 **Role preview (Phase 0 only).** The workspace has a dashed "Pratonton" selector that changes
 which modules appear in the sidebar. It exists so reviewers can check navigation per role. It
-grants no access and is replaced by the Supabase session/role provider in Phase 1. Until then
+grants no access and is replaced in Phase 1 by Supabase sign-in plus roles loaded from the gateway. Until then
 `/workspace` is openable by anyone because it holds no data.
 
 ## 5. Design tokens (Blueprint §04)
@@ -90,35 +99,40 @@ disabled (`--color-*: initial`), so only approved colours can be used.
   issued/published (blue). `StatusBadge` always shows a text label as well as the colour.
 - Layout: 1,280 px max content width, 248/76 px sidebar, 64 px header, radii 8/12/24 px.
 
-## 6. Environment variables and external services
+## 6. Configuration and external services
 
-Names only (see `.env.example`):
+**Web app (public values only, `.env.example`):**
 
-| Variable                     | Where             | Needed from |
-| ---------------------------- | ----------------- | ----------- |
-| `VITE_SUPABASE_URL`          | Browser           | Phase 1 |
-| `VITE_SUPABASE_ANON_KEY`     | Browser           | Phase 1 |
-| `VITE_APP_BASE_URL`          | Browser           | Phase 1 |
-| `SUPABASE_SERVICE_ROLE_KEY`  | Server functions only | Phase 1 |
-| `RESEND_API_KEY`             | Server functions only | Phase 2 |
-| `EMAIL_FROM_ADDRESS`         | Server functions only | Phase 2 |
-| `APP_BASE_URL`               | Server functions only | Phase 2 |
+| Variable                 | Purpose                              | Needed from |
+| ------------------------ | ------------------------------------ | ----------- |
+| `VITE_SUPABASE_URL`      | Supabase Auth endpoint               | Phase 1 |
+| `VITE_SUPABASE_ANON_KEY` | Supabase public key                  | Phase 1 |
+| `VITE_API_URL`           | Apps Script web app `/exec` URL      | Phase 1 |
+| `VITE_APP_BASE_URL`      | Site URL                             | Phase 1 |
 
-External accounts still needed: a Supabase project (separate dev and prod if practical),
-a Vercel project, an email provider with a verified sender domain, and a custom domain.
+**Gateway (Apps Script Script Properties, never in the repo or browser):**
+`SPREADSHEET_DATA_ID`, `SPREADSHEET_AUDIT_ID`, `DRIVE_ROOT_FOLDER_ID`, `SCHEMA_VERSION`
+(written by `setupSpreadsheet`), `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and in Phase 1
+`SUPABASE_SERVICE_ROLE_KEY`.
+
+External accounts needed: **one organisation Google account** (owns Sheets, Drive, Apps Script,
+sends NoMe email), a Supabase project (auth only), a Vercel project and a custom domain.
+Resend is no longer required.
 
 ## 7. Risks and dependencies
 
 | # | Risk / dependency | Mitigation |
 | - | ----------------- | ---------- |
-| 1 | Official reference-number format not approved (§08A, §16 #1) | Stored as versioned config (`reference_series`); `JPP/IPGKKB/100-1/2/2026` is a placeholder only |
-| 2 | Attendance calculation rules (late = present?) not confirmed (§16 #4) | Implement as configurable; default per blueprint, shown separately |
-| 3 | Public attendance fields need privacy review (§16 #5) | Public queries read only from published views; aggregate-only option |
-| 4 | Email sender domain/DNS not set up (§16 #6) | NoMe blocked from real sending until verified; no real recipients in tests |
-| 5 | Retention periods undefined (§16 #8) | No hard-coded retention; archived/hold states only |
-| 6 | SUAK account recovery / handover procedure (§16 #10) | Needs a documented, named recovery holder before production |
-| 7 | Supabase/Vercel/email free-tier limits | Check quotas before production (§09) |
-| 8 | Toolchain is very recent (Vite 8, TS 7, Tailwind 4) | Versions pinned by lockfile; `npm run check` gate |
+| 1 | **Owner Google account not chosen** (ADR-0001, decision #11) | Must be an organisation account handed over between sessions, not a personal student account |
+| 2 | Official reference-number format not approved (§08A, §16 #1) | Stored as config in `reference_series` sheet; `JPP/IPGKKB/100-1/2/2026` is a placeholder only |
+| 3 | No database transactions on Sheets | All check-then-write runs inside `withLock()` (LockService); concurrency test AT-04 targets it |
+| 4 | Manual edits to the spreadsheets bypass all rules | Spreadsheets shared with nobody; hand edits for recovery only |
+| 5 | MailApp daily recipient quota (~100 personal / ~1,500 Workspace) | Depends on decision #11; Resend via UrlFetch remains a fallback |
+| 6 | Supabase free projects pause when idle | Daily `keepAlive` trigger; confirm in dashboard |
+| 7 | Apps Script latency vs NFR p95 < 3 s | CacheService for public reads, one action per screen, client caching |
+| 8 | Attendance calculation rules and public fields (§16 #4, #5) | Configurable; public reads limited to `publicColumns` of published rows |
+| 9 | Retention periods undefined (§16 #8) | No hard-coded retention; archived/hold states only |
+| 10 | SUAK account recovery / handover (§16 #10) | Documented recovery holder for both Supabase and the Google owner account |
 
 ## 8. Phase 0 exit checklist
 
@@ -127,12 +141,15 @@ a Vercel project, an email provider with a verified sender domain, and a custom 
 - [x] Public, auth and workspace layouts; responsive (checked at 360, 390, 1024, 1440 px; no horizontal overflow)
 - [x] All routes from §05 exist with honest placeholders and no invented data
 - [x] Requirement IDs from §07 registered in code
-- [x] `.env.example`, Supabase folder skeleton, Vercel config
+- [x] `.env.example`, Vercel config
+- [x] Sheets schema for all §10 tables, idempotent `setupSpreadsheet`, gateway router with error envelope, `withLock`, keep-alive, typed web client (Revision 1)
 - [ ] **Architecture and baseline approved by SUAK / project owner** ← required before Phase 1
 
 ## 9. Next: Phase 1 — auth, RBAC and sessions
 
-Supabase Auth; `profiles`, `roles`, `user_roles`, `jpp_sessions`, `jpp_members`, `audit_logs`
-migrations with RLS; route guards; active-session context; DEMO seed; tests for both allowed
-and denied access. SUAK is the operational administrator; System Administrator does **not**
-inherit content-approval powers. No business modules until the auth and permission tests pass.
+Supabase Auth sign-in in the web app (sign-ups disabled, invitation only); gateway token
+verification (Supabase `/auth/v1/user`, short CacheService cache); role loading from
+`user_roles`; route guards; active JPP session context; `profiles`/`user_roles`/`jpp_sessions`/
+`jpp_members` actions; audit appends; DEMO seed; tests for both allowed and denied access.
+SUAK is the operational administrator; System Administrator does **not** inherit
+content-approval powers. No business modules until the auth and permission tests pass.

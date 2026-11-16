@@ -1,7 +1,7 @@
 /**
  * Domain vocabulary from Blueprint v1.0 (§06 roles, §14 seed statuses).
- * These are type-level contracts only. The database (Phase 1+) is the source
- * of truth; keep these unions in sync with migrations.
+ * These are type-level contracts only. The Google Sheets data (Phase 1+) is the source
+ * of truth; keep these unions in sync with shared/schema.ts and the gateway.
  */
 
 export const ROLE_KEYS = ['public', 'member', 'secretariat', 'suak', 'system_admin'] as const

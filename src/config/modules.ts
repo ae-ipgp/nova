@@ -31,7 +31,7 @@ export interface ModuleDefinition {
   phase: number
   /**
    * Roles that see this module in navigation. UX only — real authorisation
-   * is enforced server-side via RLS (Phase 1).
+   * is enforced by the Apps Script gateway on every action (Phase 1).
    */
   navRoles: readonly RoleKey[]
   requirements: readonly Requirement[]

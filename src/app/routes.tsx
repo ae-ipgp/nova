@@ -18,7 +18,7 @@ import { PreviewRoleProvider } from './preview-role'
  *  - Workspace:      /workspace, /workspace/<module-slug>
  *
  * Phase 1 adds an auth guard around /workspace. Guards are UX only;
- * authorisation is enforced by RLS and server functions.
+ * authorisation is enforced by the Apps Script gateway on every action.
  */
 export const routes: RouteObject[] = [
   {

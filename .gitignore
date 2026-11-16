@@ -33,3 +33,8 @@ coverage
 .vercel
 supabase/.temp
 supabase/.branches
+
+# Apps Script
+backend/dist
+backend/.clasp.json
+.clasprc.json

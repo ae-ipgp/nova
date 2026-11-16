@@ -4,7 +4,7 @@ import type { RoleKey } from '@/types/domain'
 /**
  * PHASE 0 ONLY — lets reviewers preview navigation per role before real
  * authentication exists. This is not authorisation and grants no access.
- * Replace with the Supabase session/role provider in Phase 1.
+ * Replace in Phase 1 with Supabase sign-in plus roles loaded from the gateway.
  */
 interface PreviewRoleValue {
   role: RoleKey
