@@ -1,0 +1,2 @@
+-- NO.VA DEMO seed data — populated in Phase 1.
+-- Every row inserted here must be clearly marked DEMO and be removable before production.

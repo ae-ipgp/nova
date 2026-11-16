@@ -1,0 +1,81 @@
+/*
+ * NO.VA design tokens — Blueprint v1.0 §04.
+ * Blue is the dominant colour; champagne is a small, restricted accent only.
+ * Change values here, never inline in components.
+ */
+@theme {
+  /* Reset Tailwind's default palette so only approved tokens are available. */
+  --color-*: initial;
+
+  /* Core palette */
+  --color-navy: #102d4f;        /* Midnight Navy — logo, hero, sidebar, headings */
+  --color-blue: #1769aa;        /* Institutional Blue — primary buttons, links, active nav */
+  --color-electric: #2c86d9;    /* Electric Blue — interaction accent, highlight, charts */
+  --color-sky: #dcebfa;         /* Soft Sky — soft visual backgrounds */
+  --color-ice: #f3f7fb;         /* Ice Surface — dashboard and table backgrounds */
+  --color-paper: #ffffff;       /* Paper White — cards, forms, content */
+  --color-ink: #172638;         /* Ink — primary text */
+  --color-slate: #63758a;       /* Slate — metadata and secondary text */
+  --color-line: #d9e2ec;        /* Line — borders and dividers */
+  --color-champagne: #d4b77a;   /* Champagne — restricted premium accent */
+  --color-teal: #287c78;        /* Teal — selected positive status */
+  --color-red: #b64a4a;         /* Muted Red — errors and rejection */
+  --color-amber: #b7791f;       /* Amber — pending (semantic status) */
+  --color-green: #2f7d4f;       /* Green — approved (semantic status) */
+
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Tints used by status badges and surfaces */
+  --color-navy-900: #0b2140;
+  --color-navy-700: #1b3d63;
+  --color-slate-100: #eef2f6;
+  --color-amber-100: #fbf1df;
+  --color-green-100: #e3f2e9;
+  --color-red-100: #f8e6e6;
+  --color-blue-100: #e3effa;
+  --color-teal-100: #e1f0ef;
+
+  /* Typography */
+  --font-display: 'Manrope Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale (desktop) — §04 "Skala tipografi desktop" */
+  --text-display: clamp(2.75rem, 1.5rem + 5vw, 5.5rem);
+  --text-display--line-height: 1;
+  --text-h1: clamp(1.875rem, 1.4rem + 1.5vw, 2.75rem);
+  --text-h1--line-height: 1.1;
+  --text-h2: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --text-h2--line-height: 1.2;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.25;
+  --text-body-lg: 1.0625rem;
+  --text-body-lg--line-height: 1.55;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.5;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.3;
+
+  /* Radius — 8 input, 12 card, 20–28 hero panel */
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-hero: 24px;
+
+  /* Shadow — very soft and rare; prefer borders and tonal surfaces */
+  --shadow-soft: 0 1px 2px rgb(16 45 79 / 0.04), 0 4px 16px rgb(16 45 79 / 0.06);
+  --shadow-float: 0 12px 40px rgb(11 33 64 / 0.18);
+
+  /* Layout */
+  --container-content: 1280px;
+  --spacing-sidebar: 248px;
+  --spacing-sidebar-collapsed: 76px;
+  --spacing-header: 64px;
+
+  /* Motion — 150–220 ms, no heavy animation */
+  --default-transition-duration: 180ms;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
