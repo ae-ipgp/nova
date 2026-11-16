@@ -1,22 +1,19 @@
 /**
  * Domain vocabulary from Blueprint v1.0 (§06 roles, §14 seed statuses).
- * These are type-level contracts only. The Google Sheets data (Phase 1+) is the source
- * of truth; keep these unions in sync with shared/schema.ts and the gateway.
+ * Role, account and session vocabulary is shared with the gateway (shared/domain.ts);
+ * the remaining unions are used from Phase 2 onwards.
  */
-
-export const ROLE_KEYS = ['public', 'member', 'secretariat', 'suak', 'system_admin'] as const
-export type RoleKey = (typeof ROLE_KEYS)[number]
-
-export const ROLE_LABELS: Record<RoleKey, string> = {
-  public: 'Pelawat Awam',
-  member: 'Ahli JPP',
-  secretariat: 'Sekretariat',
-  suak: 'SUAK',
-  system_admin: 'Pentadbir Sistem',
-}
-
-export const ACCOUNT_STATUSES = ['invited', 'active', 'suspended', 'deactivated'] as const
-export type AccountStatus = (typeof ACCOUNT_STATUSES)[number]
+export {
+  ACCOUNT_STATUSES,
+  ASSIGNABLE_ROLES,
+  ROLE_KEYS,
+  ROLE_LABELS,
+  SESSION_STATUSES,
+  type AccountStatus,
+  type AssignableRole,
+  type RoleKey,
+  type SessionStatus,
+} from '@shared/domain'
 
 export const REFERENCE_STATUSES = [
   'draft',

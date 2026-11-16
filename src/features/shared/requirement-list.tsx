@@ -9,7 +9,7 @@ const PRIORITY_CLASS: Record<Requirement['priority'], string> = {
 
 export function RequirementList({ requirements }: { requirements: readonly Requirement[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[36rem] text-left text-caption">
         <thead>
           <tr className="border-b border-line text-micro uppercase tracking-wide text-slate">

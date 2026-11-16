@@ -6,6 +6,9 @@ export const PROP = {
   schemaVersion: 'SCHEMA_VERSION',
   supabaseUrl: 'SUPABASE_URL',
   supabaseAnonKey: 'SUPABASE_ANON_KEY',
+  /** Read by bootstrap() only: DELIMa email and name of the first SUAK. */
+  bootstrapSuakEmail: 'BOOTSTRAP_SUAK_EMAIL',
+  bootstrapSuakName: 'BOOTSTRAP_SUAK_NAME',
 } as const
 
 export type PropKey = (typeof PROP)[keyof typeof PROP]

@@ -6,8 +6,9 @@ NO.VA is the web-based secretariat platform for JPP IPGKKB. It brings correspond
 meetings, notices, templates, reporting, archive and administration into one modular
 application with one identity system and one source of record.
 
-> Status: **Phase 0 — foundation.** UI shell, design system and route structure only.
-> No login, data or email yet. See [`docs/PHASE-0-REPORT.md`](docs/PHASE-0-REPORT.md).
+> Status: **Phase 1 — sign-in, roles and sessions** implemented and tested against fakes;
+> awaiting deployment and UAT. Business modules (e-Surat, e-Mesyuarat, …) start in Phase 2.
+> See [`docs/PHASE-1-REPORT.md`](docs/PHASE-1-REPORT.md).
 
 ## Modules
 

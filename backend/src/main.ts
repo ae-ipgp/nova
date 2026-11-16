@@ -7,10 +7,15 @@
  * direct access to the spreadsheets or folders.
  */
 import { DRIVE_FOLDERS, SCHEMA_VERSION, SHEETS, type Workbook } from '@shared/schema'
+import { createSupabaseVerifier, type TokenVerifier } from './auth'
+import { bootstrap as runBootstrap } from './bootstrap'
 import { getProp, PROP, setProp, type PropKey } from './config'
 import { pingSupabase } from './keep-alive'
-import { handleRequest, type RequestContext } from './router'
+import { withLock } from './lock'
+import { handleRequest, type GatewayDeps } from './router'
 import { ensureSheets, type SetupResult } from './setup'
+import { createSheetsIO } from './sheets-io'
+import { TableStore } from './store'
 
 type TextOutput = GoogleAppsScript.Content.TextOutput
 
@@ -18,21 +23,52 @@ function json(value: unknown): TextOutput {
   return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON)
 }
 
-const liveContext: RequestContext = {
-  now: () => new Date(),
-  schemaVersion: () => {
-    const v = getProp(PROP.schemaVersion)
-    return v ? Number(v) : null
-  },
-  configured: () => Boolean(getProp(PROP.dataSpreadsheetId) && getProp(PROP.auditSpreadsheetId)),
+function bytesToBase64(bytes: GoogleAppsScript.Byte[]): string {
+  return Utilities.base64Encode(bytes)
+}
+
+function liveVerifier(): TokenVerifier | null {
+  const supabaseUrl = getProp(PROP.supabaseUrl)
+  const anonKey = getProp(PROP.supabaseAnonKey)
+  if (!supabaseUrl || !anonKey) return null
+  return createSupabaseVerifier({
+    supabaseUrl,
+    anonKey,
+    httpGet: (url, headers) => {
+      const res = UrlFetchApp.fetch(url, { method: 'get', headers, muteHttpExceptions: true })
+      return { code: res.getResponseCode(), body: res.getContentText() }
+    },
+    cache: CacheService.getScriptCache(),
+    nowMs: () => Date.now(),
+    decodeBase64Url: (input) => {
+      const padded = input + '='.repeat((4 - (input.length % 4)) % 4)
+      return Utilities.newBlob(Utilities.base64DecodeWebSafe(padded)).getDataAsString()
+    },
+    hash: (input) => bytesToBase64(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, input, Utilities.Charset.UTF_8)),
+  })
+}
+
+function liveDeps(): GatewayDeps {
+  return {
+    now: () => new Date(),
+    uuid: () => Utilities.getUuid(),
+    openStore: () => new TableStore(createSheetsIO()),
+    lock: LockService.getScriptLock(),
+    verifier: liveVerifier,
+    schemaVersion: () => {
+      const v = getProp(PROP.schemaVersion)
+      return v ? Number(v) : null
+    },
+    configured: () => Boolean(getProp(PROP.dataSpreadsheetId) && getProp(PROP.auditSpreadsheetId)),
+  }
 }
 
 export function doPost(e: GoogleAppsScript.Events.DoPost): TextOutput {
-  return json(handleRequest(e?.postData?.contents ?? '', liveContext))
+  return json(handleRequest(e?.postData?.contents ?? '', liveDeps()))
 }
 
 export function doGet(): TextOutput {
-  return json(handleRequest(JSON.stringify({ action: 'system.health', payload: {} }), liveContext))
+  return json(handleRequest(JSON.stringify({ action: 'system.health', payload: {} }), liveDeps()))
 }
 
 // ---------------------------------------------------------------------------
@@ -87,6 +123,25 @@ export function setupSpreadsheet(): void {
   setProp(PROP.schemaVersion, String(SCHEMA_VERSION))
 
   console.log(JSON.stringify({ schemaVersion: SCHEMA_VERSION, data, audit }, null, 2))
+}
+
+/**
+ * First-run data: role catalogue, first SUAK and a DEMO session. Run once from
+ * the editor after setupSpreadsheet, with Script Properties BOOTSTRAP_SUAK_EMAIL
+ * (a @moe-dl.edu.my address) and optionally BOOTSTRAP_SUAK_NAME set.
+ */
+export function bootstrap(): void {
+  const suakEmail = getProp(PROP.bootstrapSuakEmail)
+  if (!suakEmail) throw new Error('Set Script Property BOOTSTRAP_SUAK_EMAIL first.')
+  const result = withLock(LockService.getScriptLock(), () =>
+    runBootstrap(new TableStore(createSheetsIO()), {
+      suakEmail,
+      suakName: getProp(PROP.bootstrapSuakName) ?? '',
+      now: new Date(),
+      uuid: () => Utilities.getUuid(),
+    }),
+  )
+  console.log(JSON.stringify(result))
 }
 
 export function keepAlive(): void {

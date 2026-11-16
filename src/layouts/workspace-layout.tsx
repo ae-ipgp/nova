@@ -1,10 +1,9 @@
-import { Bell, ChevronsLeft, ChevronsRight, Menu, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { usePreviewRole } from '@/app/preview-role'
+import { Bell, ChevronsLeft, ChevronsRight, LogOut, Menu, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { hasAnyRole, useAuth } from '@/app/auth-context'
 import { Logo, Monogram } from '@/components/brand/logo'
 import { MODULES, workspacePath, type ModuleDefinition } from '@/config/modules'
-import { SITE } from '@/config/site'
 import { cn } from '@/lib/cn'
 import { ROLE_KEYS, ROLE_LABELS, type RoleKey } from '@/types/domain'
 
@@ -19,7 +18,7 @@ function readCollapsed(): boolean {
 }
 
 export function WorkspaceLayout() {
-  const { role } = usePreviewRole()
+  const { roles, mode } = useAuth()
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -31,7 +30,7 @@ export function WorkspaceLayout() {
     }
   }, [collapsed])
 
-  const visibleModules = MODULES.filter((m) => m.navRoles.includes(role))
+  const visibleModules = MODULES.filter((m) => hasAnyRole(roles, m.navRoles))
 
   return (
     <div className="min-h-dvh bg-ice">
@@ -85,7 +84,7 @@ export function WorkspaceLayout() {
 
       <div className={cn('flex min-h-dvh flex-col transition-[padding] duration-200', collapsed ? 'lg:pl-sidebar-collapsed' : 'lg:pl-sidebar')}>
         <TopBar onOpenDrawer={() => setDrawerOpen(true)} />
-        <PhaseBanner />
+        {mode === 'preview' && <PreviewBanner />}
         <main id="workspace-main" className="container-content flex-1 py-6 md:py-8">
           <Outlet />
         </main>
@@ -135,6 +134,8 @@ function SidebarNav({
 }
 
 function TopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
+  const { mode, state } = useAuth()
+  const session = state.status === 'signed_in' ? state.me.activeSession : null
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
       <div className="container-content flex h-header items-center gap-3">
@@ -143,18 +144,103 @@ function TopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
         </button>
         <Breadcrumb />
         <div className="ml-auto flex items-center gap-2">
-          <span className="hidden items-center gap-2 rounded-full border border-line bg-ice px-3 py-1 text-micro font-medium text-slate md:inline-flex" title="Sesi JPP aktif (DEMO — perlu disahkan SUAK)">
-            <span className="size-1.5 rounded-full bg-teal" aria-hidden />
-            {SITE.demoSessionLabel}
-            <span className="font-mono text-[0.625rem] text-amber">DEMO</span>
+          <span
+            className="hidden max-w-[18rem] items-center gap-2 truncate rounded-full border border-line bg-ice px-3 py-1 text-micro font-medium text-slate md:inline-flex"
+            title="Sesi JPP aktif"
+          >
+            <span className={cn('size-1.5 shrink-0 rounded-full', session ? 'bg-teal' : 'bg-slate')} aria-hidden />
+            <span className="truncate">{session ? session.name : 'Tiada sesi aktif'}</span>
           </span>
           <button type="button" className="grid size-10 place-items-center rounded-input text-slate hover:bg-ice hover:text-navy" aria-label="Notifikasi (belum tersedia)" disabled>
             <Bell className="size-[1.125rem]" />
           </button>
-          <RolePreviewSelect />
+          {mode === 'preview' && <RolePreviewSelect />}
+          <ProfileMenu />
         </div>
       </div>
     </header>
+  )
+}
+
+function initials(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]!.toUpperCase())
+      .join('') || '?'
+  )
+}
+
+function ProfileMenu() {
+  const { state, roles, signOut, mode } = useAuth()
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(false)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  if (state.status !== 'signed_in') return null
+  const { me } = state
+  const name = me.profile?.fullName ?? me.email
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-label={`Menu profil: ${name}`}
+        className="grid size-10 place-items-center rounded-full bg-navy font-display text-caption font-bold text-white hover:bg-blue"
+      >
+        {initials(name)}
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 w-72 rounded-card border border-line bg-paper p-2 shadow-float">
+          <div className="border-b border-line px-3 pb-3 pt-2">
+            <p className="truncate font-semibold text-navy">{name}</p>
+            <p className="truncate font-mono text-micro text-slate">{me.email}</p>
+            {me.membership && (
+              <p className="mt-1 text-micro text-slate">
+                {[me.membership.position, me.membership.bureau].filter(Boolean).join(' · ')}
+              </p>
+            )}
+            <p className="mt-2 flex flex-wrap gap-1">
+              {roles.map((r) => (
+                <span key={r} className="rounded bg-blue-100 px-1.5 py-0.5 text-micro font-semibold text-blue">
+                  {ROLE_LABELS[r]}
+                </span>
+              ))}
+            </p>
+          </div>
+          <button
+            type="button"
+            disabled={mode !== 'live'}
+            onClick={async () => {
+              setOpen(false)
+              await signOut()
+              navigate('/', { replace: true })
+            }}
+            className="mt-1 flex w-full items-center gap-2 rounded-input px-3 py-2 text-left text-caption text-ink hover:bg-ice disabled:opacity-50"
+          >
+            <LogOut className="size-4" aria-hidden />
+            Log keluar
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -186,7 +272,7 @@ function Breadcrumb() {
 }
 
 function RolePreviewSelect() {
-  const { role, setRole } = usePreviewRole()
+  const { roles, setPreviewRole } = useAuth()
   return (
     <div className="flex items-center gap-2 rounded-input border border-dashed border-amber/60 bg-amber-100/60 py-1 pr-1 pl-2.5">
       <span className="hidden text-micro font-semibold uppercase tracking-wide text-amber sm:inline" aria-hidden>
@@ -194,8 +280,8 @@ function RolePreviewSelect() {
       </span>
       <select
         aria-label="Pratonton navigasi sebagai peranan"
-        value={role}
-        onChange={(e) => setRole(e.target.value as RoleKey)}
+        value={roles[0]}
+        onChange={(e) => setPreviewRole?.(e.target.value as RoleKey)}
         className="h-8 rounded-[6px] border border-line bg-paper px-2 text-caption text-navy"
       >
         {ROLE_KEYS.filter((r) => r !== 'public').map((r) => (
@@ -208,12 +294,12 @@ function RolePreviewSelect() {
   )
 }
 
-function PhaseBanner() {
+function PreviewBanner() {
   return (
     <div className="border-b border-amber/30 bg-amber-100/70">
       <p className="container-content py-2 text-caption text-ink">
-        <strong className="font-semibold">Fasa 0 — pratonton struktur.</strong> Pengesahan, peranan dan data belum diaktifkan. Pemilih
-        peranan hanya mengubah paparan navigasi; ia bukan kawalan akses.
+        <strong className="font-semibold">Mod pratonton pembangunan.</strong> Log masuk dan pelayan data belum dikonfigurasi, jadi tiada data
+        dimuatkan. Pemilih peranan hanya mengubah paparan; ia bukan kawalan akses.
       </p>
     </div>
   )

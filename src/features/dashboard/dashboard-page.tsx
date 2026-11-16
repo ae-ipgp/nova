@@ -1,12 +1,11 @@
 import { CalendarDays, FileText, Inbox, ListChecks, Mail, Plus, Send, Activity } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { usePreviewRole } from '@/app/preview-role'
+import { hasAnyRole, useAuth } from '@/app/auth-context'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/components/ui/page-header'
 import { MODULES, workspacePath } from '@/config/modules'
-import { SITE } from '@/config/site'
 import { cn } from '@/lib/cn'
 import { ROLE_LABELS, type RoleKey } from '@/types/domain'
 
@@ -25,14 +24,16 @@ const QUICK_ACTIONS: { label: string; icon: typeof Plus; module: string; roles: 
 ]
 
 export function DashboardPage() {
-  const { role } = usePreviewRole()
-  const actions = QUICK_ACTIONS.filter((a) => a.roles.includes(role))
+  const { roles, state } = useAuth()
+  const me = state.status === 'signed_in' ? state.me : null
+  const actions = QUICK_ACTIONS.filter((a) => hasAnyRole(roles, a.roles))
+  const eyebrow = [roles.map((r) => ROLE_LABELS[r]).join(' · '), me?.activeSession?.name ?? 'Tiada sesi aktif'].filter(Boolean).join(' · ')
   const dashboard = MODULES[0]
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${ROLE_LABELS[role]} · ${SITE.demoSessionLabel}`}
+        eyebrow={eyebrow}
         title="Your secretariat, at a glance."
         description="Ringkasan operasi, tindakan tertunggak dan aktiviti terkini mengikut peranan anda."
         actions={actions.slice(0, 2).map((a) => (

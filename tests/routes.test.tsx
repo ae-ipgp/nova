@@ -29,7 +29,7 @@ describe('public portal', () => {
 })
 
 describe('login', () => {
-  it('offers DELIMa sign-in only, disabled until Phase 1', () => {
+  it('offers DELIMa sign-in only, disabled while sign-in is not configured', () => {
     renderRoute('/log-masuk')
     expect(screen.getByRole('button', { name: /Log masuk dengan DELIMa/ })).toBeDisabled()
     expect(screen.getByText('@moe-dl.edu.my')).toBeInTheDocument()
@@ -46,7 +46,7 @@ describe('workspace shell', () => {
     expect(within(kpis).queryByText(/^\s*\d[\d,.]*\s*$/)).toBeNull()
   })
 
-  it.each(MODULES.filter((m) => m.slug !== '').map((m) => [workspacePath(m), m] as const))('renders %s placeholder', (path, m) => {
+  it.each(MODULES.filter((m) => m.slug !== '' && m.code !== 'M08').map((m) => [workspacePath(m), m] as const))('renders %s placeholder', (path, m) => {
     renderRoute(path)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(m.name)
     for (const r of m.requirements) expect(screen.getByText(r.id)).toBeInTheDocument()

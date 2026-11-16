@@ -5,8 +5,13 @@ The only path from the web app to Google Sheets and Drive. See
 
 ```
 backend/
-  src/main.ts       Apps Script entry points (doGet, doPost, setupSpreadsheet, installTriggers, keepAlive)
-  src/router.ts     action dispatch, access rules, error envelope
+  src/main.ts       Apps Script entry points (doGet, doPost, setupSpreadsheet, bootstrap, installTriggers, keepAlive)
+  src/router.ts     request pipeline: token → DELIMa domain → registered profile → roles → handler
+  src/actions/      one file per area; each action declares its access rule and whether it writes
+  src/auth.ts       Supabase token verification (cached ≤ 5 min, never past token expiry)
+  src/store.ts      row objects by header name, unique/append-only enforcement, formula-injection guard
+  src/sheets-io.ts  SpreadsheetApp implementation of the store's I/O (plain-text cells)
+  src/bootstrap.ts  first-run data: role catalogue, first SUAK, DEMO session
   src/setup.ts      idempotent sheet/column creation from shared/schema.ts
   src/lock.ts       withLock() — the "transaction" primitive
   src/config.ts     Script Properties keys
@@ -27,8 +32,12 @@ go/no-go check for anonymous web-app access.
 4. In the Apps Script editor, run **`setupSpreadsheet`** and approve the permissions.
    It creates the `NO.VA` Drive folder, its subfolders, the **NO.VA — Data** and
    **NO.VA — Audit** spreadsheets, every tab and header, and stores their IDs in Script Properties.
-5. Project Settings → Script properties: add `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
-6. Run **`installTriggers`** once (daily Supabase keep-alive).
+5. Project Settings → Script properties: add `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+   (from Supabase → Project Settings → API), plus `BOOTSTRAP_SUAK_EMAIL` (the first SUAK's
+   DELIMa address) and optionally `BOOTSTRAP_SUAK_NAME`.
+6. Run **`bootstrap`** once. It creates the role list, registers the first SUAK and a
+   session named "… (DEMO)" that SUAK replaces by creating and activating the real session. Running it again changes nothing.
+   Then run **`installTriggers`** once (daily Supabase keep-alive).
 7. Deploy → New deployment → Web app. Execute as: **Me**. Who has access: **Anyone**.
    Copy the `/exec` URL into the web app's `VITE_API_URL`.
    If "Anyone" is not offered, the DELIMa admin blocks anonymous web apps: **stop** (ADR-0002, R2).
@@ -36,7 +45,11 @@ go/no-go check for anonymous web-app access.
    `{"ok":true,"data":{"status":"ok",...,"configured":true}}`, not a Google sign-in page.
 
 Re-running `setupSpreadsheet` after a schema change only **adds** tabs/columns. It never
-deletes, renames or reorders anything.
+deletes, renames or reorders anything. **Schema v2 (Phase 1)** adds `user_roles.profile_id`:
+if you ran setup before Phase 1, run `setupSpreadsheet` again before `bootstrap`.
+
+After the first SUAK signs in, everyone else is registered from **Pengurusan → Pengguna**
+in NO.VA. Do not add users by editing the sheets.
 
 ## Handover to a new owner
 

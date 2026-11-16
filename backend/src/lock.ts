@@ -1,12 +1,14 @@
+import { AppError } from './errors'
+
 /** Minimal surface of GoogleAppsScript.Lock.Lock used here (injectable for tests). */
 export interface LockLike {
   tryLock(timeoutInMillis: number): boolean
   releaseLock(): void
 }
 
-export class BusyError extends Error {
+export class BusyError extends AppError {
   constructor() {
-    super('Sistem sedang sibuk. Sila cuba sebentar lagi.')
+    super('BUSY', 'Sistem sedang sibuk. Sila cuba sebentar lagi.')
     this.name = 'BusyError'
   }
 }

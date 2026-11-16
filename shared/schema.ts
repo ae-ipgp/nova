@@ -26,7 +26,7 @@ export interface SheetDef {
 }
 
 /** Bump when columns or tabs change; setup records it in system_settings. */
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 const ROW = ['id', 'created_at', 'updated_at', 'created_by'] as const
 
@@ -50,7 +50,9 @@ export const SHEETS = [
   {
     name: 'user_roles',
     workbook: 'data',
-    columns: ['id', 'user_id', 'role_key', 'granted_by', 'granted_at', 'revoked_by', 'revoked_at'],
+    // v2: roles are keyed by profile_id so SUAK can assign them before first sign-in.
+    // `user_id` (v1) is unused and kept only because columns are never removed.
+    columns: ['id', 'user_id', 'role_key', 'granted_by', 'granted_at', 'revoked_by', 'revoked_at', 'profile_id'],
   },
   {
     name: 'jpp_sessions',

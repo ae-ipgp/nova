@@ -26,5 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "strict": true
   },
-  "include": ["src", "tests", "shared", "backend/src/router.ts", "backend/src/setup.ts", "backend/src/lock.ts", "backend/src/keep-alive.ts"]
+  "include": ["src", "tests", "shared"]
 }

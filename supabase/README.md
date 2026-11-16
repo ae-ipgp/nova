@@ -20,8 +20,9 @@ not by Supabase.
    Disable **Email** (password) sign-in. Leave "Allow new users to sign up" **on**: any Google
    user can create a Supabase auth record, but the gateway gives nothing to anyone who is not a
    registered DELIMa member, so no admin key is needed to pre-create users.
-3. **Authentication → URL configuration:** site URL and redirect URLs for each environment
-   (localhost, Vercel preview, production).
+3. **Authentication → URL configuration:** Site URL = the production site. Redirect URLs:
+   `http://localhost:5173/auth/callback`, `https://<production-domain>/auth/callback` and, for
+   Vercel previews, `https://*-<team>.vercel.app/auth/callback`.
 4. The web app calls `signInWithOAuth({ provider: 'google', options: { queryParams: { hd: 'moe-dl.edu.my', prompt: 'select_account' } } })`.
    `hd` only pre-selects DELIMa accounts; enforcement is in the gateway.
 5. Free projects pause after a period of inactivity. The gateway's daily `keepAlive` trigger
