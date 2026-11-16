@@ -2,6 +2,7 @@
 
 - **Status:** Accepted (project owner decision, 16 Nov 2026)
 - **Supersedes:** Blueprint §09 "Supabase: Auth, PostgreSQL, Storage and server functions"
+- **Amended by:** [ADR-0002](0002-delima-sign-in-and-ownership.md) (DELIMa owner account and DELIMa sign-in)
 
 ## Decision
 
@@ -10,7 +11,7 @@
 | Records            | Supabase PostgreSQL          | **Google Sheets** (two spreadsheets: Data, Audit)    |
 | Files              | Supabase Storage             | **Google Drive** (private folders under `NO.VA/`)    |
 | Server logic       | Supabase server functions    | **Google Apps Script** web app (the "gateway")       |
-| Email (NoMe)       | Resend                       | Apps Script `MailApp` from the organisation account (Phase 2) |
+| Email (NoMe)       | Resend                       | Apps Script `MailApp` from the owner account (Phase 2) |
 | Login              | Supabase Auth                | **Supabase Auth** (unchanged, nothing else stored there) |
 | Hosting            | Vercel                       | Vercel (static site only)                            |
 
@@ -26,7 +27,7 @@ controls, without database size, storage bucket or usage-tier limits to monitor.
    │
    │  2. POST {action, payload, token}   (text/plain, simple CORS)
    ▼
- Apps Script web app — "gateway"   (Execute as: organisation account)
+ Apps Script web app — "gateway"   (Execute as: owner DELIMa account)
    ├─ verifies token with Supabase  (Phase 1, result cached briefly)
    ├─ loads roles from user_roles sheet, checks the action's access rule
    ├─ LockService script lock for every read-check-write
@@ -36,7 +37,7 @@ controls, without database size, storage bucket or usage-tier limits to monitor.
 ```
 
 **The browser never touches Sheets or Drive directly.** The spreadsheets and folders are
-owned by one organisation Google account and shared with nobody; the gateway runs as that
+owned by one Google account (a DELIMa account, ADR-0002) and shared with nobody; the gateway runs as that
 account and is the only door in.
 
 ## How each blueprint guarantee is kept
@@ -71,9 +72,9 @@ values before launch. All are far above expected JPP usage except where noted.
 
 ## Consequences and risks
 
-1. **Owner account is the single point of control.** It must be an organisation account
-   handed over between sessions, **not** a personal student account (student accounts are
-   removed after graduation, taking every file with them). See open decision below.
+1. **Owner account is the single point of control.** It must be handed over between
+   sessions; a DELIMa account is removed after its holder leaves, taking every file with it.
+   ADR-0002 defines the mandatory handover.
 2. **Manual edits bypass every rule.** Anyone with edit access to the spreadsheets bypasses
    locks, uniqueness, role checks and audit. Only the owner account may hold access, and hand
    edits are for recovery only, with a reason recorded.
@@ -86,8 +87,5 @@ values before launch. All are far above expected JPP usage except where noted.
 
 ## Open decision (added to Blueprint §16)
 
-**#11 — Which Google account owns NO.VA's spreadsheets, Drive folders and Apps Script?**
-Options: (a) a dedicated organisation Gmail account (simplest, works with anonymous web
-apps; ~100 email recipients/day, 15 GB); (b) an institution-managed Workspace account (higher
-quotas; subject to the IT admin's policies). Owner: SUAK + institution. Needed before Phase 1
-deployment.
+**#11 — Which Google account owns NO.VA?** *Resolved by ADR-0002:* a personal DELIMa
+(`@moe-dl.edu.my`) account, with a mandatory handover procedure and go/no-go checks.

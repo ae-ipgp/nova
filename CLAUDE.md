@@ -10,6 +10,9 @@ product scope, roles, module names, approval rules or design direction.
 - NO.VA is separate from HiPER; no HiPER integration in v1.0.
 - Storage (ADR-0001): Google Sheets for records, Google Drive for files, Google Apps Script
   gateway (`backend/`) as the only server. Supabase is for login ONLY — no tables, storage or functions.
+- Sign-in (ADR-0002): DELIMa Google accounts only (`@moe-dl.edu.my`, `shared/identity.ts`), no passwords.
+  Access requires an active profile registered by SUAK; the gateway decides, not Supabase.
+- Owner of Sheets/Drive/Apps Script is a personal DELIMa account; follow the ADR-0002 handover procedure.
 
 ## Engineering rules
 - Work one phase at a time (§13). Current phase is recorded in `docs/PHASE-*-REPORT.md`.

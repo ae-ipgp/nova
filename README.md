@@ -51,7 +51,7 @@ npm run dev                  # http://localhost:5173
 | Data    | Google Sheets (schema in `shared/schema.ts`) |
 | Files   | Google Drive (private folders) |
 | Server  | Google Apps Script gateway (`backend/`): the only path to Sheets and Drive |
-| Login   | Supabase Auth (identity only, no data) |
+| Login   | DELIMa Google accounts via Supabase Auth (identity only, no data) |
 
 See [ADR-0001](docs/adr/0001-google-sheets-drive-storage.md) for the architecture and its trade-offs,
 and [`backend/README.md`](backend/README.md) to deploy the gateway.
@@ -59,8 +59,9 @@ and [`backend/README.md`](backend/README.md) to deploy the gateway.
 ## Security rules (non-negotiable)
 
 - The browser never accesses Sheets or Drive. Everything goes through the gateway, which checks the user's role on every action.
-- Spreadsheets and Drive folders are owned by one organisation Google account and shared with nobody.
-- Secrets (Supabase service-role key, sheet IDs) live in Apps Script Script Properties, never in `VITE_` variables or the repo.
+- Spreadsheets and Drive folders are owned by one DELIMa account (handed over each leadership change, ADR-0002) and shared with nobody.
+- Users sign in with their DELIMa Google account; only members registered by SUAK get access.
+- Gateway configuration (Supabase URL/key, sheet and folder IDs) lives in Apps Script Script Properties, never in `VITE_` variables or the repo.
 - Frontend route guards are UX only.
 - Official reference numbers are issued only after SUAK approval, inside the gateway's script lock.
 - Files are private by default; public documents are published as separate copies.
@@ -70,6 +71,7 @@ and [`backend/README.md`](backend/README.md) to deploy the gateway.
 - [`docs/NOVA_Product_Blueprint_v1.0.pdf`](docs/NOVA_Product_Blueprint_v1.0.pdf): the primary product specification
 - [`docs/PHASE-0-REPORT.md`](docs/PHASE-0-REPORT.md): architecture, routes, risks, open decisions
 - [`docs/adr/0001-google-sheets-drive-storage.md`](docs/adr/0001-google-sheets-drive-storage.md): storage architecture
+- [`docs/adr/0002-delima-sign-in-and-ownership.md`](docs/adr/0002-delima-sign-in-and-ownership.md): DELIMa sign-in, owner account, handover
 - [`backend/README.md`](backend/README.md): gateway deployment runbook
 - [`supabase/README.md`](supabase/README.md): auth-only configuration
 

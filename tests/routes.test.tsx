@@ -29,11 +29,11 @@ describe('public portal', () => {
 })
 
 describe('login', () => {
-  it('keeps the form disabled until Phase 1 auth exists', () => {
+  it('offers DELIMa sign-in only, disabled until Phase 1', () => {
     renderRoute('/log-masuk')
-    expect(screen.getByLabelText(/E-mel/)).toBeDisabled()
-    expect(screen.getByLabelText(/Kata laluan/)).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Log masuk' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Log masuk dengan DELIMa/ })).toBeDisabled()
+    expect(screen.getByText('@moe-dl.edu.my')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Kata laluan/)).toBeNull()
   })
 })
 

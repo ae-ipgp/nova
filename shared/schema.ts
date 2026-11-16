@@ -35,7 +35,8 @@ export const SHEETS = [
   {
     name: 'profiles',
     workbook: 'data',
-    // user_id = Supabase Auth user id. Supabase holds credentials only.
+    // SUAK registers a member by DELIMa email (registration by SUAK only). user_id (the
+    // Supabase Auth user id) is linked on the member's first sign-in.
     columns: ['id', 'user_id', 'full_name', 'email', 'phone', 'account_status', 'created_at', 'updated_at'],
     unique: [['user_id'], ['email']],
     restricted: ['email', 'phone'],

@@ -17,24 +17,32 @@ backend/
 
 ## First-time deployment (once per environment: dev, prod)
 
-Do this **signed in as the organisation account** that will own the data (ADR-0001, decision #11).
+Do this **signed in as the owner DELIMa account** (ADR-0002). Steps 7–8 double as the
+go/no-go check for anonymous web-app access.
 
 1. Create a standalone Apps Script project at <https://script.google.com> → New project.
    Copy its Script ID (Project Settings).
 2. Locally: `cp backend/.clasp.json.example backend/.clasp.json` and paste the Script ID.
-3. `npx @google/clasp@3 login` (as the organisation account), then `npm run backend:push`.
+3. `npx @google/clasp@3 login` (as the owner DELIMa account), then `npm run backend:push`.
 4. In the Apps Script editor, run **`setupSpreadsheet`** and approve the permissions.
    It creates the `NO.VA` Drive folder, its subfolders, the **NO.VA — Data** and
    **NO.VA — Audit** spreadsheets, every tab and header, and stores their IDs in Script Properties.
 5. Project Settings → Script properties: add `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
-   (Phase 1 adds `SUPABASE_SERVICE_ROLE_KEY` for invitations; it never leaves this project.)
 6. Run **`installTriggers`** once (daily Supabase keep-alive).
 7. Deploy → New deployment → Web app. Execute as: **Me**. Who has access: **Anyone**.
    Copy the `/exec` URL into the web app's `VITE_API_URL`.
-8. Check: opening the `/exec` URL shows `{"ok":true,"data":{"status":"ok",...,"configured":true}}`.
+   If "Anyone" is not offered, the DELIMa admin blocks anonymous web apps: **stop** (ADR-0002, R2).
+8. Check in a private window **not signed in to Google**: the `/exec` URL shows
+   `{"ok":true,"data":{"status":"ok",...,"configured":true}}`, not a Google sign-in page.
 
 Re-running `setupSpreadsheet` after a schema change only **adds** tabs/columns. It never
 deletes, renames or reorders anything.
+
+## Handover to a new owner
+
+Follow the procedure in [ADR-0002](../docs/adr/0002-delima-sign-in-and-ownership.md#ownership-handover-each-change-of-leadership-and-before-the-owner-graduates).
+Key points: transfer ownership of the folder, both spreadsheets and this project; the new owner
+makes a **new deployment** and re-runs `installTriggers`; update `VITE_API_URL`.
 
 ## Updating
 

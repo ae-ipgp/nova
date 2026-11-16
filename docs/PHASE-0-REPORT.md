@@ -6,6 +6,10 @@
 > **Revision 1 (16 Nov 2026):** storage moved from Supabase to Google Sheets + Drive behind an
 > Apps Script gateway; Supabase is used for login only. See
 > [ADR-0001](adr/0001-google-sheets-drive-storage.md).
+>
+> **Revision 2 (16 Nov 2026):** owner account is a personal DELIMa account; users sign in with
+> their DELIMa Google accounts (Supabase Google provider, no passwords). See
+> [ADR-0002](adr/0002-delima-sign-in-and-ownership.md).
 
 ## 1. Repository audit (before Phase 0)
 
@@ -27,7 +31,7 @@ scripts or deployment configuration had to be preserved.
 | Data        | Google Sheets (`NO.VA — Data`, `NO.VA — Audit`) — schema in `shared/schema.ts` |
 | Files       | Google Drive, private folders under `NO.VA/`              |
 | Server      | Google Apps Script web app ("gateway", `backend/`), bundled with esbuild, deployed with clasp |
-| Login       | Supabase Auth only — **not connected yet** (Phase 1)      |
+| Login       | DELIMa Google accounts via Supabase Auth (Google provider) — **not connected yet** (Phase 1) |
 
 ## 3. Folder structure
 
@@ -112,22 +116,24 @@ disabled (`--color-*: initial`), so only approved colours can be used.
 
 **Gateway (Apps Script Script Properties, never in the repo or browser):**
 `SPREADSHEET_DATA_ID`, `SPREADSHEET_AUDIT_ID`, `DRIVE_ROOT_FOLDER_ID`, `SCHEMA_VERSION`
-(written by `setupSpreadsheet`), `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and in Phase 1
-`SUPABASE_SERVICE_ROLE_KEY`.
+(written by `setupSpreadsheet`), `SUPABASE_URL`, `SUPABASE_ANON_KEY`. No Supabase
+service-role key is needed: members are registered in the `profiles` sheet, not in Supabase.
 
-External accounts needed: **one organisation Google account** (owns Sheets, Drive, Apps Script,
-sends NoMe email), a Supabase project (auth only), a Vercel project and a custom domain.
+External accounts needed: **the owner DELIMa account** (owns Sheets, Drive, Apps Script, sends
+NoMe email), a Google OAuth client for sign-in (any Google account), a Supabase project (sign-in
+only), a Vercel project and a custom domain.
 Resend is no longer required.
 
 ## 7. Risks and dependencies
 
 | # | Risk / dependency | Mitigation |
 | - | ----------------- | ---------- |
-| 1 | **Owner Google account not chosen** (ADR-0001, decision #11) | Must be an organisation account handed over between sessions, not a personal student account |
+| 1 | **Owner is a personal DELIMa account** that disappears when its holder leaves (ADR-0002 R1) | Mandatory handover procedure; one long-term recovery holder with Editor access to `NO.VA/` |
+| 1a | **DELIMa admin may block anonymous web apps** (ADR-0002 R2) | Go/no-go check before Phase 1; the only blocker with no workaround in this architecture |
 | 2 | Official reference-number format not approved (§08A, §16 #1) | Stored as config in `reference_series` sheet; `JPP/IPGKKB/100-1/2/2026` is a placeholder only |
 | 3 | No database transactions on Sheets | All check-then-write runs inside `withLock()` (LockService); concurrency test AT-04 targets it |
 | 4 | Manual edits to the spreadsheets bypass all rules | Spreadsheets shared with nobody; hand edits for recovery only |
-| 5 | MailApp daily recipient quota (~100 personal / ~1,500 Workspace) | Depends on decision #11; Resend via UrlFetch remains a fallback |
+| 5 | MailApp daily recipient quota (~1,500/day on a Workspace account such as DELIMa) | Enough for JPP; Resend via UrlFetch remains a fallback |
 | 6 | Supabase free projects pause when idle | Daily `keepAlive` trigger; confirm in dashboard |
 | 7 | Apps Script latency vs NFR p95 < 3 s | CacheService for public reads, one action per screen, client caching |
 | 8 | Attendance calculation rules and public fields (§16 #4, #5) | Configurable; public reads limited to `publicColumns` of published rows |
@@ -147,9 +153,10 @@ Resend is no longer required.
 
 ## 9. Next: Phase 1 — auth, RBAC and sessions
 
-Supabase Auth sign-in in the web app (sign-ups disabled, invitation only); gateway token
-verification (Supabase `/auth/v1/user`, short CacheService cache); role loading from
-`user_roles`; route guards; active JPP session context; `profiles`/`user_roles`/`jpp_sessions`/
+Run the ADR-0002 go/no-go checks first. Then: "Log masuk dengan DELIMa" via the Supabase Google
+provider; gateway token verification (Supabase `/auth/v1/user`, short CacheService cache);
+`isAllowedEmail` + registered-profile check (unregistered DELIMa users get no data); role
+loading from `user_roles`; route guards; active JPP session context; `profiles`/`user_roles`/`jpp_sessions`/
 `jpp_members` actions; audit appends; DEMO seed; tests for both allowed and denied access.
 SUAK is the operational administrator; System Administrator does **not** inherit
 content-approval powers. No business modules until the auth and permission tests pass.
