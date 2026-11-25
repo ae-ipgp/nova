@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
-import type { ActionMap, ActionName } from '@shared/api-contract'
+import type { ActionMap, ActionName, DownloadResult } from '@shared/api-contract'
 import { useAuth } from '@/app/auth-context'
+import { useToast } from '@/components/ui/toast'
 import { callApi, type ApiError } from '@/lib/api'
+import { saveFile, toBlob } from '@/lib/files'
 
 export const gatewayKey = (action: ActionName, payload?: unknown) => ['gateway', action, payload ?? {}] as const
 
@@ -34,4 +36,19 @@ export function useGatewayMutation<A extends ActionName>(action: A, invalidate: 
       await refresh()
     },
   })
+}
+
+/** Downloads a file produced by the gateway (base64 → browser save). Errors surface as toasts. */
+export function useDownloader() {
+  const { getToken } = useAuth()
+  const toast = useToast()
+  return async <A extends ActionName>(action: A, payload: ActionMap[A]['payload'], pdfOpen = false): Promise<void> => {
+    try {
+      const result = (await callApi(action, payload, { token: await getToken() })) as unknown as DownloadResult
+      if (pdfOpen && result.mimeType === 'application/pdf') window.open(URL.createObjectURL(toBlob(result)), '_blank', 'noopener')
+      else saveFile(result)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Muat turun gagal.')
+    }
+  }
 }

@@ -16,9 +16,9 @@ describe('module registry', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('carries the full requirement count from blueprint §07', () => {
+  it('carries the blueprint §07 requirements plus the agreed extensions (NTB-01, LTR-11, LTR-12)', () => {
     const counts = Object.fromEntries(MODULES.map((m) => [m.code, m.requirements.length]))
-    expect(counts).toEqual({ M01: 7, M02: 10, M03: 10, M04: 9, M05: 7, M06: 8, M07: 8, M08: 9 })
+    expect(counts).toEqual({ M01: 8, M02: 12, M03: 10, M04: 9, M05: 7, M06: 8, M07: 8, M08: 9 })
   })
 
   it('never shows workspace modules to public visitors', () => {

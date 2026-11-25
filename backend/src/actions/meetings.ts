@@ -181,7 +181,7 @@ export const meetingHandlers: {
       const session = findActiveSession(store)
       if (!session) return []
       return activeMembers(store, session.id)
-        .map((m) => ({ memberId: m.id, name: nameOf(store, m.profile_id), position: m.position, bureau: m.bureau }))
+        .map((m) => ({ memberId: m.id, profileId: m.profile_id, name: nameOf(store, m.profile_id), position: m.position, bureau: m.bureau }))
         .sort((a, b) => a.name.localeCompare(b.name, 'ms'))
     },
   },

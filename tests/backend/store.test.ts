@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TableStore, toCell } from '../../backend/src/store'
+import { fromCell, TableStore, toCell } from '../../backend/src/store'
 import { AppError } from '../../backend/src/errors'
 import { MemoryIO } from './memory-io'
 
@@ -72,5 +72,15 @@ describe('toCell', () => {
   })
   it('leaves ordinary text alone', () => {
     expect(toCell('Mesyuarat AMT 1/2026')).toBe('Mesyuarat AMT 1/2026')
+  })
+  it('round-trips escaped text, whether or not Sheets keeps the apostrophe', () => {
+    for (const v of ['=SUM(1,2)', '-5 hari', '+60123456789', '@ali']) expect(fromCell(toCell(v))).toBe(v)
+    expect(fromCell('=SUM(1,2)')).toBe('=SUM(1,2)')
+    expect(fromCell("Ali's report")).toBe("Ali's report")
+  })
+  it('un-escapes when loading rows', () => {
+    const io = new MemoryIO()
+    io.data.set('roles', [['id', 'role_key', 'role_name'], ['r1', 'x', toCell('-Dash')]])
+    expect(new TableStore(io).get('roles', 'r1')?.role_name).toBe('-Dash')
   })
 })

@@ -35,7 +35,9 @@ export const isBase64 = (s: string): boolean => /^[A-Za-z0-9+/]*={0,2}$/.test(s.
 
 /** Strip path characters and control characters; keep the visible name short. */
 export function safeFileName(name: string, fallback: string): string {
-  const base = name.replace(/[\\/\u0000-\u001f<>:"|?*]/g, '').trim().slice(0, 100)
+  let cleaned = ''
+  for (const ch of name) if (ch.charCodeAt(0) >= 0x20 && !'\\/<>:"|?*'.includes(ch)) cleaned += ch
+  const base = cleaned.trim().slice(0, 100)
   return base || fallback
 }
 

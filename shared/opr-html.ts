@@ -7,7 +7,14 @@ import { escapeHtml } from './template-render'
  * "what you preview is what you export" (OPR-03/04). Table-based, conservative CSS so it
  * survives Apps Script's HTML→PDF converter; sized for A4 and Letter.
  */
-export const OPR_NARRATIVE_LIMIT = 6500
+/**
+ * One-page budget, measured by rendering worst-case reports in Chromium (A4, 12 mm margins) with ~12%
+ * headroom for the different renderer Apps Script uses. Photos take real space, so the allowance
+ * drops once any photo is attached.
+ */
+export const OPR_NARRATIVE_LIMIT_TEXT_ONLY = 4000
+export const OPR_NARRATIVE_LIMIT_WITH_PHOTOS = 2500
+export const narrativeLimit = (imageCount: number): number => (imageCount > 0 ? OPR_NARRATIVE_LIMIT_WITH_PHOTOS : OPR_NARRATIVE_LIMIT_TEXT_ONLY)
 
 export const EMPTY_OPR: OprContent = {
   programName: '', organiser: '', date: '', time: '', venue: '', background: '', objectives: '', execution: '', participantCount: '', targetGroup: '',
@@ -15,8 +22,8 @@ export const EMPTY_OPR: OprContent = {
 }
 
 export const OPR_TEXT_LIMITS: Record<Exclude<keyof OprContent, 'images'>, number> = {
-  programName: 150, organiser: 120, date: 10, time: 40, venue: 150, background: 1200, objectives: 1000, execution: 1200, participantCount: 20,
-  targetGroup: 150, parties: 300, outcome: 1000, impact: 700, strengths: 600, issues: 600, suggestions: 600, preparedBy: 100,
+  programName: 120, organiser: 120, date: 10, time: 40, venue: 150, background: 900, objectives: 700, execution: 900, participantCount: 20,
+  targetGroup: 150, parties: 300, outcome: 700, impact: 500, strengths: 400, issues: 400, suggestions: 400, preparedBy: 100,
 }
 
 const NARRATIVE_KEYS = ['background', 'objectives', 'execution', 'outcome', 'impact', 'strengths', 'issues', 'suggestions'] as const
@@ -64,7 +71,7 @@ export function renderOprHtml(c: OprContent, o: OprRenderOptions): string {
     v ? `<td style="padding:0 10pt 0 0;font-size:8pt;vertical-align:top;"><span style="color:${o.style === 'editorial' ? '#63758a' : 'inherit'};opacity:0.85;">${escapeHtml(label)}</span><br><b style="font-size:9pt;">${escapeHtml(v)}</b></td>` : ''
 
   const imgs = c.images.filter((i) => o.images[i.fileId])
-  const w = imgs.length === 1 ? 260 : imgs.length === 2 ? 190 : imgs.length === 3 ? 150 : 120
+  const w = imgs.length <= 2 ? 170 : imgs.length === 3 ? 150 : 120
   const imageRow = imgs.length
     ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:2pt 0 6pt 0;"><tr>${imgs
         .map(
@@ -98,7 +105,7 @@ export function renderOprHtml(c: OprContent, o: OprRenderOptions): string {
     <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:0.75pt solid ${t.rule};padding-top:3pt;font-size:7pt;color:#63758a;">Disediakan oleh: <b>${escapeHtml(c.preparedBy)}</b> · ${escapeHtml(o.footer)}</td></tr></table>`
 
   const wm = o.watermark
-    ? `<div style="position:absolute;top:0;left:0;right:0;text-align:center;font-size:9pt;font-weight:bold;color:#b64a4a;letter-spacing:2pt;">${escapeHtml(o.watermark)}</div>`
+    ? `<div style="text-align:center;font-size:8pt;font-weight:bold;color:#b64a4a;letter-spacing:2pt;padding-bottom:3pt;">${escapeHtml(o.watermark)}</div>`
     : ''
   return `<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8"><title>${escapeHtml(c.programName || 'OPR')}</title><style>@page{size:A4;margin:12mm}body{margin:0;font-family:${t.font};color:#172638;}table{border-collapse:collapse}</style></head><body><div style="position:relative;width:100%;max-width:186mm;margin:0 auto;">${wm}${body}</div></body></html>`
 }

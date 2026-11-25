@@ -6,9 +6,11 @@ NO.VA is the web-based secretariat platform for JPP IPGKKB. It brings correspond
 meetings, notices, templates, reporting, archive and administration into one modular
 application with one identity system and one source of record.
 
-> Status: **Phase 1 — sign-in, roles and sessions** implemented and tested against fakes;
-> awaiting deployment and UAT. Business modules (e-Surat, e-Mesyuarat, …) start in Phase 2.
-> See [`docs/PHASE-1-REPORT.md`](docs/PHASE-1-REPORT.md).
+> Status: **Release candidate** — all eight modules, the public portal, the notice board and
+> letter/certificate PDFs are built and tested against fakes (305 automated tests). It has **not**
+> yet been run against the real Google/Supabase accounts: do the steps in
+> [`docs/UAT-CHECKLIST.md`](docs/UAT-CHECKLIST.md) before publishing.
+> See [`docs/RELEASE-1.0-REPORT.md`](docs/RELEASE-1.0-REPORT.md).
 
 ## Modules
 
@@ -42,6 +44,7 @@ npm run dev                  # http://localhost:5173
 | `npm test`          | Vitest suite                                  |
 | `npm run backend:build` | Bundle the Apps Script gateway to `backend/dist` |
 | `npm run backend:push`  | Build and push the gateway with clasp         |
+| `npm run mascot:check` | Which mascot images are present/missing |
 | `npm run check`     | Everything above (except push); run before every PR |
 
 ## Stack
@@ -69,6 +72,9 @@ and [`backend/README.md`](backend/README.md) to deploy the gateway.
 
 ## Documentation
 
+- [`docs/RELEASE-1.0-REPORT.md`](docs/RELEASE-1.0-REPORT.md): what is built, traceability, decisions still open, known limitations
+- [`docs/UAT-CHECKLIST.md`](docs/UAT-CHECKLIST.md): acceptance checks to run on the real deployment
+- [`docs/MASCOT.md`](docs/MASCOT.md): mascot image names and how to add them
 - [`docs/NOVA_Product_Blueprint_v1.0.pdf`](docs/NOVA_Product_Blueprint_v1.0.pdf): the primary product specification
 - [`docs/PHASE-0-REPORT.md`](docs/PHASE-0-REPORT.md): architecture, routes, risks, open decisions
 - [`docs/adr/0001-google-sheets-drive-storage.md`](docs/adr/0001-google-sheets-drive-storage.md): storage architecture

@@ -23,4 +23,5 @@ export const PUBLIC_NAV: readonly NavLink[] = [
   { to: '/pengumuman', label: 'Pengumuman' },
   { to: '/templat', label: 'Templat' },
   { to: '/arkib', label: 'Arkib Awam' },
+  { to: '/semak', label: 'Semak Keaslian' },
 ]

@@ -32,6 +32,24 @@ product scope, roles, module names, approval rules or design direction.
   use clearly marked configurable placeholders. Never show invented statistics.
 - All seed/sample data must be labelled DEMO.
 
+## Rules added in the release-candidate work
+- Delegated capabilities ("Jika diberi") are `profile_areas` (`shared/domain.ts` AREAS). Reference-number
+  approval is never an area: SUAK only. UI checks use `useCan()`; the gateway is authoritative.
+- Letter/certificate wording lives only in `document_types` templates approved by SUAK. The code adds no
+  salutation, closing, motto or format; sample types are `is_demo` and print a CONTOH banner.
+- Reference numbers are issued only inside `ref.approve` under the lock: pick number → render PDF →
+  then write. Numbers are voided, never edited, deleted or reused (`mutableColumns` on the register).
+- Public actions return only `publicColumns` of published rows (tests assert exact key sets).
+  Public attendance defaults to aggregate; reasons and emails never leave the gateway.
+- NoMe: one message per recipient, `confirmCount` must match, quota is checked first, per-recipient
+  idempotency keys make retries safe. Email text is escaped.
+- e-OPR one-page budget is `shared/opr-html.ts` (4,000 chars; 2,500 with photos), measured in Chromium.
+  The web preview and the PDF use the same renderer. Re-measure if the layout changes.
+- Uploads: allow-listed type, size cap and magic-byte check (`readFile`). Images are shrunk in the browser.
+- Content-Security-Policy is in `vercel.json` (no inline scripts, fonts are not inlined). Test with a
+  production build, not the dev server.
+- Mascot images are optional static PNGs in `public/mascot/`; see `docs/MASCOT.md`. Never block a screen on them.
+
 ## Working method
 1. Inspect before changing. 2. Propose the smallest safe step. 3. Implement only the agreed phase.
 4. Run `npm run check`. 5. Report files changed, schema changes, test results, open issues.

@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { useToast } from '@/components/ui/toast'
 import { useGatewayMutation, useGatewayQuery } from '@/hooks/use-gateway'
-import { FormField } from './form-field'
+import { FormField } from '@/components/ui/form-field'
 import { formatDate, SESSION_STATUS_UI } from './labels'
 
 export function SessionsPage() {

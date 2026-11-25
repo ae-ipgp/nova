@@ -4,9 +4,13 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Logo } from '@/components/brand/logo'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { PUBLIC_NAV, SITE } from '@/config/site'
+import { HelpBubble } from '@/components/brand/help-bubble'
+import { useSite } from '@/hooks/use-site'
+import { Construction } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 export function PublicLayout() {
+  const { site } = useSite()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
@@ -27,6 +31,12 @@ export function PublicLayout() {
         Langkau ke kandungan
       </a>
 
+      {site.settings.maintenance_mode === 'true' && (
+        <div role="status" className="flex items-center justify-center gap-2 bg-amber-100 px-4 py-2 text-center text-caption text-ink">
+          <Construction className="size-4 shrink-0 text-amber" aria-hidden />
+          {site.settings.maintenance_message || 'NO.VA sedang diselenggara. Sesetengah fungsi mungkin tidak tersedia.'}
+        </div>
+      )}
       <header
         className={cn(
           'sticky top-0 z-40 transition-colors',
@@ -112,6 +122,7 @@ export function PublicLayout() {
       </main>
 
       <PublicFooter />
+      <HelpBubble contact={{ email: site.settings.contact_email, phone: site.settings.contact_phone }} />
     </div>
   )
 }
@@ -119,6 +130,9 @@ export function PublicLayout() {
 const CURRENT_YEAR = new Date().getFullYear()
 
 function PublicFooter() {
+  const { site } = useSite()
+  const s = site.settings
+  const socials = [['Instagram', s.social_instagram], ['Facebook', s.social_facebook], ['TikTok', s.social_tiktok]].filter(([, url]) => url)
   return (
     <footer className="bg-navy-900 text-sky/80">
       <div className="container-content grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
@@ -126,6 +140,13 @@ function PublicFooter() {
           <Logo inverse />
           <p className="mt-4 max-w-sm text-caption">{SITE.tagline}</p>
           <p className="mt-2 text-caption text-sky/60">{SITE.organisationLong}</p>
+          {(s.contact_email || s.contact_phone || s.contact_address) && (
+            <address className="mt-4 space-y-1 text-caption not-italic text-sky/80">
+              {s.contact_email && <p><a className="hover:text-white" href={`mailto:${s.contact_email}`}>{s.contact_email}</a></p>}
+              {s.contact_phone && <p>{s.contact_phone}</p>}
+              {s.contact_address && <p className="whitespace-pre-line">{s.contact_address}</p>}
+            </address>
+          )}
         </div>
         <div>
           <p className="mb-3 text-micro font-semibold uppercase tracking-[0.14em] text-white">Portal Awam</p>
@@ -147,6 +168,18 @@ function PublicFooter() {
                 Log Masuk
               </Link>
             </li>
+            <li>
+              <Link to="/privasi" className="hover:text-white">
+                Dasar Privasi
+              </Link>
+            </li>
+            {socials.map(([name, url]) => (
+              <li key={name}>
+                <a href={url} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                  {name}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

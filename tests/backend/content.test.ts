@@ -134,12 +134,19 @@ describe('e-OPR (M06)', () => {
 
   it('enforces the one-page content budget and image count (OPR-04)', () => {
     const { gw, owner } = setup()
-    expect(gw.errorCode('opr.save', { style: 'corporate', content: { ...OPR, background: 'x'.repeat(1300) } }, owner)).toBe('BAD_REQUEST')
+    expect(gw.errorCode('opr.save', { style: 'corporate', content: { ...OPR, background: 'x'.repeat(1000) } }, owner)).toBe('BAD_REQUEST')
     // Every field within its own limit, but together more than one page can hold.
-    const full = { ...OPR, background: 'y'.repeat(1200), objectives: 'y'.repeat(1000), execution: 'y'.repeat(1200), outcome: 'y'.repeat(1000), impact: 'z'.repeat(700), strengths: 'z'.repeat(600), issues: 'z'.repeat(600), suggestions: 'z'.repeat(600) }
+    const full = { ...OPR, background: 'y'.repeat(900), objectives: 'y'.repeat(700), execution: 'y'.repeat(900), outcome: 'y'.repeat(700), impact: 'z'.repeat(500), strengths: 'z'.repeat(400), issues: 'z'.repeat(400), suggestions: 'z'.repeat(400) }
     const res = gw.call('opr.save', { style: 'corporate', content: full }, owner)
     expect(res.ok).toBe(false)
     if (!res.ok) expect(res.error.message).toMatch(/satu halaman/)
+    // The allowance is smaller once a photo is attached.
+    const o = gw.ok('opr.save', { style: 'corporate', content: OPR }, owner)
+    const { fileId } = gw.ok('opr.image.add', { oprId: o.id, file: file('g.png', 'image/png', PNG_B64) }, owner)
+    const mid = { ...OPR, background: 'y'.repeat(900), objectives: 'y'.repeat(700), execution: 'y'.repeat(900), outcome: 'y'.repeat(100), images: [{ fileId, caption: '', credit: '' }] }
+    expect(gw.errorCode('opr.save', { id: o.id, style: 'corporate', content: mid }, owner)).toBe('BAD_REQUEST') // 2,600 > 2,500 with a photo
+    expect(gw.errorCode('opr.save', { id: o.id, style: 'corporate', content: { ...mid, outcome: 'y'.repeat(0) } }, owner)).toBeNull()  // 2,500 fits
+    expect(gw.errorCode('opr.save', { style: 'corporate', content: { ...mid, images: [] } }, owner)).toBeNull() // same text, no photo: fine
     expect(gw.errorCode('opr.image.add', { oprId: 'x', file: file('g.png', 'image/png', PNG_B64) }, owner)).toBe('NOT_FOUND')
   })
 

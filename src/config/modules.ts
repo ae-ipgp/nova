@@ -60,6 +60,7 @@ export const MODULES: readonly ModuleDefinition[] = [
       { id: 'DASH-05', priority: 'P1', text: 'Paparkan statistik surat, mesyuarat, OPR dan arkib.' },
       { id: 'DASH-06', priority: 'P1', text: 'Sediakan quick actions mengikut kebenaran.' },
       { id: 'DASH-07', priority: 'P0', text: 'Paparkan sesi JPP aktif dan tarikh konteks.' },
+      { id: 'NTB-01', priority: 'P1', text: 'Papan Notis dalaman yang dikaitkan dengan Pengumuman awam; notis awam hanya diterbitkan SUAK. (Lanjutan — dipersetujui pemilik produk)' },
     ],
   },
   {
@@ -81,6 +82,8 @@ export const MODULES: readonly ModuleDefinition[] = [
       { id: 'LTR-08', priority: 'P1', text: 'Sediakan daftar surat masuk dan surat keluar.' },
       { id: 'LTR-09', priority: 'P1', text: 'Carian berdasarkan nombor, tajuk, penerima, tarikh dan status.' },
       { id: 'LTR-10', priority: 'P2', text: 'Sediakan eksport daftar untuk tujuan pentadbiran.' },
+      { id: 'LTR-11', priority: 'P1', text: 'Jana PDF surat atau sijil bernombor selepas kelulusan SUAK daripada templat yang ditakrifkan. (Lanjutan — dipersetujui pemilik produk)' },
+      { id: 'LTR-12', priority: 'P1', text: 'Semakan keaslian awam bagi nombor rujukan (wujud/sah/dibatalkan sahaja). (Lanjutan)' },
     ],
   },
   {
@@ -168,7 +171,7 @@ export const MODULES: readonly ModuleDefinition[] = [
     summary: 'Carian, penyimpanan dan pengambilan dokumen.',
     icon: Archive,
     phase: 3,
-    navRoles: INTERNAL,
+    navRoles: INTERNAL.filter((r) => r !== 'system_admin'),
     requirements: [
       { id: 'ARC-01', priority: 'P0', text: 'Simpan metadata dokumen: tajuk, kategori, tarikh, sesi, pemilik, status akses.' },
       { id: 'ARC-02', priority: 'P0', text: 'Simpan fail dalam storage bucket peribadi secara default.' },

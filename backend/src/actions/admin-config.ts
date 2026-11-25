@@ -223,7 +223,7 @@ export const adminConfigHandlers: {
     },
   },
 
-  'admin.groups.list': { access: SUAK_OR_ADMIN, write: false, run: (_p, { store }) => groups(store) },
+  'admin.groups.list': { access: { kind: 'roles', roles: ['suak', 'system_admin', 'secretariat'] }, write: false, run: (_p, { store }) => groups(store) },
 
   'admin.groups.save': {
     access: SUAK_ONLY,

@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { MeResult } from '@shared/api-contract'
-import type { RoleKey } from '@shared/domain'
+import type { Area, RoleKey } from '@shared/domain'
 
 /**
  * - live:         Supabase + gateway configured (normal operation)
@@ -36,6 +36,13 @@ export function useAuth(): AuthValue {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used inside an auth provider')
   return ctx
+}
+
+/** UX-only check for a delegated area (the gateway enforces it independently). SUAK holds all areas. */
+export function useCan(area: Area): boolean {
+  const { roles, state } = useAuth()
+  if (roles.includes('suak')) return true
+  return state.status === 'signed_in' && state.me.areas.includes(area)
 }
 
 export function resolveMode(configured: boolean, dev: boolean): AuthMode {

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /workspace
+Disallow: /log-masuk
+Disallow: /auth/

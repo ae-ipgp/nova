@@ -5,6 +5,7 @@ import { ALLOWED_EMAIL_DOMAIN } from '@shared/identity'
 import { useAuth } from '@/app/auth-context'
 import { Button } from '@/components/ui/button'
 import { buttonVariants } from '@/components/ui/button-variants'
+import { Mascot } from '@/components/brand/mascot'
 import { cn } from '@/lib/cn'
 import { safeNextPath } from '@/lib/next-path'
 
@@ -31,6 +32,7 @@ export function LoginPage() {
 
   return (
     <div>
+      <Mascot pose="shield" size={96} className="mb-4" />
       <h1 className="text-h2 font-extrabold">Log masuk</h1>
       <p className="mt-2 text-body text-slate">
         Gunakan akaun DELIMa anda (<span className="font-mono text-caption text-ink">@{ALLOWED_EMAIL_DOMAIN}</span>). Hanya akaun yang telah

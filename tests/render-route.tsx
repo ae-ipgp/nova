@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import type { AuthValue } from '@/app/auth-context'
 import { AppProviders, AppShell } from '@/app/providers'
@@ -19,4 +19,11 @@ export function renderRoute(path: string, auth?: AuthValue) {
       </AppProviders>,
     ),
   }
+}
+
+/** Waits for lazy-loaded routes to resolve before returning (workspace screens load on demand). */
+export async function renderReady(path: string, auth?: AuthValue) {
+  const r = renderRoute(path, auth)
+  await waitFor(() => expect(r.router.state.initialized).toBe(true))
+  return r
 }

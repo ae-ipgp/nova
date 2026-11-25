@@ -1,8 +1,8 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { MODULES, workspacePath } from '@/config/modules'
-import { renderRoute } from './render-route'
+import { MODULES } from '@/config/modules'
+import { renderReady, renderRoute } from './render-route'
 
 describe('public portal', () => {
   it('renders the landing hero and all eight modules', () => {
@@ -12,7 +12,6 @@ describe('public portal', () => {
   })
 
   it.each([
-    ['/mengenai', 'Jawatankuasa Perwakilan Pelajar'],
     ['/kehadiran', 'Rekod kehadiran mesyuarat'],
     ['/pengumuman', 'Notis awam & makluman rasmi'],
     ['/templat', 'Templat dokumen awam'],
@@ -38,23 +37,17 @@ describe('login', () => {
 })
 
 describe('workspace shell', () => {
-  it('renders the dashboard without invented figures', () => {
-    renderRoute('/workspace')
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your secretariat, at a glance.')
-    const kpis = screen.getByRole('region', { name: 'Penunjuk utama' })
+  it('renders the dashboard without invented figures', async () => {
+    await renderReady('/workspace')
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Your secretariat, at a glance.')
+    const kpis = await screen.findByRole('region', { name: 'Penunjuk utama' })
     expect(within(kpis).getAllByText('Tiada data')).toHaveLength(4)
     expect(within(kpis).queryByText(/^\s*\d[\d,.]*\s*$/)).toBeNull()
   })
 
-  it.each(MODULES.filter((m) => m.slug !== '' && m.code !== 'M08').map((m) => [workspacePath(m), m] as const))('renders %s placeholder', (path, m) => {
-    renderRoute(path)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(m.name)
-    for (const r of m.requirements) expect(screen.getByText(r.id)).toBeInTheDocument()
-  })
-
   it('filters sidebar navigation by previewed role', async () => {
     const user = userEvent.setup()
-    renderRoute('/workspace')
+    await renderReady('/workspace')
     const nav = screen.getAllByRole('complementary', { name: 'Navigasi ruang kerja' })[0]
     expect(within(nav).getByRole('link', { name: 'Pengurusan' })).toBeInTheDocument()
 

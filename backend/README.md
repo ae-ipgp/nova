@@ -11,7 +11,11 @@ backend/
   src/auth.ts       Supabase token verification (cached ≤ 5 min, never past token expiry)
   src/store.ts      row objects by header name, unique/append-only enforcement, formula-injection guard
   src/sheets-io.ts  SpreadsheetApp implementation of the store's I/O (plain-text cells)
-  src/bootstrap.ts  first-run data: role catalogue, first SUAK, DEMO session
+  src/bootstrap.ts  first-run data: role catalogue, first SUAK, DEMO session, DEMO letter types
+  src/services.ts   Drive / mail / PDF interfaces (live-services.ts implements them; tests use fakes)
+  src/documents.ts  letter and certificate HTML for server-side PDF
+  src/email.ts      NoMe message composer (escaped, one copy per recipient)
+  src/settings.ts   Tetapan registry (public vs internal, defaults, validation)
   src/setup.ts      idempotent sheet/column creation from shared/schema.ts
   src/lock.ts       withLock() — the "transaction" primitive
   src/config.ts     Script Properties keys
@@ -50,6 +54,19 @@ if you ran setup before Phase 1, run `setupSpreadsheet` again before `bootstrap`
 
 After the first SUAK signs in, everyone else is registered from **Pengurusan → Pengguna**
 in NO.VA. Do not add users by editing the sheets.
+
+## Updating an existing deployment to this release (schema v3)
+
+1. `npm run backend:push` (or paste the new `backend/dist/Code.js` into the Apps Script editor).
+2. Run **`setupSpreadsheet`** again: it adds the new tabs (`profile_areas`, `document_types`,
+   `notice_groups`, `opr_versions`) and columns. Nothing is deleted.
+3. Run **`bootstrap`** again: it adds three DEMO letter/certificate types (safe to repeat).
+4. Run **`installTriggers`** again: it adds the 15-minute `sendScheduledNotices` trigger.
+5. Authorise the new permissions if asked (sending mail and Drive file creation).
+6. Deploy → Manage deployments → edit → **New version** (keep the same deployment/URL).
+7. Redeploy the site on Vercel (new security headers and screens).
+
+Then follow `docs/UAT-CHECKLIST.md`.
 
 ## Handover to a new owner
 

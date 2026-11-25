@@ -438,6 +438,7 @@ export interface AttendanceSummaryRow {
 }
 export interface MemberOption {
   memberId: string
+  profileId: string
   name: string
   position: string
   bureau: string

@@ -1,6 +1,6 @@
 import type { OprContent, OprView } from '@shared/api-contract'
 import { OPR_STYLES, type OprStyle } from '@shared/domain'
-import { EMPTY_OPR, narrativeLength, OPR_NARRATIVE_LIMIT, OPR_TEXT_LIMITS, renderOprHtml } from '@shared/opr-html'
+import { EMPTY_OPR, narrativeLength, narrativeLimit, OPR_TEXT_LIMITS, renderOprHtml } from '@shared/opr-html'
 import { badRequest, conflict, forbidden, notFound } from '../errors'
 import { hasArea, type HandlerContext } from '../context'
 import { getSetting } from '../settings'
@@ -47,7 +47,8 @@ export function sanitize(raw: unknown, strict: boolean, allowedImages?: string[]
     }
     return [{ fileId, caption: typeof x.caption === 'string' ? x.caption.trim().slice(0, 120) : '', credit: typeof x.credit === 'string' ? x.credit.trim().slice(0, 80) : '' }]
   })
-  if (strict && narrativeLength(out) > OPR_NARRATIVE_LIMIT) throw badRequest(`Kandungan terlalu panjang untuk satu halaman (${narrativeLength(out)}/${OPR_NARRATIVE_LIMIT} aksara).`)
+  const limit = narrativeLimit(out.images.length)
+  if (strict && narrativeLength(out) > limit) throw badRequest(`Kandungan terlalu panjang untuk satu halaman (${narrativeLength(out)}/${limit} aksara${out.images.length ? ' dengan gambar' : ''}).`)
   return out
 }
 

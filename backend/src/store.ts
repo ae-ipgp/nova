@@ -22,10 +22,15 @@ interface Loaded {
   nextRow: number
 }
 
+/** Undo toCell(): a leading apostrophe that guards =, +, -, @ is removed when reading. */
+export function fromCell(value: string): string {
+  return /^'[=+\-@]/.test(value) ? value.slice(1) : value
+}
+
 function cellToString(value: unknown): string {
   if (value instanceof Date) return value.toISOString()
   if (value === null || value === undefined) return ''
-  return String(value)
+  return fromCell(String(value))
 }
 
 /**

@@ -1,7 +1,7 @@
 import type { DashboardSummary } from '@shared/api-contract'
 import { hasArea } from '../context'
 import { boardFor } from './announcements'
-import { isStaff, newest, requireActor } from './common'
+import { isStaff, nameOf, newest, requireActor } from './common'
 import { myMemberRow, toActionView, toMeetingView } from './meetings'
 import { findActiveSession } from './sessions'
 import type { Handler } from './types'
@@ -49,7 +49,7 @@ export const dashboardHandlers: { 'dashboard.summary': Handler<'dashboard.summar
           : store.all('opr_reports').filter((r) => r.created_by === me && r.status !== 'approved').length,
         correspondenceThisMonth: staff ? store.all('correspondence').filter((c) => c.created_at.startsWith(monthPrefix)).length : 0,
         board: boardFor(ctx).slice(0, 4),
-        recentActivity: newest(activity, 'created_at', 8).map((a) => ({ at: a.created_at, actor: a.actor_id, action: a.action, entityType: a.entity_type })),
+        recentActivity: newest(activity, 'created_at', 8).map((a) => ({ at: a.created_at, actor: nameOf(store, a.actor_id) || a.actor_id, action: a.action, entityType: a.entity_type })),
       }
     },
   },

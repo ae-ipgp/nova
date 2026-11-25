@@ -1,8 +1,10 @@
-import { Bell, ChevronsLeft, ChevronsRight, LogOut, Menu, X } from 'lucide-react'
+import { Bell, ChevronsLeft, ChevronsRight, LogOut, Megaphone, Menu, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { hasAnyRole, useAuth } from '@/app/auth-context'
+import { HelpBubble } from '@/components/brand/help-bubble'
 import { Logo, Monogram } from '@/components/brand/logo'
+import { useSite } from '@/hooks/use-site'
 import { MODULES, workspacePath, type ModuleDefinition } from '@/config/modules'
 import { cn } from '@/lib/cn'
 import { ROLE_KEYS, ROLE_LABELS, type RoleKey } from '@/types/domain'
@@ -84,11 +86,25 @@ export function WorkspaceLayout() {
 
       <div className={cn('flex min-h-dvh flex-col transition-[padding] duration-200', collapsed ? 'lg:pl-sidebar-collapsed' : 'lg:pl-sidebar')}>
         <TopBar onOpenDrawer={() => setDrawerOpen(true)} />
+        <MaintenanceBanner />
         {mode === 'preview' && <PreviewBanner />}
-        <main id="workspace-main" className="container-content flex-1 py-6 md:py-8">
+        <main id="workspace-main" className="container-content flex-1 pt-6 pb-24 md:pt-8">
           <Outlet />
         </main>
       </div>
+      <HelpBubble />
+    </div>
+  )
+}
+
+function MaintenanceBanner() {
+  const { site } = useSite()
+  if (site.settings.maintenance_mode !== 'true') return null
+  return (
+    <div role="status" className="border-b border-amber/30 bg-amber-100">
+      <p className="container-content py-2 text-caption text-ink">
+        <strong className="font-semibold">Mod penyelenggaraan.</strong> {site.settings.maintenance_message || 'Pengguna biasa tidak boleh menghantar atau menyunting buat sementara waktu.'}
+      </p>
     </div>
   )
 }
@@ -128,6 +144,17 @@ function SidebarNav({
             </li>
           )
         })}
+        <li className="pt-2">
+          <NavLink
+            to="/workspace/papan-notis"
+            title={collapsed ? 'Papan Notis' : undefined}
+            onClick={onNavigate}
+            className={({ isActive }) => cn('flex h-10 items-center gap-3 rounded-input text-caption font-medium transition-colors', collapsed ? 'justify-center' : 'px-3', isActive ? 'bg-blue text-white' : 'text-sky/75 hover:bg-white/5 hover:text-white')}
+          >
+            <Megaphone className="size-[1.125rem] shrink-0" aria-hidden />
+            {collapsed ? <span className="sr-only">Papan Notis</span> : <span className="truncate">Papan Notis</span>}
+          </NavLink>
+        </li>
       </ul>
     </nav>
   )

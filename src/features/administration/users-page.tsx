@@ -1,7 +1,7 @@
 import { Search, UserPlus, Users } from 'lucide-react'
 import { useMemo, useState, type FormEvent } from 'react'
 import type { UserSummary } from '@shared/api-contract'
-import { ASSIGNABLE_ROLES, type AccountStatus, type AssignableRole } from '@shared/domain'
+import { AREA_LABELS, AREAS, ASSIGNABLE_ROLES, type AccountStatus, type AssignableRole } from '@shared/domain'
 import { ALLOWED_EMAIL_DOMAIN, isAllowedEmail } from '@shared/identity'
 import { useAuth } from '@/app/auth-context'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { useToast } from '@/components/ui/toast'
 import { useGatewayMutation, useGatewayQuery } from '@/hooks/use-gateway'
 import { ROLE_LABELS } from '@/types/domain'
-import { FormField } from './form-field'
+import { FormField } from '@/components/ui/form-field'
 import { ACCOUNT_STATUS_UI, ROLE_DESCRIPTIONS } from './labels'
 
 export function UsersPage() {
@@ -142,6 +142,7 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
   const [roles, setRoles] = useState<AssignableRole[]>(['member'])
   const [position, setPosition] = useState('')
   const [bureau, setBureau] = useState('')
+  const [publicListing, setPublicListing] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; fullName?: string; roles?: string }>({})
 
   const close = () => {
@@ -150,6 +151,7 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
     setRoles(['member'])
     setPosition('')
     setBureau('')
+    setPublicListing(false)
     setErrors({})
     register.reset()
     onClose()
@@ -164,7 +166,7 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
     setErrors(next)
     if (Object.keys(next).length) return
     register.mutate(
-      { email, fullName, roles, position: position || undefined, bureau: bureau || undefined },
+      { email, fullName, roles, position: position || undefined, bureau: bureau || undefined, publicListing },
       {
         onSuccess: (u) => {
           toast.success(`${u.fullName} didaftarkan. Mereka boleh log masuk dengan akaun DELIMa.`)
@@ -234,6 +236,10 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
         <p className="-mt-2 text-micro text-slate">
           {hasSession ? 'Jawatan dan biro direkodkan untuk sesi JPP aktif (pilihan).' : 'Aktifkan sesi JPP untuk merekod jawatan dan biro.'}
         </p>
+        <label className="flex items-start gap-2 text-caption">
+          <input type="checkbox" checked={publicListing} disabled={!hasSession} onChange={(e) => setPublicListing(e.target.checked)} className="mt-0.5 size-4 accent-[var(--color-blue)]" />
+          <span>Papar nama, jawatan dan biro dalam senarai kepimpinan awam (Mengenai JPP). Hanya dengan persetujuan ahli.</span>
+        </label>
 
         {register.isError && (
           <p role="alert" className="rounded-input border border-red/30 bg-red-100 p-3 text-caption text-red">
@@ -264,18 +270,27 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
   const setStatus = useGatewayMutation('admin.users.setStatus', invalidate)
   const grant = useGatewayMutation('admin.roles.grant', invalidate)
   const revoke = useGatewayMutation('admin.roles.revoke', invalidate)
+  const grantArea = useGatewayMutation('admin.areas.grant', invalidate)
+  const revokeArea = useGatewayMutation('admin.areas.revoke', invalidate)
+  const membership = useGatewayMutation('admin.users.setMembership', [...invalidate, 'public.leaders'])
   const [pending, setPending] = useState<Pending>(null)
-  const busy = setStatus.isPending || grant.isPending || revoke.isPending
-  const error = setStatus.error ?? grant.error ?? revoke.error
+  const [member, setMember] = useState<{ id: string; position: string; bureau: string; publicListing: boolean } | null>(null)
+  const busy = setStatus.isPending || grant.isPending || revoke.isPending || grantArea.isPending || revokeArea.isPending
+  const error = setStatus.error ?? grant.error ?? revoke.error ?? grantArea.error ?? revokeArea.error ?? membership.error
 
   const close = () => {
     setPending(null)
     setStatus.reset()
     grant.reset()
     revoke.reset()
+    grantArea.reset()
+    revokeArea.reset()
+    membership.reset()
+    setMember(null)
     onClose()
   }
   if (!user) return null
+  const m = member?.id === user.profileId ? member : { id: user.profileId, position: user.position, bureau: user.bureau, publicListing: user.publicListing }
 
   const confirmPending = () => {
     if (!pending) return
@@ -352,6 +367,49 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
               )
             })}
           </ul>
+        </section>
+
+        <section aria-labelledby="areas-h">
+          <h3 id="areas-h" className="text-body font-bold">
+            Bidang kuasa tambahan (Jika diberi)
+          </h3>
+          <p className="mt-1 text-micro text-slate">Kuasa kelulusan nombor rujukan tidak boleh diwakilkan; hanya SUAK. SUAK memiliki semua bidang di bawah secara automatik.</p>
+          <ul className="mt-3 divide-y divide-line rounded-input border border-line">
+            {AREAS.map((a) => {
+              const held = user.areas.includes(a)
+              return (
+                <li key={a} className="flex items-center justify-between gap-4 p-3">
+                  <span className="text-caption font-semibold text-navy">{AREA_LABELS[a]}</span>
+                  {held ? (
+                    <Button size="sm" variant="secondary" disabled={busy} onClick={() => revokeArea.mutate({ profileId: user.profileId, area: a }, { onSuccess: () => toast.success('Bidang kuasa ditarik balik.') })}>
+                      Tarik balik
+                    </Button>
+                  ) : (
+                    <Button size="sm" disabled={busy} onClick={() => grantArea.mutate({ profileId: user.profileId, area: a }, { onSuccess: () => toast.success(`${AREA_LABELS[a]} diberikan.`) })}>
+                      Berikan
+                    </Button>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+
+        <section aria-labelledby="mem-h">
+          <h3 id="mem-h" className="text-body font-bold">
+            Keahlian sesi aktif
+          </h3>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <FormField label="Jawatan" value={m.position} maxLength={80} onChange={(e) => setMember({ ...m, position: e.target.value })} />
+            <FormField label="Biro" value={m.bureau} maxLength={80} onChange={(e) => setMember({ ...m, bureau: e.target.value })} />
+          </div>
+          <label className="mt-3 flex items-start gap-2 text-caption">
+            <input type="checkbox" checked={m.publicListing} onChange={(e) => setMember({ ...m, publicListing: e.target.checked })} className="mt-0.5 size-4 accent-[var(--color-blue)]" />
+            <span>Papar dalam senarai kepimpinan awam (dengan persetujuan ahli)</span>
+          </label>
+          <Button size="sm" className="mt-3" loading={membership.isPending} disabled={!member} onClick={() => membership.mutate({ profileId: user.profileId, position: m.position, bureau: m.bureau, publicListing: m.publicListing }, { onSuccess: () => (toast.success('Keahlian disimpan.'), setMember(null)) })}>
+            Simpan keahlian
+          </Button>
         </section>
 
         {pending && (
