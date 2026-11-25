@@ -18,7 +18,7 @@ vi.mock('@/lib/api', async (importOriginal) => {
       if (action === 'admin.users.register') {
         const p = payload as { email: string; fullName: string }
         if (p.email.startsWith('dup')) throw new actual.ApiError('CONFLICT', 'Akaun DELIMa ini telah didaftarkan.')
-        const u: UserSummary = { profileId: 'new', email: p.email, fullName: p.fullName, accountStatus: 'invited', linked: false, roles: ['member'], position: '', bureau: '' }
+        const u: UserSummary = { profileId: 'new', email: p.email, fullName: p.fullName, accountStatus: 'invited', linked: false, roles: ['member'], areas: [], position: '', bureau: '', publicListing: false }
         users = [...users, u]
         return u
       }
@@ -34,8 +34,10 @@ const suakUser: UserSummary = {
   accountStatus: 'active',
   linked: true,
   roles: ['suak'],
+  areas: [],
   position: 'Setiausaha Agung Kehormat',
   bureau: '',
+  publicListing: false,
 }
 
 beforeEach(() => {

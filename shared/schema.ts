@@ -20,13 +20,15 @@ export interface SheetDef {
   workbook: Workbook
   columns: readonly string[]
   appendOnly?: boolean
+  /** With appendOnly: the only columns that may still be updated (e.g. voiding a reference number). */
+  mutableColumns?: readonly string[]
   unique?: readonly (readonly string[])[]
   restricted?: readonly string[]
   publicColumns?: readonly string[]
 }
 
 /** Bump when columns or tabs change; setup records it in system_settings. */
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 const ROW = ['id', 'created_at', 'updated_at', 'created_by'] as const
 
@@ -63,7 +65,8 @@ export const SHEETS = [
   {
     name: 'jpp_members',
     workbook: 'data',
-    columns: [...ROW, 'session_id', 'profile_id', 'position', 'bureau', 'membership_status'],
+    // public_listing: SUAK opts a member into the public "Mengenai JPP" leadership list.
+    columns: [...ROW, 'session_id', 'profile_id', 'position', 'bureau', 'membership_status', 'public_listing'],
     unique: [['session_id', 'profile_id']],
   },
 
@@ -80,32 +83,37 @@ export const SHEETS = [
     columns: [
       ...ROW, 'session_id', 'applicant_id', 'letter_type', 'subject', 'recipient', 'purpose',
       'letter_date', 'attachment_file_id', 'status', 'reviewed_by', 'reviewed_at', 'review_note',
+      // v3: optional generated document (letter/certificate) for this request
+      'document_type_id', 'fields_json', 'pdf_file_id',
     ],
   },
   {
     name: 'reference_register',
     workbook: 'data',
     appendOnly: true,
+    // Numbers are never edited or removed; voiding only fills these columns (LTR-06/07).
+    mutableColumns: ['voided_at', 'voided_by', 'void_reason'],
     columns: ['id', 'request_id', 'series_id', 'reference_number', 'issued_at', 'issued_by', 'voided_at', 'voided_by', 'void_reason'],
     unique: [['reference_number'], ['request_id']],
   },
   {
     name: 'correspondence',
     workbook: 'data',
-    columns: [...ROW, 'session_id', 'direction', 'reference_id', 'subject', 'sender', 'recipient', 'letter_date', 'drive_file_id'],
+    columns: [...ROW, 'session_id', 'direction', 'reference_id', 'subject', 'sender', 'recipient', 'letter_date', 'drive_file_id', 'file_name', 'mime_type', 'note'],
   },
 
   // M03 e-Mesyuarat ----------------------------------------------------------
   {
     name: 'meetings',
     workbook: 'data',
-    columns: [...ROW, 'session_id', 'title', 'meeting_type', 'starts_at', 'ends_at', 'location', 'organiser_id', 'status', 'published_at', 'published_by'],
+    columns: [...ROW, 'session_id', 'title', 'meeting_type', 'starts_at', 'ends_at', 'location', 'organiser_id', 'status', 'published_at', 'published_by', 'link', 'cancel_reason'],
     publicColumns: ['id', 'session_id', 'title', 'meeting_type', 'starts_at', 'published_at'],
   },
   {
     name: 'meeting_invitees',
     workbook: 'data',
-    columns: ['id', 'meeting_id', 'member_id', 'eligibility_snapshot', 'created_at'],
+    // eligibility_snapshot freezes name/position/bureau at invitation so later changes never rewrite history.
+    columns: ['id', 'meeting_id', 'member_id', 'eligibility_snapshot', 'created_at', 'exempt_reason', 'exempt_until'],
     unique: [['meeting_id', 'member_id']],
   },
   {
@@ -137,7 +145,11 @@ export const SHEETS = [
   {
     name: 'notices',
     workbook: 'data',
-    columns: [...ROW, 'session_id', 'notice_type', 'subject', 'body', 'status', 'scheduled_at', 'approved_by', 'approved_at', 'sent_at'],
+    columns: [
+      ...ROW, 'session_id', 'notice_type', 'subject', 'body', 'status', 'scheduled_at', 'approved_by', 'approved_at', 'sent_at',
+      // v3
+      'recipient_spec_json', 'event_at', 'location', 'link', 'meeting_id', 'recipient_count', 'sent_count', 'failed_count',
+    ],
   },
   {
     name: 'notice_recipients',
@@ -157,34 +169,70 @@ export const SHEETS = [
   {
     name: 'templates',
     workbook: 'data',
-    columns: [...ROW, 'category', 'title', 'version', 'access_level', 'drive_file_id', 'status'],
-    publicColumns: ['id', 'category', 'title', 'version', 'updated_at'],
+    columns: [...ROW, 'category', 'title', 'version', 'access_level', 'drive_file_id', 'status', 'description', 'file_name', 'mime_type', 'size_bytes'],
+    publicColumns: ['id', 'category', 'title', 'version', 'updated_at', 'description', 'file_name'],
   },
   {
     name: 'opr_reports',
     workbook: 'data',
-    columns: [...ROW, 'session_id', 'title', 'program_date', 'status', 'content_json', 'version', 'final_file_id', 'approved_by', 'approved_at'],
+    columns: [
+      ...ROW, 'session_id', 'title', 'program_date', 'status', 'content_json', 'version', 'final_file_id', 'approved_by', 'approved_at',
+      // v3
+      'style', 'review_note', 'reviewed_by', 'submitted_at', 'archive_id',
+      // Ids of every image uploaded for this report. Only these may be attached or read back.
+      'image_ids',
+    ],
+  },
+  {
+    name: 'opr_versions',
+    workbook: 'data',
+    appendOnly: true,
+    columns: ['id', 'opr_id', 'version', 'content_json', 'saved_by', 'saved_at'],
   },
   {
     name: 'archive_documents',
     workbook: 'data',
-    columns: [...ROW, 'session_id', 'module', 'title', 'category', 'reference_number', 'drive_file_id', 'public_file_id', 'visibility', 'status', 'version', 'published_at', 'published_by'],
-    publicColumns: ['id', 'title', 'category', 'reference_number', 'public_file_id', 'published_at'],
+    columns: [
+      ...ROW, 'session_id', 'module', 'title', 'category', 'reference_number', 'drive_file_id', 'public_file_id', 'visibility', 'status', 'version', 'published_at', 'published_by',
+      // v3
+      'description', 'file_name', 'mime_type', 'source_type', 'source_id',
+    ],
+    publicColumns: ['id', 'title', 'category', 'reference_number', 'published_at', 'file_name'],
   },
 
   // Public portal & system -----------------------------------------------------
   {
     name: 'announcements',
     workbook: 'data',
-    columns: [...ROW, 'title', 'body', 'visibility', 'status', 'publish_at'],
-    publicColumns: ['id', 'title', 'body', 'publish_at'],
+    columns: [...ROW, 'title', 'body', 'visibility', 'status', 'publish_at', 'category', 'pinned', 'expires_at'],
+    publicColumns: ['id', 'title', 'body', 'publish_at', 'category', 'pinned'],
   },
   {
     name: 'system_settings',
     workbook: 'data',
     // Non-secret configuration only. Secrets live in Apps Script Script Properties.
-    columns: ['key', 'value_json', 'updated_by', 'updated_at'],
+    columns: ['id', 'key', 'value_json', 'updated_by', 'updated_at'],
     unique: [['key']],
+  },
+  // v3 ------------------------------------------------------------------------
+  {
+    name: 'profile_areas',
+    workbook: 'data',
+    // Delegated capabilities ("Jika diberi", Blueprint §06). Reference approval can never be delegated.
+    columns: ['id', 'profile_id', 'area', 'granted_by', 'granted_at', 'revoked_by', 'revoked_at'],
+  },
+  {
+    name: 'document_types',
+    workbook: 'data',
+    // Letter / certificate definitions. Wording is SUAK's to approve; is_demo marks unapproved samples (§14).
+    columns: [...ROW, 'code', 'name', 'kind', 'description', 'fields_json', 'body_template', 'is_demo', 'active'],
+    unique: [['code']],
+  },
+  {
+    name: 'notice_groups',
+    workbook: 'data',
+    columns: [...ROW, 'name', 'profile_ids_json', 'active'],
+    unique: [['name']],
   },
   {
     name: 'audit_logs',

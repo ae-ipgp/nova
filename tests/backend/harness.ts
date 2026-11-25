@@ -5,6 +5,7 @@ import type { LockLike } from '../../backend/src/lock'
 import { handleRequest, type GatewayDeps } from '../../backend/src/router'
 import { TableStore, type Row } from '../../backend/src/store'
 import type { SheetName } from '@shared/schema'
+import { FakeServices } from './fakes'
 import { MemoryIO } from './memory-io'
 
 export const SUAK = { id: 'u-suak', email: 'suak@moe-dl.edu.my' }
@@ -12,6 +13,9 @@ export const SUAK = { id: 'u-suak', email: 'suak@moe-dl.edu.my' }
 /** In-memory gateway with a token → user table instead of Supabase. */
 export class Gateway {
   readonly io = new MemoryIO()
+  readonly services = new FakeServices()
+  /** Advance to simulate time passing. */
+  clock = new Date('2026-11-16T09:00:00.000Z')
   readonly users = new Map<string, AuthUser>()
   lockAvailable = true
   lockCalls = 0
@@ -19,13 +23,14 @@ export class Gateway {
   private seq = 0
 
   readonly deps: GatewayDeps = {
-    now: () => new Date('2026-11-16T09:00:00.000Z'),
+    now: () => this.clock,
     uuid: () => `id-${++this.seq}`,
     openStore: () => new TableStore(this.io),
     lock: {
       tryLock: () => (this.lockCalls++, this.lockAvailable),
       releaseLock: () => undefined,
     } satisfies LockLike,
+    services: this.services,
     verifier: () => (this.verifierConfigured ? ({ verify: (t) => this.users.get(t) ?? null } satisfies TokenVerifier) : null),
     schemaVersion: () => 2,
     configured: () => true,
@@ -63,6 +68,18 @@ export class Gateway {
 
   rows(name: SheetName): Row[] {
     return new TableStore(this.io).all(name)
+  }
+
+  /** SUAK's token for brevity. */
+  get suak(): string {
+    return SUAK.id
+  }
+
+  /** Grants delegated areas to a registered user (as SUAK). */
+  grant(token: string, ...areas: ActionMap['admin.areas.grant']['payload']['area'][]): void {
+    const profileId = this.rows('profiles').find((p) => p.user_id === token)?.id ?? this.rows('profiles').find((p) => `u-${p.email.split('@')[0]}` === token)?.id
+    if (!profileId) throw new Error(`no profile for ${token}`)
+    for (const area of areas) this.ok('admin.areas.grant', { profileId, area }, SUAK.id)
   }
 
   /** SUAK registers a user, who then gets a sign-in identity. Returns the token. */

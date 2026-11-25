@@ -1,12 +1,12 @@
 import type { ApiErrorCode, ApiResponse } from '@shared/api-contract'
 import { isAllowedEmail, normaliseEmail } from '@shared/identity'
-import { adminSessionHandlers } from './actions/admin-sessions'
-import { adminUserHandlers } from './actions/admin-users'
-import { authHandlers } from './actions/auth'
-import { systemHandlers, type SystemInfo } from './actions/system'
+import { allHandlers } from './actions'
+import type { SystemInfo } from './actions/system'
 import type { Handler, HandlerMap } from './actions/types'
 import type { AuthUser, TokenVerifier } from './auth'
-import { activeRolesOf, isActiveProfile, makeAudit, type Actor, type HandlerContext } from './context'
+import { activeRolesOf, areasOf, hasRole, isActiveProfile, makeAudit, type Actor, type HandlerContext } from './context'
+import { getBool, getSetting } from './settings'
+import type { Services } from './services'
 import { AppError, forbidden, unauthenticated } from './errors'
 import { withLock, type LockLike } from './lock'
 import type { Row, TableStore } from './store'
@@ -20,12 +20,13 @@ export interface GatewayDeps extends SystemInfo {
   /** Opens a fresh per-request store (each call re-reads sheets lazily). */
   openStore(): TableStore
   lock: LockLike
+  services: Services
   /** Null when Supabase is not configured in Script Properties. */
   verifier(): TokenVerifier | null
 }
 
 export function buildHandlers(info: SystemInfo): HandlerMap {
-  return { ...systemHandlers(info), ...authHandlers, ...adminUserHandlers, ...adminSessionHandlers }
+  return allHandlers(info)
 }
 
 function fail(code: ApiErrorCode, message: string): ApiResponse<never> {
@@ -93,7 +94,15 @@ function execute(handler: Handler<keyof HandlerMap>, payload: unknown, token: st
   if (handler.access.kind === 'public') {
     const run = () => {
       const store = deps.openStore()
-      const ctx: HandlerContext = { store, now, uuid: deps.uuid, actor: null, identity: null, audit: makeAudit(store, now, deps.uuid, () => 'public') }
+      const ctx: HandlerContext = {
+        store,
+        services: deps.services,
+        now,
+        uuid: deps.uuid,
+        actor: null,
+        identity: null,
+        audit: makeAudit(store, now, deps.uuid, () => 'public'),
+      }
       return handler.run(payload, ctx)
     }
     return handler.write ? withLock(deps.lock, run) : run()
@@ -121,19 +130,23 @@ function execute(handler: Handler<keyof HandlerMap>, payload: unknown, token: st
         account_status: profile.account_status === 'invited' ? 'active' : profile.account_status,
         updated_at: now.toISOString(),
       })
-      actor = { user, profile, roles: activeRolesOf(store, profile.id) }
+      actor = { user, profile, roles: activeRolesOf(store, profile.id), areas: areasOf(store, profile.id) }
       audit('profile.link', 'profile', profile.id, before, { user_id: user.id, account_status: profile.account_status })
     } else if (profile) {
-      actor = { user, profile, roles: activeRolesOf(store, profile.id) }
+      actor = { user, profile, roles: activeRolesOf(store, profile.id), areas: areasOf(store, profile.id) }
     }
 
-    const ctx: HandlerContext = { store, now, uuid: deps.uuid, actor, identity: user, audit }
+    const ctx: HandlerContext = { store, services: deps.services, now, uuid: deps.uuid, actor, identity: user, audit }
 
     if (handler.access.kind === 'roles') {
       if (!actor || !isActiveProfile(actor.profile)) throw forbidden('Akaun anda belum didaftarkan atau tidak aktif.')
       const allowed = handler.access.roles
       if (allowed !== 'any' && !actor.roles.some((r) => allowed.includes(r))) throw forbidden()
       if (allowed === 'any' && actor.roles.length === 0) throw forbidden()
+    }
+    // Maintenance mode (Tetapan): ordinary users cannot change anything; SUAK / System Administrator can.
+    if (handler.write && getBool(store, 'maintenance_mode') && !hasRole(actor, 'suak', 'system_admin')) {
+      throw forbidden(getSetting(store, 'maintenance_message') || 'NO.VA sedang diselenggara. Sila cuba sebentar lagi.')
     }
     return handler.run(payload, ctx)
   }

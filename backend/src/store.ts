@@ -92,7 +92,11 @@ export class TableStore {
 
   update(name: SheetName, id: string, patch: Row): Row {
     const def = getSheetDef(name)
-    if (def.appendOnly) throw new Error(`${name} is append-only`)
+    if (def.appendOnly && !def.mutableColumns) throw new Error(`${name} is append-only`)
+    if (def.appendOnly) {
+      const bad = Object.keys(patch).filter((k) => !def.mutableColumns!.includes(k))
+      if (bad.length) throw new Error(`${name} is append-only; cannot change ${bad.join(', ')}`)
+    }
     const table = this.load(name)
     this.assertKnownColumns(def, patch)
     if ('id' in patch && patch.id !== id) throw new Error('id cannot be changed')

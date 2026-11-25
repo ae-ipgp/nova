@@ -12,7 +12,7 @@ export const authHandlers: { 'auth.me': Handler<'auth.me'> } = {
       const actor = ctx.actor
       const session = findActiveSession(ctx.store)
       if (!actor) {
-        return { email, status: 'unregistered', profile: null, roles: [], activeSession: session ? toPublicSession(session) : null, membership: null }
+        return { email, status: 'unregistered', profile: null, roles: [], areas: [], activeSession: session ? toPublicSession(session) : null, membership: null }
       }
       const active = isActiveProfile(actor.profile)
       const member =
@@ -24,6 +24,7 @@ export const authHandlers: { 'auth.me': Handler<'auth.me'> } = {
         status: active ? 'active' : 'inactive',
         profile: { id: actor.profile.id, fullName: actor.profile.full_name, accountStatus: actor.profile.account_status as AccountStatus },
         roles: active ? actor.roles : [],
+        areas: active ? actor.areas : [],
         activeSession: session ? toPublicSession(session) : null,
         membership: member ? { position: member.position, bureau: member.bureau } : null,
       }

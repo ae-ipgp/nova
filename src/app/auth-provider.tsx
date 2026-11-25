@@ -145,6 +145,7 @@ function previewMe(role: RoleKey): MeResult {
     roles: [role],
     activeSession: { id: 'preview', name: SITE.demoSessionLabel, startDate: '', endDate: '' },
     membership: null,
+    areas: [],
   }
 }
 

@@ -11,6 +11,8 @@ import { createSupabaseVerifier, type TokenVerifier } from './auth'
 import { bootstrap as runBootstrap } from './bootstrap'
 import { getProp, PROP, setProp, type PropKey } from './config'
 import { pingSupabase } from './keep-alive'
+import { liveServices } from './live-services'
+import { processScheduledNotices } from './actions/notices'
 import { withLock } from './lock'
 import { handleRequest, type GatewayDeps } from './router'
 import { ensureSheets, type SetupResult } from './setup'
@@ -54,6 +56,7 @@ function liveDeps(): GatewayDeps {
     uuid: () => Utilities.getUuid(),
     openStore: () => new TableStore(createSheetsIO()),
     lock: LockService.getScriptLock(),
+    services: liveServices,
     verifier: liveVerifier,
     schemaVersion: () => {
       const v = getProp(PROP.schemaVersion)
@@ -155,10 +158,17 @@ export function keepAlive(): void {
   if (code >= 400) console.error(`Supabase health check returned HTTP ${code}`)
 }
 
-/** Installs the daily keep-alive trigger. Idempotent. */
+/** Sends notices whose scheduled time has arrived. Runs from a time-driven trigger. */
+export function sendScheduledNotices(): void {
+  const sent = withLock(LockService.getScriptLock(), () => processScheduledNotices(new TableStore(createSheetsIO()), liveServices, new Date(), () => Utilities.getUuid()), 30_000)
+  if (sent) console.log(`Scheduled notices sent: ${sent}`)
+}
+
+/** Installs the time-driven triggers (daily Supabase keep-alive, 15-minute notice scheduler). Idempotent. */
 export function installTriggers(): void {
   for (const t of ScriptApp.getProjectTriggers()) {
-    if (t.getHandlerFunction() === 'keepAlive') ScriptApp.deleteTrigger(t)
+    if (['keepAlive', 'sendScheduledNotices'].includes(t.getHandlerFunction())) ScriptApp.deleteTrigger(t)
   }
   ScriptApp.newTrigger('keepAlive').timeBased().everyDays(1).atHour(3).create()
+  ScriptApp.newTrigger('sendScheduledNotices').timeBased().everyMinutes(15).create()
 }

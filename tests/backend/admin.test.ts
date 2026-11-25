@@ -10,8 +10,8 @@ describe('bootstrap', () => {
     const gw = new Gateway()
     const store = () => new TableStore(gw.io)
     const input = { suakEmail: SUAK.email, suakName: 'S', now: gw.deps.now(), uuid: gw.deps.uuid }
-    expect(bootstrap(store(), input)).toEqual({ rolesSeeded: 4, suak: 'created', session: 'created' })
-    expect(bootstrap(store(), input)).toEqual({ rolesSeeded: 0, suak: 'exists', session: 'exists' })
+    expect(bootstrap(store(), input)).toEqual({ rolesSeeded: 4, suak: 'created', session: 'created', documentTypes: 3 })
+    expect(bootstrap(store(), input)).toEqual({ rolesSeeded: 0, suak: 'exists', session: 'exists', documentTypes: 0 })
     expect(gw.rows('profiles')).toHaveLength(1)
     expect(gw.rows('jpp_sessions')[0].name).toContain('DEMO')
   })
