@@ -9,6 +9,7 @@ import { callApi } from '@/lib/api'
 import { isApiConfigured } from '@/lib/env'
 import { formatDate } from '@/lib/format'
 import { PublicPage } from './public-page'
+import { t } from '@/i18n'
 
 /** Public "Semak keaslian": confirms only that a reference number exists and its status — never who or what it was for. */
 export function VerifyPage() {
@@ -33,12 +34,12 @@ export function VerifyPage() {
   }
 
   return (
-    <PublicPage eyebrow="Semak keaslian" title="Semak nombor rujukan" description="Masukkan nombor rujukan pada surat atau sijil untuk mengesahkan sama ada ia dikeluarkan oleh sistem ini.">
+    <PublicPage eyebrow={t('Semak keaslian')} title={t('Semak nombor rujukan')} description={t('Masukkan nombor rujukan pada surat atau sijil untuk mengesahkan sama ada ia dikeluarkan oleh sistem ini.')}>
       <div className="mx-auto grid max-w-3xl gap-8 md:grid-cols-[1fr_auto] md:items-start">
         <div className="space-y-5">
           <form onSubmit={submit} className="space-y-4" noValidate>
-            <FormField label="Nombor rujukan" value={ref} onChange={(e) => setRef(e.target.value)} maxLength={120} required className="[&_input]:font-mono" />
-            <Button type="submit" size="lg" loading={busy} disabled={!isApiConfigured}>Semak</Button>
+            <FormField label={t('Nombor rujukan')} value={ref} onChange={(e) => setRef(e.target.value)} maxLength={120} required className="[&_input]:font-mono" />
+            <Button type="submit" size="lg" loading={busy} disabled={!isApiConfigured}>{t('Semak')}</Button>
           </form>
           {error && <Notice>{error}</Notice>}
           {result && (
@@ -48,14 +49,14 @@ export function VerifyPage() {
                 {result.found && result.status === 'voided' && <ShieldAlert className="size-6 shrink-0 text-red" aria-hidden />}
                 {!result.found && <SearchX className="size-6 shrink-0 text-amber" aria-hidden />}
                 <div>
-                  {result.found && result.status === 'issued' && <><p className="font-bold text-navy">Nombor ini sah.</p><p className="text-caption text-slate">{result.typeName} · dikeluarkan {formatDate(result.issuedAt ?? '')}</p></>}
-                  {result.found && result.status === 'voided' && <><p className="font-bold text-red">Nombor ini telah dibatalkan.</p><p className="text-caption text-slate">Dokumen yang membawa nombor ini tidak sah lagi.</p></>}
-                  {!result.found && <><p className="font-bold text-navy">Nombor tidak ditemui.</p><p className="text-caption text-slate">Semak ejaan nombor. Jika dokumen anda membawa nombor ini, hubungi Sekretariat.</p></>}
+                  {result.found && result.status === 'issued' && <><p className="font-bold text-heading">{t('Nombor ini sah.')}</p><p className="text-caption text-slate">{result.typeName} {t('· dikeluarkan')} {formatDate(result.issuedAt ?? '')}</p></>}
+                  {result.found && result.status === 'voided' && <><p className="font-bold text-red">{t('Nombor ini telah dibatalkan.')}</p><p className="text-caption text-slate">{t('Dokumen yang membawa nombor ini tidak sah lagi.')}</p></>}
+                  {!result.found && <><p className="font-bold text-heading">{t('Nombor tidak ditemui.')}</p><p className="text-caption text-slate">{t('Semak ejaan nombor. Jika dokumen anda membawa nombor ini, hubungi Sekretariat.')}</p></>}
                 </div>
               </CardBody>
             </Card>
           )}
-          <p className="text-micro text-slate">Semakan hanya mengesahkan kewujudan dan status nombor. Tajuk, penerima dan pemohon tidak dipaparkan.</p>
+          <p className="text-micro text-slate">{t('Semakan hanya mengesahkan kewujudan dan status nombor. Tajuk, penerima dan pemohon tidak dipaparkan.')}</p>
         </div>
         <Mascot pose="shield" size={200} className="hidden md:block" />
       </div>

@@ -3,7 +3,9 @@ import { formatReference } from '@shared/reference-format'
 import { parseFields, type FieldDef } from '@shared/template-render'
 import { renderLetterHtml } from '../documents'
 import { badRequest, conflict, forbidden, notFound } from '../errors'
+import { activeSuaks, envOf, notify } from '../notify'
 import { getSetting } from '../settings'
+import type { HandlerContext } from '../context'
 import type { Row, TableStore } from '../store'
 import { asPayload, isoDate, oneOf, str } from '../validate'
 import { isStaff, mustGet, nameOf, newest, person, requireActor, requireReason } from './common'
@@ -41,6 +43,20 @@ export function categoriesOf(store: TableStore): string[] {
     .map((l) => l.trim())
     .filter(Boolean)
     .slice(0, 40)
+}
+
+function notifySubmitted(ctx: HandlerContext, req: Row): void {
+  const env = envOf(ctx)
+  const applicant = nameOf(ctx.store, req.applicant_id)
+  for (const suak of activeSuaks(ctx.store)) {
+    if (suak.id === req.applicant_id) continue
+    notify(env, 'request_submitted', suak, {
+      subject: `Permohonan nombor rujukan baharu: ${req.subject}`,
+      body: `${applicant} menghantar permohonan nombor rujukan.\n\nTajuk: ${req.subject}\nPenerima: ${req.recipient}\n\nSila semak, kemudian luluskan atau tolak.`,
+      path: `/workspace/e-surat?open=${req.id}`,
+      ctaText: 'Semak permohonan',
+    })
+  }
 }
 
 function registerFor(store: TableStore, requestId: string): Row | undefined {
@@ -122,6 +138,7 @@ export const referenceHandlers: {
     run: (_p, { store }) => ({
       types: store.all('document_types').filter((t) => t.active !== 'false').map(toDocType),
       categories: categoriesOf(store),
+      cannedReplies: getSetting(store, 'canned_replies').split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 20),
     }),
   },
 
@@ -196,10 +213,12 @@ export const referenceHandlers: {
         if (existing.status !== 'draft') throw conflict('Hanya draf boleh disunting. Batalkan dan cipta permohonan baharu jika perlu.')
         const row = ctx.store.update('reference_requests', id, values)
         ctx.audit(submit ? 'ref.submit' : 'ref.save', 'ref_request', id, { status: 'draft' }, { status: values.status, subject })
+        if (submit) notifySubmitted(ctx, row)
         return toRequestView(ctx.store, row)
       }
       const row = ctx.store.insert('reference_requests', { id: ctx.uuid(), applicant_id: actor.profile.id, created_at: now, created_by: actor.profile.id, ...values })
       ctx.audit(submit ? 'ref.submit' : 'ref.create', 'ref_request', row.id, null, { status: values.status, subject })
+      if (submit) notifySubmitted(ctx, row)
       return toRequestView(ctx.store, row)
     },
   },
@@ -337,6 +356,11 @@ export const referenceHandlers: {
         })
       }
       ctx.audit('ref.approve', 'ref_request', id, { status: 'submitted' }, { status: 'approved', referenceNumber: number })
+      notify(envOf(ctx), 'request_decision', ctx.store.get('profiles', req.applicant_id), {
+        subject: `Permohonan diluluskan: ${req.subject}`,
+        body: `Permohonan nombor rujukan anda telah diluluskan.\n\nTajuk: ${req.subject}\nNombor rujukan: ${number}${pdfId ? '\n\nPDF surat/sijil tersedia untuk dimuat turun dalam NO.VA.' : ''}`,
+        path: `/workspace/e-surat?open=${id}`,
+      })
       return toRequestView(ctx.store, updated)
     },
   },
@@ -359,6 +383,11 @@ export const referenceHandlers: {
         updated_at: ctx.now.toISOString(),
       })
       ctx.audit('ref.reject', 'ref_request', id, { status: 'submitted' }, { status: 'rejected', reason })
+      notify(envOf(ctx), 'request_decision', ctx.store.get('profiles', req.applicant_id), {
+        subject: `Permohonan tidak diluluskan: ${req.subject}`,
+        body: `Permohonan nombor rujukan anda tidak diluluskan.\n\nTajuk: ${req.subject}\nSebab: ${reason}\n\nAnda boleh menghantar permohonan baharu selepas membuat pembetulan.`,
+        path: `/workspace/e-surat?open=${id}`,
+      })
       return toRequestView(ctx.store, row)
     },
   },

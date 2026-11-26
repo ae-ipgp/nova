@@ -162,7 +162,7 @@ export function toArchiveView(store: TableStore, d: Row): ArchiveView {
 }
 
 /** Members read internal and public documents; only SUAK/Secretariat see private ones (ARC-05). */
-function canRead(ctx: HandlerContext, d: Row): boolean {
+export function canRead(ctx: HandlerContext, d: Row): boolean {
   if (isStaff(ctx.actor)) return true
   return d.visibility === 'internal' || d.visibility === 'public'
 }

@@ -1,5 +1,6 @@
 import { Search, UserPlus, Users } from 'lucide-react'
 import { useMemo, useState, type FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { UserSummary } from '@shared/api-contract'
 import { AREA_LABELS, AREAS, ASSIGNABLE_ROLES, type AccountStatus, type AssignableRole } from '@shared/domain'
 import { ALLOWED_EMAIL_DOMAIN, isAllowedEmail } from '@shared/identity'
@@ -15,10 +16,12 @@ import { useGatewayMutation, useGatewayQuery } from '@/hooks/use-gateway'
 import { ROLE_LABELS } from '@/types/domain'
 import { FormField } from '@/components/ui/form-field'
 import { ACCOUNT_STATUS_UI, ROLE_DESCRIPTIONS } from './labels'
+import { t } from '@/i18n'
 
 export function UsersPage() {
   const users = useGatewayQuery('admin.users.list', {})
-  const [query, setQuery] = useState('')
+  const [params] = useSearchParams()
+  const [query, setQuery] = useState(params.get('q') ?? '')
   const [registering, setRegistering] = useState(false)
   const [managingId, setManagingId] = useState<string | null>(null)
 
@@ -33,28 +36,28 @@ export function UsersPage() {
     <section aria-labelledby="users-heading" className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 id="users-heading" className="sr-only">
-          Pengguna
+          {t('Pengguna')}
         </h2>
         <label className="relative block w-full sm:max-w-xs">
-          <span className="sr-only">Cari pengguna</span>
+          <span className="sr-only">{t('Cari pengguna')}</span>
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate" aria-hidden />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari nama, e-mel, jawatan…"
+            placeholder={t('Cari nama, e-mel, jawatan…')}
             className="h-10 w-full rounded-input border border-line bg-paper pr-3 pl-9 text-body focus:border-blue focus:ring-2 focus:ring-blue/20 focus:outline-none"
           />
         </label>
         <Button onClick={() => setRegistering(true)}>
           <UserPlus />
-          Daftar pengguna
+          {t('Daftar pengguna')}
         </Button>
       </div>
 
       <Card className="overflow-hidden">
         {users.isPending ? (
-          <div className="space-y-3 p-5" aria-busy="true" aria-label="Memuatkan pengguna">
+          <div className="space-y-3 p-5" aria-busy="true" aria-label={t('Memuatkan pengguna')}>
             {[0, 1, 2].map((i) => (
               <Skeleton key={i} className="h-12 w-full" />
             ))}
@@ -62,57 +65,57 @@ export function UsersPage() {
         ) : users.isError ? (
           <EmptyState
             icon={Users}
-            title="Senarai pengguna tidak dapat dimuatkan"
+            title={t('Senarai pengguna tidak dapat dimuatkan')}
             description={users.error.message}
             action={
               <Button variant="secondary" onClick={() => void users.refetch()}>
-                Cuba lagi
+                {t('Cuba lagi')}
               </Button>
             }
           />
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Users}
-            title={query ? 'Tiada padanan' : 'Belum ada pengguna'}
-            description={query ? 'Cuba istilah carian lain.' : 'Daftarkan akaun DELIMa ahli JPP untuk memberi mereka akses.'}
+            title={query ? t('Tiada padanan') : t('Belum ada pengguna')}
+            description={query ? t('Cuba istilah carian lain.') : t('Daftarkan akaun DELIMa ahli JPP untuk memberi mereka akses.')}
           />
         ) : (
           <div className="relative overflow-x-auto">
             <table className="w-full min-w-[44rem] text-left text-caption">
               <thead>
                 <tr className="border-b border-line bg-ice text-micro uppercase tracking-wide text-slate">
-                  <th scope="col" className="px-5 py-3 font-semibold">Pengguna</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Jawatan / Biro</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Peranan</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Status</th>
-                  <th scope="col" className="px-5 py-3"><span className="sr-only">Tindakan</span></th>
+                  <th scope="col" className="px-5 py-3 font-semibold">{t('Pengguna')}</th>
+                  <th scope="col" className="px-5 py-3 font-semibold">{t('Jawatan / Biro')}</th>
+                  <th scope="col" className="px-5 py-3 font-semibold">{t('Peranan')}</th>
+                  <th scope="col" className="px-5 py-3 font-semibold">{t('Status')}</th>
+                  <th scope="col" className="px-5 py-3"><span className="sr-only">{t('Tindakan')}</span></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((u) => (
                   <tr key={u.profileId} className="border-b border-line last:border-0">
                     <td className="px-5 py-3">
-                      <p className="font-semibold text-navy">{u.fullName}</p>
+                      <p className="font-semibold text-heading">{u.fullName}</p>
                       <p className="font-mono text-micro text-slate">{u.email}</p>
                     </td>
                     <td className="px-5 py-3 text-ink">{[u.position, u.bureau].filter(Boolean).join(' · ') || <span className="text-slate">—</span>}</td>
                     <td className="px-5 py-3">
                       <div className="flex flex-wrap gap-1">
                         {u.roles.map((r) => (
-                          <span key={r} className="rounded bg-blue-100 px-1.5 py-0.5 text-micro font-semibold text-blue">
-                            {ROLE_LABELS[r]}
+                          <span key={r} className="rounded bg-blue-100 px-1.5 py-0.5 text-micro font-semibold text-link">
+                            {t(ROLE_LABELS[r])}
                           </span>
                         ))}
-                        {!u.roles.length && <span className="text-slate">Tiada</span>}
+                        {!u.roles.length && <span className="text-slate">{t('Tiada')}</span>}
                       </div>
                     </td>
                     <td className="px-5 py-3">
                       <StatusBadge tone={ACCOUNT_STATUS_UI[u.accountStatus].tone}>{ACCOUNT_STATUS_UI[u.accountStatus].label}</StatusBadge>
-                      {!u.linked && u.accountStatus !== 'invited' && <p className="mt-1 text-micro text-slate">Belum log masuk</p>}
+                      {!u.linked && u.accountStatus !== 'invited' && <p className="mt-1 text-micro text-slate">{t('Belum log masuk')}</p>}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <Button size="sm" variant="secondary" onClick={() => setManagingId(u.profileId)} aria-label={`Urus ${u.fullName}`}>
-                        Urus
+                      <Button size="sm" variant="secondary" onClick={() => setManagingId(u.profileId)} aria-label={t('Urus {fullName}', { fullName: u.fullName })}>
+                        {t('Urus')}
                       </Button>
                     </td>
                   </tr>
@@ -122,7 +125,7 @@ export function UsersPage() {
           </div>
         )}
       </Card>
-      <p className="text-micro text-slate">Keperluan: ADM-01, ADM-02, ADM-06 · Setiap perubahan direkodkan dalam log audit.</p>
+      <p className="text-micro text-slate">{t('Keperluan: ADM-01, ADM-02, ADM-06 · Setiap perubahan direkodkan dalam log audit.')}</p>
 
       <RegisterDialog open={registering} onClose={() => setRegistering(false)} />
       <ManageUserDialog user={managing} onClose={() => setManagingId(null)} />
@@ -160,16 +163,16 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
   const submit = (e: FormEvent) => {
     e.preventDefault()
     const next: typeof errors = {}
-    if (!isAllowedEmail(email)) next.email = `Mesti akaun DELIMa (@${ALLOWED_EMAIL_DOMAIN}).`
-    if (!fullName.trim()) next.fullName = 'Nama penuh diperlukan.'
-    if (!roles.length) next.roles = 'Pilih sekurang-kurangnya satu peranan.'
+    if (!isAllowedEmail(email)) next.email = t('Mesti akaun DELIMa (@{ALLOWED_EMAIL_DOMAIN}).', { ALLOWED_EMAIL_DOMAIN: ALLOWED_EMAIL_DOMAIN })
+    if (!fullName.trim()) next.fullName = t('Nama penuh diperlukan.')
+    if (!roles.length) next.roles = t('Pilih sekurang-kurangnya satu peranan.')
     setErrors(next)
     if (Object.keys(next).length) return
     register.mutate(
       { email, fullName, roles, position: position || undefined, bureau: bureau || undefined, publicListing },
       {
         onSuccess: (u) => {
-          toast.success(`${u.fullName} didaftarkan. Mereka boleh log masuk dengan akaun DELIMa.`)
+          toast.success(t('{fullName} didaftarkan. Mereka boleh log masuk dengan akaun DELIMa.', { fullName: u.fullName }))
           close()
         },
       },
@@ -180,22 +183,22 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
     <Dialog
       open={open}
       onClose={close}
-      title="Daftar pengguna"
-      description="Pengguna log masuk dengan akaun DELIMa mereka sendiri. Tiada kata laluan atau e-mel jemputan dihantar."
+      title={t('Daftar pengguna')}
+      description={t('Pengguna log masuk dengan akaun DELIMa mereka sendiri. Tiada kata laluan atau e-mel jemputan dihantar.')}
       footer={
         <>
           <Button variant="secondary" onClick={close}>
-            Batal
+            {t('Batal')}
           </Button>
           <Button type="submit" form="register-form" loading={register.isPending}>
-            Daftar
+            {t('Daftar')}
           </Button>
         </>
       }
     >
       <form id="register-form" noValidate onSubmit={submit} className="space-y-4">
         <FormField
-          label="E-mel DELIMa"
+          label={t('E-mel DELIMa')}
           type="email"
           autoComplete="off"
           placeholder={`nama@${ALLOWED_EMAIL_DOMAIN}`}
@@ -204,11 +207,11 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
           error={errors.email}
           required
         />
-        <FormField label="Nama penuh" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.fullName} maxLength={120} required />
+        <FormField label={t('Nama penuh')} value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.fullName} maxLength={120} required />
 
         <fieldset>
           <legend className="mb-1.5 text-caption font-medium text-ink">
-            Peranan <span className="text-red" aria-hidden>*</span>
+            {t('Peranan')} <span className="text-red" aria-hidden>*</span>
           </legend>
           <div className="grid gap-2">
             {ASSIGNABLE_ROLES.map((r) => (
@@ -220,8 +223,8 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
                   onChange={(e) => setRoles((cur) => (e.target.checked ? [...cur, r] : cur.filter((x) => x !== r)))}
                 />
                 <span>
-                  <span className="block text-caption font-semibold text-navy">{ROLE_LABELS[r]}</span>
-                  <span className="block text-micro text-slate">{ROLE_DESCRIPTIONS[r]}</span>
+                  <span className="block text-caption font-semibold text-heading">{t(ROLE_LABELS[r])}</span>
+                  <span className="block text-micro text-slate">{t(ROLE_DESCRIPTIONS[r])}</span>
                 </span>
               </label>
             ))}
@@ -230,15 +233,15 @@ function RegisterDialog({ open, onClose }: { open: boolean; onClose: () => void 
         </fieldset>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label="Jawatan" value={position} onChange={(e) => setPosition(e.target.value)} maxLength={80} disabled={!hasSession} />
-          <FormField label="Biro" value={bureau} onChange={(e) => setBureau(e.target.value)} maxLength={80} disabled={!hasSession} />
+          <FormField label={t('Jawatan')} value={position} onChange={(e) => setPosition(e.target.value)} maxLength={80} disabled={!hasSession} />
+          <FormField label={t('Biro')} value={bureau} onChange={(e) => setBureau(e.target.value)} maxLength={80} disabled={!hasSession} />
         </div>
         <p className="-mt-2 text-micro text-slate">
-          {hasSession ? 'Jawatan dan biro direkodkan untuk sesi JPP aktif (pilihan).' : 'Aktifkan sesi JPP untuk merekod jawatan dan biro.'}
+          {hasSession ? t('Jawatan dan biro direkodkan untuk sesi JPP aktif (pilihan).') : t('Aktifkan sesi JPP untuk merekod jawatan dan biro.')}
         </p>
         <label className="flex items-start gap-2 text-caption">
           <input type="checkbox" checked={publicListing} disabled={!hasSession} onChange={(e) => setPublicListing(e.target.checked)} className="mt-0.5 size-4 accent-[var(--color-blue)]" />
-          <span>Papar nama, jawatan dan biro dalam senarai kepimpinan awam (Mengenai JPP). Hanya dengan persetujuan ahli.</span>
+          <span>{t('Papar nama, jawatan dan biro dalam senarai kepimpinan awam (Mengenai JPP). Hanya dengan persetujuan ahli.')}</span>
         </label>
 
         {register.isError && (
@@ -299,9 +302,9 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
       setPending(null)
     }
     if (pending.kind === 'status') {
-      setStatus.mutate({ profileId: user.profileId, status: pending.status }, { onSuccess: done('Status akaun dikemas kini.') })
+      setStatus.mutate({ profileId: user.profileId, status: pending.status }, { onSuccess: done(t('Status akaun dikemas kini.')) })
     } else {
-      revoke.mutate({ profileId: user.profileId, role: pending.role }, { onSuccess: done(`Peranan ${ROLE_LABELS[pending.role]} ditarik balik.`) })
+      revoke.mutate({ profileId: user.profileId, role: pending.role }, { onSuccess: done(t('Peranan {v1} ditarik balik.', { v1: t(ROLE_LABELS[pending.role]) })) })
     }
   }
 
@@ -313,12 +316,12 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
         <section aria-labelledby="status-h">
           <div className="flex items-center justify-between gap-3">
             <h3 id="status-h" className="text-body font-bold">
-              Status akaun
+              {t('Status akaun')}
             </h3>
             <StatusBadge tone={ACCOUNT_STATUS_UI[user.accountStatus].tone}>{ACCOUNT_STATUS_UI[user.accountStatus].label}</StatusBadge>
           </div>
           {user.accountStatus === 'invited' && (
-            <p className="mt-1 text-micro text-slate">Akaun akan aktif secara automatik apabila pengguna log masuk kali pertama.</p>
+            <p className="mt-1 text-micro text-slate">{t('Akaun akan aktif secara automatik apabila pengguna log masuk kali pertama.')}</p>
           )}
           <div className="mt-3 flex flex-wrap gap-2">
             {STATUS_ACTIONS.filter((a) => a.status !== user.accountStatus && !(a.status === 'active' && user.accountStatus === 'invited')).map((a) => (
@@ -329,7 +332,7 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
                 disabled={busy}
                 onClick={() => setPending({ kind: 'status', status: a.status })}
               >
-                {a.label}
+                {t(a.label)}
               </Button>
             ))}
           </div>
@@ -337,7 +340,7 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
 
         <section aria-labelledby="roles-h">
           <h3 id="roles-h" className="text-body font-bold">
-            Peranan
+            {t('Peranan')}
           </h3>
           <ul className="mt-3 divide-y divide-line rounded-input border border-line">
             {ASSIGNABLE_ROLES.map((r) => {
@@ -345,22 +348,22 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
               return (
                 <li key={r} className="flex items-center justify-between gap-4 p-3">
                   <div>
-                    <p className="text-caption font-semibold text-navy">{ROLE_LABELS[r]}</p>
-                    <p className="text-micro text-slate">{ROLE_DESCRIPTIONS[r]}</p>
+                    <p className="text-caption font-semibold text-heading">{t(ROLE_LABELS[r])}</p>
+                    <p className="text-micro text-slate">{t(ROLE_DESCRIPTIONS[r])}</p>
                   </div>
                   {held ? (
                     <Button size="sm" variant="secondary" disabled={busy} onClick={() => setPending({ kind: 'revoke', role: r })}>
-                      Tarik balik
+                      {t('Tarik balik')}
                     </Button>
                   ) : (
                     <Button
                       size="sm"
                       disabled={busy}
                       onClick={() =>
-                        grant.mutate({ profileId: user.profileId, role: r }, { onSuccess: () => toast.success(`Peranan ${ROLE_LABELS[r]} diberikan.`) })
+                        grant.mutate({ profileId: user.profileId, role: r }, { onSuccess: () => toast.success(t('Peranan {v1} diberikan.', { v1: t(ROLE_LABELS[r]) })) })
                       }
                     >
-                      Berikan
+                      {t('Berikan')}
                     </Button>
                   )}
                 </li>
@@ -371,22 +374,22 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
 
         <section aria-labelledby="areas-h">
           <h3 id="areas-h" className="text-body font-bold">
-            Bidang kuasa tambahan (Jika diberi)
+            {t('Bidang kuasa tambahan (Jika diberi)')}
           </h3>
-          <p className="mt-1 text-micro text-slate">Kuasa kelulusan nombor rujukan tidak boleh diwakilkan; hanya SUAK. SUAK memiliki semua bidang di bawah secara automatik.</p>
+          <p className="mt-1 text-micro text-slate">{t('Kuasa kelulusan nombor rujukan tidak boleh diwakilkan; hanya SUAK. SUAK memiliki semua bidang di bawah secara automatik.')}</p>
           <ul className="mt-3 divide-y divide-line rounded-input border border-line">
             {AREAS.map((a) => {
               const held = user.areas.includes(a)
               return (
                 <li key={a} className="flex items-center justify-between gap-4 p-3">
-                  <span className="text-caption font-semibold text-navy">{AREA_LABELS[a]}</span>
+                  <span className="text-caption font-semibold text-heading">{t(AREA_LABELS[a])}</span>
                   {held ? (
-                    <Button size="sm" variant="secondary" disabled={busy} onClick={() => revokeArea.mutate({ profileId: user.profileId, area: a }, { onSuccess: () => toast.success('Bidang kuasa ditarik balik.') })}>
-                      Tarik balik
+                    <Button size="sm" variant="secondary" disabled={busy} onClick={() => revokeArea.mutate({ profileId: user.profileId, area: a }, { onSuccess: () => toast.success(t('Bidang kuasa ditarik balik.')) })}>
+                      {t('Tarik balik')}
                     </Button>
                   ) : (
-                    <Button size="sm" disabled={busy} onClick={() => grantArea.mutate({ profileId: user.profileId, area: a }, { onSuccess: () => toast.success(`${AREA_LABELS[a]} diberikan.`) })}>
-                      Berikan
+                    <Button size="sm" disabled={busy} onClick={() => grantArea.mutate({ profileId: user.profileId, area: a }, { onSuccess: () => toast.success(t('{v1} diberikan.', { v1: t(AREA_LABELS[a]) })) })}>
+                      {t('Berikan')}
                     </Button>
                   )}
                 </li>
@@ -397,35 +400,35 @@ function ManageUserDialog({ user, onClose }: { user: UserSummary | null; onClose
 
         <section aria-labelledby="mem-h">
           <h3 id="mem-h" className="text-body font-bold">
-            Keahlian sesi aktif
+            {t('Keahlian sesi aktif')}
           </h3>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <FormField label="Jawatan" value={m.position} maxLength={80} onChange={(e) => setMember({ ...m, position: e.target.value })} />
-            <FormField label="Biro" value={m.bureau} maxLength={80} onChange={(e) => setMember({ ...m, bureau: e.target.value })} />
+            <FormField label={t('Jawatan')} value={m.position} maxLength={80} onChange={(e) => setMember({ ...m, position: e.target.value })} />
+            <FormField label={t('Biro')} value={m.bureau} maxLength={80} onChange={(e) => setMember({ ...m, bureau: e.target.value })} />
           </div>
           <label className="mt-3 flex items-start gap-2 text-caption">
             <input type="checkbox" checked={m.publicListing} onChange={(e) => setMember({ ...m, publicListing: e.target.checked })} className="mt-0.5 size-4 accent-[var(--color-blue)]" />
-            <span>Papar dalam senarai kepimpinan awam (dengan persetujuan ahli)</span>
+            <span>{t('Papar dalam senarai kepimpinan awam (dengan persetujuan ahli)')}</span>
           </label>
-          <Button size="sm" className="mt-3" loading={membership.isPending} disabled={!member} onClick={() => membership.mutate({ profileId: user.profileId, position: m.position, bureau: m.bureau, publicListing: m.publicListing }, { onSuccess: () => (toast.success('Keahlian disimpan.'), setMember(null)) })}>
-            Simpan keahlian
+          <Button size="sm" className="mt-3" loading={membership.isPending} disabled={!member} onClick={() => membership.mutate({ profileId: user.profileId, position: m.position, bureau: m.bureau, publicListing: m.publicListing }, { onSuccess: () => (toast.success(t('Keahlian disimpan.')), setMember(null)) })}>
+            {t('Simpan keahlian')}
           </Button>
         </section>
 
         {pending && (
           <div role="alertdialog" aria-labelledby="confirm-h" className="rounded-input border border-amber/40 bg-amber-100/70 p-4">
             <p id="confirm-h" className="text-caption font-semibold text-ink">
-              {pending.kind === 'status' ? `${statusAction?.label} akaun ${user.fullName}?` : `Tarik balik peranan ${ROLE_LABELS[pending.role]}?`}
+              {pending.kind === 'status' ? t('{label} akaun {fullName}?', { label: t(statusAction?.label ?? ''), fullName: user.fullName }) : t('Tarik balik peranan {v1}?', { v1: t(ROLE_LABELS[pending.role]) })}
             </p>
             <p className="mt-1 text-caption text-slate">
-              {pending.kind === 'status' ? statusAction?.confirm : 'Keupayaan berkaitan ditarik pada permintaan seterusnya pengguna.'}
+              {pending.kind === 'status' ? (statusAction ? t(statusAction.confirm) : null) : t('Keupayaan berkaitan ditarik pada permintaan seterusnya pengguna.')}
             </p>
             <div className="mt-3 flex gap-2">
               <Button size="sm" variant="secondary" onClick={() => setPending(null)} disabled={busy}>
-                Batal
+                {t('Batal')}
               </Button>
               <Button size="sm" variant="destructive" onClick={confirmPending} loading={busy}>
-                Sahkan
+                {t('Sahkan')}
               </Button>
             </div>
           </div>

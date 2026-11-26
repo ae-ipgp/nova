@@ -1,14 +1,15 @@
 import type { DownloadResult, FilePayload } from '@shared/api-contract'
 import { MAX_FILE_BYTES } from '@shared/files'
+import { t } from '@/i18n'
 
 export class FileError extends Error {}
 
 /** Reads a File as base64 (no data: prefix), enforcing the upload size cap up front. */
 export function fileToPayload(file: File, maxBytes = MAX_FILE_BYTES): Promise<FilePayload> {
-  if (file.size > maxBytes) return Promise.reject(new FileError(`Fail terlalu besar (maksimum ${(maxBytes / 1_000_000).toFixed(1)} MB).`))
+  if (file.size > maxBytes) return Promise.reject(new FileError(t('Fail terlalu besar (maksimum {v1} MB).', { v1: (maxBytes / 1_000_000).toFixed(1) })))
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onerror = () => reject(new FileError('Fail tidak dapat dibaca.'))
+    reader.onerror = () => reject(new FileError(t('Fail tidak dapat dibaca.')))
     reader.onload = () => {
       const result = String(reader.result)
       resolve({ name: file.name, mimeType: file.type, base64: result.slice(result.indexOf(',') + 1) })
@@ -22,7 +23,7 @@ export function fileToPayload(file: File, maxBytes = MAX_FILE_BYTES): Promise<Fi
  * crisis came from full-size pictures; this also keeps uploads inside the gateway's size cap.
  */
 export async function shrinkImage(file: File, maxWidth = 1200): Promise<FilePayload> {
-  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new FileError('Hanya imej JPG, PNG atau WebP dibenarkan.')
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new FileError(t('Hanya imej JPG, PNG atau WebP dibenarkan.'))
   const bitmap = await createImageBitmap(file)
   const targetRatio = 4 / 3
   let sw = bitmap.width
@@ -37,11 +38,11 @@ export async function shrinkImage(file: File, maxWidth = 1200): Promise<FilePayl
   canvas.width = w
   canvas.height = h
   const ctx = canvas.getContext('2d')
-  if (!ctx) throw new FileError('Pelayar anda tidak menyokong pemprosesan imej.')
+  if (!ctx) throw new FileError(t('Pelayar anda tidak menyokong pemprosesan imej.'))
   ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, w, h)
   bitmap.close()
   const blob: Blob | null = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.82))
-  if (!blob) throw new FileError('Imej tidak dapat diproses.')
+  if (!blob) throw new FileError(t('Imej tidak dapat diproses.'))
   return fileToPayload(new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }), 1_500_000)
 }
 
@@ -75,3 +76,41 @@ export function saveText(name: string, mimeType: string, text: string): void {
 }
 
 export const dataUri = (d: DownloadResult): string => `data:${d.mimeType};base64,${d.base64}`
+
+async function canvasBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
+  const blob: Blob | null = await new Promise((r) => canvas.toBlob(r, type, quality))
+  if (!blob) throw new FileError(t('Imej tidak dapat diproses.'))
+  return blob
+}
+
+/** Logo: keeps proportions and transparency, max 480 px wide, PNG (falls back to WebP if too big). */
+export async function shrinkLogo(file: File, maxWidth = 480, maxBytes = 380_000): Promise<FilePayload> {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new FileError(t('Hanya imej JPG, PNG atau WebP dibenarkan.'))
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, maxWidth / bitmap.width)
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+  canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  let blob = await canvasBlob(canvas, 'image/png')
+  let ext = 'png'
+  if (blob.size > maxBytes) {
+    blob = await canvasBlob(canvas, 'image/webp', 0.9)
+    ext = 'webp'
+  }
+  return fileToPayload(new File([blob], `logo.${ext}`, { type: blob.type }), maxBytes)
+}
+
+/** Favicon: centre-cropped square, 128 px PNG. */
+export async function shrinkFavicon(file: File, size = 128): Promise<FilePayload> {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new FileError(t('Hanya imej JPG, PNG atau WebP dibenarkan.'))
+  const bitmap = await createImageBitmap(file)
+  const side = Math.min(bitmap.width, bitmap.height)
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = size
+  canvas.getContext('2d')?.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, size, size)
+  bitmap.close()
+  const blob = await canvasBlob(canvas, 'image/png')
+  return fileToPayload(new File([blob], 'favicon.png', { type: 'image/png' }), 380_000)
+}

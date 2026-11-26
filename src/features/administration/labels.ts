@@ -1,3 +1,4 @@
+import { getLang } from '@/lib/prefs'
 import type { AccountStatus, AssignableRole, SessionStatus } from '@shared/domain'
 import type { StatusTone } from '@/types/domain'
 
@@ -25,5 +26,5 @@ export function formatDate(iso: string): string {
   if (!iso) return 'Belum ditetapkan'
   const [y, m, d] = iso.split('-').map(Number)
   if (!y || !m || !d) return iso
-  return new Intl.DateTimeFormat('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(Date.UTC(y, m - 1, d))
+  return new Intl.DateTimeFormat(getLang() === 'en' ? 'en-MY' : 'ms-MY', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(Date.UTC(y, m - 1, d))
 }

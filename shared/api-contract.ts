@@ -10,6 +10,7 @@ import type {
   Area,
   AssignableRole,
   AttendanceStatus,
+  NotifyKind,
   MeetingStatus,
   NoticeType,
   OprStyle,
@@ -82,6 +83,8 @@ export interface MeResult {
   roles: RoleKey[]
   activeSession: PublicSession | null
   membership: { position: string; bureau: string } | null
+  /** System emails this person switched off. */
+  notifyOff: NotifyKind[]
   /** Delegated areas ("Jika diberi"); SUAK implicitly holds all. */
   areas: Area[]
 }
@@ -147,6 +150,9 @@ export interface PublicAnnouncement {
   id: string
   title: string
   body: string
+  /** Optional English version; the site falls back to the Malay text when empty. */
+  titleEn: string
+  bodyEn: string
   publishAt: string
   category: string
   pinned: boolean
@@ -193,6 +199,34 @@ export interface VerifyResult {
   status?: 'issued' | 'voided'
   issuedAt?: string
   typeName?: string
+}
+
+export interface BrandResult {
+  version: string
+  logo: DownloadResult | null
+  favicon: DownloadResult | null
+}
+export interface BrandSetPayload {
+  logo?: FilePayload
+  favicon?: FilePayload
+  removeLogo?: boolean
+  removeFavicon?: boolean
+  /** '' resets to the default colour. */
+  primary?: string
+  accent?: string
+}
+
+export interface SearchItem {
+  id: string
+  title: string
+  subtitle: string
+  /** In-app path to open the result. */
+  href: string
+}
+export interface SearchGroup {
+  /** Stable key (e-surat, mesyuarat, …); the UI translates the heading from it. */
+  kind: string
+  items: SearchItem[]
 }
 
 // ---------------------------------------------------------------------------
@@ -618,6 +652,8 @@ export interface AnnouncementView {
   id: string
   title: string
   body: string
+  titleEn: string
+  bodyEn: string
   category: string
   visibility: VisibilityLevel
   status: 'draft' | 'published' | 'archived'
@@ -633,6 +669,8 @@ export interface AnnouncementPayload {
   id?: string
   title: string
   body: string
+  titleEn?: string
+  bodyEn?: string
   category: string
   visibility: 'internal' | 'public'
   pinned: boolean
@@ -675,10 +713,14 @@ export interface ActionMap {
   'public.archive.download': { payload: { id: string }; result: DownloadResult }
   'public.leaders': { payload: Empty; result: { session: PublicSession | null; leaders: PublicLeader[] } }
   'public.verify': { payload: { reference: string }; result: VerifyResult }
+  'public.brand': { payload: Empty; result: BrandResult }
+  'public.search': { payload: { q: string }; result: SearchGroup[] }
 
   // identity & administration
   'auth.me': { payload: Empty; result: MeResult }
+  'me.prefs.set': { payload: { notifyOff: NotifyKind[] }; result: { notifyOff: NotifyKind[] } }
   'dashboard.summary': { payload: Empty; result: DashboardSummary }
+  'search.global': { payload: { q: string }; result: SearchGroup[] }
   'admin.users.list': { payload: Empty; result: UserSummary[] }
   'admin.users.register': { payload: RegisterUserPayload; result: UserSummary }
   'admin.users.setStatus': {
@@ -696,6 +738,8 @@ export interface ActionMap {
   'admin.sessions.list': { payload: Empty; result: SessionInfo[] }
   'admin.sessions.create': { payload: { name: string; startDate: string; endDate: string }; result: SessionInfo }
   'admin.sessions.activate': { payload: { sessionId: string }; result: SessionInfo[] }
+  'admin.brand.set': { payload: BrandSetPayload; result: BrandResult }
+  'admin.backup.export': { payload: Empty; result: DownloadResult }
   'admin.settings.get': { payload: Empty; result: SettingsResult }
   'admin.settings.set': { payload: { values: Record<string, string> }; result: SettingsResult }
   'admin.audit.list': { payload: { action?: string; limit?: number }; result: AuditEntry[] }
@@ -707,7 +751,7 @@ export interface ActionMap {
   'admin.groups.save': { payload: { id?: string; name: string; profileIds: string[]; active: boolean }; result: GroupView[] }
 
   // M02 e-Surat
-  'ref.options': { payload: Empty; result: { types: DocumentTypeView[]; categories: string[] } }
+  'ref.options': { payload: Empty; result: { types: DocumentTypeView[]; categories: string[]; cannedReplies: string[] } }
   'ref.request.list': { payload: { scope: 'mine' | 'all' }; result: RefRequestView[] }
   'ref.request.get': { payload: { id: string }; result: RefRequestDetail }
   'ref.request.save': { payload: RefRequestPayload; result: RefRequestView }

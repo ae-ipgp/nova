@@ -45,7 +45,7 @@ export const publicHandlers: {
         .all('announcements')
         .filter((a) => a.visibility === 'public' && isLive(a, ctx.now))
         .map((a) => pick({ ...a, publish_at: a.publish_at || a.created_at }, cols('announcements')))
-        .map((a) => ({ id: a.id, title: a.title, body: a.body, publishAt: a.publish_at, category: a.category || 'Umum', pinned: a.pinned === 'true' }))
+        .map((a) => ({ id: a.id, title: a.title, body: a.body, titleEn: a.title_en, bodyEn: a.body_en, publishAt: a.publish_at, category: a.category || 'Umum', pinned: a.pinned === 'true' }))
         .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.publishAt.localeCompare(a.publishAt))
         .slice(0, 100),
   },

@@ -1,9 +1,12 @@
-import type { FileService, MailMessage, MailService, PdfService, Services, StoredFile } from '../../backend/src/services'
+import type { FileService, MailMessage, MailService, PdfService, Services, StoredFile, ZipService } from '../../backend/src/services'
 
 export class FakeServices implements Services {
   readonly store = new Map<string, StoredFile>()
   readonly trashed = new Set<string>()
+  /** NoMe notices only. */
   readonly sent: MailMessage[] = []
+  /** System emails (receipts, decisions, reminders, security notices). */
+  readonly system: MailMessage[] = []
   readonly rendered: string[] = []
   failFor = new Set<string>()
   quota = 100
@@ -29,11 +32,16 @@ export class FakeServices implements Services {
   readonly mail: MailService = {
     send: (m) => {
       if (this.failFor.has(m.to)) return { ok: false, error: 'Invalid address' }
-      this.sent.push(m)
+      ;(m.html.includes('Makluman NO.VA') ? this.system : this.sent).push(m)
       this.quota--
       return { ok: true }
     },
     remainingQuota: () => this.quota,
+  }
+
+  zips: { name: string; content: string }[][] = []
+  readonly archive: ZipService = {
+    zip: (files) => (this.zips.push(files), btoa(`PK-fake-${files.length}`)),
   }
 
   readonly pdf: PdfService = {

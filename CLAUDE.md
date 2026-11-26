@@ -50,6 +50,20 @@ product scope, roles, module names, approval rules or design direction.
   production build, not the dev server.
 - Mascot images are optional static PNGs in `public/mascot/`; see `docs/MASCOT.md`. Never block a screen on them.
 
+## Rules added with the HiPER-parity layer
+- Colours come only from tokens. Themes (Mutiara, Lazuardi, Zamrud, Automatik) override the same token names in
+  `src/styles/themes.css`; use `text-heading`/`text-link` for text and `bg-navy`/`bg-blue` for surfaces, never the reverse.
+  Add a pair to `tests/themes.test.ts` when you add a new text/surface combination.
+- Every visible string goes through `t('Malay source')` (`src/i18n`). Malay is the source language; English lives in
+  `src/i18n/en/*.ts`. Never split a sentence around a value: use `t('… {n} …', { n })`. Labels in tables declared at module level are
+  translated where they are rendered. Run `node scripts/i18n.mjs missing` (also a test) after adding text.
+- Letters, certificates, e-mails and PDFs are **not** translated; only the interface is.
+- Logo, favicon and brand colours are managed settings (`brand_*`); change them only through `admin.brand.set`.
+- Page visibility (`vis_pub_*`, `vis_ws_*`) is enforced in the gateway router for everyone but SUAK; the UI only mirrors it.
+- System e-mails (`backend/src/notify.ts`) are best-effort and must never block or roll back the action that triggers them.
+  Security notices cannot be switched off by the user.
+- Search is role-filtered in the gateway (`search.global`); the public search returns published rows only.
+
 ## Working method
 1. Inspect before changing. 2. Propose the smallest safe step. 3. Implement only the agreed phase.
 4. Run `npm run check`. 5. Report files changed, schema changes, test results, open issues.

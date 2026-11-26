@@ -6,6 +6,7 @@ import { FormField, Notice, SelectField, TextAreaField } from '@/components/ui/f
 import { useToast } from '@/components/ui/toast'
 import { useGatewayMutation, useGatewayQuery } from '@/hooks/use-gateway'
 import { todayIso } from '@/lib/format'
+import { t } from '@/i18n'
 
 /** New / edit-draft permohonan nombor rujukan (LTR-01/02). Server issues the real number only after SUAK approves. */
 export function RequestFormDialog({ open, onClose, draft }: { open: boolean; onClose: () => void; draft?: RefRequestView | null }) {
@@ -31,8 +32,8 @@ export function RequestFormDialog({ open, onClose, draft }: { open: boolean; onC
 
   const submit = (send: boolean) => (e?: FormEvent) => {
     e?.preventDefault()
-    if (!letterType || !subject.trim() || !recipient.trim() || !purpose.trim() || !letterDate) return setError('Lengkapkan semua medan wajib.')
-    if (type) for (const f of type.fields) if (f.required && !fields[f.key]?.trim()) return setError(`${f.label} diperlukan.`)
+    if (!letterType || !subject.trim() || !recipient.trim() || !purpose.trim() || !letterDate) return setError(t('Lengkapkan semua medan wajib.'))
+    if (type) for (const f of type.fields) if (f.required && !fields[f.key]?.trim()) return setError(t('{label} diperlukan.', { label: t(f.label) }))
     setError(null)
     const payload: RefRequestPayload = { id: draft?.id, letterType, subject, recipient, purpose, letterDate, documentTypeId: typeId || undefined, fields: type ? fields : undefined, submit: send }
     save.mutate(payload, { onSuccess: () => (toast.success(send ? 'Permohonan dihantar kepada SUAK.' : 'Draf disimpan.'), close()) })
@@ -43,45 +44,45 @@ export function RequestFormDialog({ open, onClose, draft }: { open: boolean; onC
       open={open}
       onClose={close}
       size="lg"
-      title={draft ? 'Sunting draf permohonan' : 'Permohonan nombor rujukan'}
-      description="Anda akan menerima ID permohonan sementara. Nombor rasmi hanya dikeluarkan selepas SUAK meluluskan."
+      title={draft ? t('Sunting draf permohonan') : t('Permohonan nombor rujukan')}
+      description={t('Anda akan menerima ID permohonan sementara. Nombor rasmi hanya dikeluarkan selepas SUAK meluluskan.')}
       footer={
         <>
           <Button variant="secondary" onClick={close}>
-            Batal
+            {t('Batal')}
           </Button>
           <Button variant="secondary" loading={save.isPending && !save.variables?.submit} onClick={() => submit(false)()}>
-            Simpan draf
+            {t('Simpan draf')}
           </Button>
           <Button loading={save.isPending && !!save.variables?.submit} onClick={() => submit(true)()}>
-            Hantar untuk kelulusan
+            {t('Hantar untuk kelulusan')}
           </Button>
         </>
       }
     >
       <form noValidate onSubmit={submit(true)} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField label="Jenis surat" value={letterType} onChange={(e) => setLetterType(e.target.value)} required>
-            <option value="">Pilih…</option>
+          <SelectField label={t('Jenis surat')} value={letterType} onChange={(e) => setLetterType(e.target.value)} required>
+            <option value="">{t('Pilih…')}</option>
             {options.data?.categories.map((c) => (
               <option key={c}>{c}</option>
             ))}
           </SelectField>
-          <FormField label="Tarikh surat" type="date" value={letterDate} onChange={(e) => setLetterDate(e.target.value)} required />
+          <FormField label={t('Tarikh surat')} type="date" value={letterDate} onChange={(e) => setLetterDate(e.target.value)} required />
         </div>
-        <FormField label="Tajuk surat" value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} required />
-        <TextAreaField label="Penerima" rows={2} hint="Nama dan jawatan/alamat penerima." value={recipient} onChange={(e) => setRecipient(e.target.value)} maxLength={300} required />
-        <TextAreaField label="Tujuan" rows={3} value={purpose} onChange={(e) => setPurpose(e.target.value)} maxLength={1000} required />
+        <FormField label={t('Tajuk surat')} value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} required />
+        <TextAreaField label={t('Penerima')} rows={2} hint={t('Nama dan jawatan/alamat penerima.')} value={recipient} onChange={(e) => setRecipient(e.target.value)} maxLength={300} required />
+        <TextAreaField label={t('Tujuan')} rows={3} value={purpose} onChange={(e) => setPurpose(e.target.value)} maxLength={1000} required />
 
-        <SelectField label="Jana dokumen (pilihan)" hint="Pilih jenis dokumen untuk menjana PDF selepas kelulusan; biarkan kosong jika nombor rujukan sahaja." value={typeId} onChange={(e) => (setTypeId(e.target.value), setFields({}))}>
-          <option value="">Nombor rujukan sahaja</option>
+        <SelectField label={t('Jana dokumen (pilihan)')} hint={t('Pilih jenis dokumen untuk menjana PDF selepas kelulusan; biarkan kosong jika nombor rujukan sahaja.')} value={typeId} onChange={(e) => (setTypeId(e.target.value), setFields({}))}>
+          <option value="">{t('Nombor rujukan sahaja')}</option>
           {options.data?.types.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
           ))}
         </SelectField>
-        {type?.isDemo && <Notice tone="warning">Templat ini ialah CONTOH dan belum diluluskan SUAK. PDF akan ditanda “bukan dokumen rasmi”.</Notice>}
+        {type?.isDemo && <Notice tone="warning">{t('Templat ini ialah CONTOH dan belum diluluskan SUAK. PDF akan ditanda “bukan dokumen rasmi”.')}</Notice>}
         {type && (
           <div className="space-y-4 rounded-input border border-line bg-ice p-4">
             {type.fields.map((f) =>

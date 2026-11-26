@@ -12,6 +12,7 @@ export function me(overrides: Partial<MeResult> = {}): MeResult {
     activeSession: { id: 's1', name: 'Legasi Ke-72', startDate: '2026-03-01', endDate: '2027-02-28' },
     membership: null,
     areas: [],
+    notifyOff: [],
     ...overrides,
   }
 }

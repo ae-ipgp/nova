@@ -26,7 +26,7 @@ export function EmptyState({
         <div className="mb-4">
           {(() => {
             const iconNode = Icon && (
-              <div className="grid size-11 place-items-center rounded-full bg-sky text-blue">
+              <div className="grid size-11 place-items-center rounded-full bg-soft text-link">
                 <Icon className="size-5" aria-hidden />
               </div>
             )
@@ -34,7 +34,7 @@ export function EmptyState({
           })()}
         </div>
       )}
-      <p className="font-display text-body-lg font-semibold text-navy">{title}</p>
+      <p className="font-display text-body-lg font-semibold text-heading">{title}</p>
       {description && <p className="mt-1 max-w-md text-caption text-slate">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>

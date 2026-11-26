@@ -1,6 +1,7 @@
 import type { ActionMap, ActionName, ApiErrorCode, ApiResponse } from '@shared/api-contract'
 import { API_ERROR_CODES } from '@shared/api-contract'
 import { env } from './env'
+import { t, translateServer } from '@/i18n'
 
 export class ApiError extends Error {
   readonly code: ApiErrorCode
@@ -36,7 +37,7 @@ export async function callApi<A extends ActionName>(
   payload: ActionMap[A]['payload'],
   { token, signal, fetchImpl = fetch, apiUrl = env.apiUrl }: CallOptions = {},
 ): Promise<ActionMap[A]['result']> {
-  if (!apiUrl) throw new ApiError('NOT_CONFIGURED', 'Pelayan data belum dikonfigurasi.')
+  if (!apiUrl) throw new ApiError('NOT_CONFIGURED', t('Pelayan data belum dikonfigurasi.'))
 
   let res: Response
   try {
@@ -49,16 +50,16 @@ export async function callApi<A extends ActionName>(
     })
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') throw err
-    throw new ApiError('INTERNAL', 'Tidak dapat menghubungi pelayan. Semak sambungan internet anda.')
+    throw new ApiError('INTERNAL', t('Tidak dapat menghubungi pelayan. Semak sambungan internet anda.'))
   }
 
   let body: unknown
   try {
     body = await res.json()
   } catch {
-    throw new ApiError('INTERNAL', 'Respons pelayan tidak sah.')
+    throw new ApiError('INTERNAL', t('Respons pelayan tidak sah.'))
   }
-  if (!isEnvelope(body)) throw new ApiError('INTERNAL', 'Respons pelayan tidak sah.')
-  if (!body.ok) throw new ApiError(body.error.code, body.error.message)
+  if (!isEnvelope(body)) throw new ApiError('INTERNAL', t('Respons pelayan tidak sah.'))
+  if (!body.ok) throw new ApiError(body.error.code, translateServer(body.error.message))
   return body.data as ActionMap[A]['result']
 }

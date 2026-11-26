@@ -3,6 +3,7 @@ import { summariseAttendance } from '@shared/attendance'
 import { ATTENDANCE_STATUSES, MEETING_TYPES, type AttendanceStatus } from '@shared/domain'
 import { badRequest, conflict, forbidden, notFound } from '../errors'
 import { hasArea, type HandlerContext } from '../context'
+import { envOf, notify } from '../notify'
 import { getBool } from '../settings'
 import type { Row, TableStore } from '../store'
 import { asPayload, isoDate, oneOf, str } from '../validate'
@@ -129,7 +130,7 @@ function detail(ctx: HandlerContext, m: Row): MeetingDetail {
   return { meeting: toMeetingView(store, m), invitees, agenda, minutes, actions, canManage: staff, canVerify: hasArea(actor, 'meetings.verify') }
 }
 
-function visibleTo(ctx: HandlerContext, m: Row): boolean {
+export function visibleTo(ctx: HandlerContext, m: Row): boolean {
   const actor = requireActor(ctx)
   if (isStaff(actor)) return true
   const mine = myMemberRow(ctx.store, actor.profile.id, m.session_id)
@@ -476,6 +477,9 @@ export const meetingHandlers: {
       } else {
         const row = ctx.store.insert('meeting_actions', { id: ctx.uuid(), meeting_id: m.id, created_at: now, created_by: actor.profile.id, ...values })
         ctx.audit('action.create', 'meeting_action', row.id, null, { description, ownerId })
+        if (ownerId !== actor.profile.id) {
+          notify(envOf(ctx), 'action_assigned', owner, { subject: `Tindakan susulan baharu: ${description}`, body: `Anda diberikan tindakan susulan.\n\nTindakan: ${description}\nMesyuarat: ${m.title}\nTarikh akhir: ${dueDate}`, path: `/workspace/e-mesyuarat/${m.id}` })
+        }
       }
       return detail(ctx, m)
     },

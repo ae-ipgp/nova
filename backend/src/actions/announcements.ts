@@ -27,6 +27,8 @@ export function toAnnouncementView(store: TableStore, a: Row, now: Date): Announ
     id: a.id,
     title: a.title,
     body: a.body,
+    titleEn: a.title_en,
+    bodyEn: a.body_en,
     category: a.category || 'Umum',
     visibility: a.visibility === 'public' ? 'public' : a.visibility === 'private' ? 'private' : 'internal',
     status: (['draft', 'published', 'archived'].includes(a.status) ? a.status : 'draft') as AnnouncementView['status'],
@@ -75,6 +77,9 @@ export const announcementHandlers: { 'ann.list': Handler<'ann.list'>; 'ann.save'
       const body = typeof p.body === 'string' ? p.body.trim() : ''
       if (!body) throw badRequest('Kandungan diperlukan.')
       if (body.length > 4000) throw badRequest('Kandungan terlalu panjang (maksimum 4,000 aksara).')
+      const titleEn = str(p, 'titleEn', { max: 150, required: false, label: 'Tajuk (English)' })
+      const bodyEn = typeof p.bodyEn === 'string' ? p.bodyEn.trim() : ''
+      if (bodyEn.length > 4000) throw badRequest('Kandungan English terlalu panjang (maksimum 4,000 aksara).')
       const category = oneOf(p, 'category', ANNOUNCEMENT_CATEGORIES, 'Kategori')
       const visibility = oneOf(p, 'visibility', ['internal', 'public'] as const, 'Keterlihatan')
       // Public announcements are SUAK's call (Blueprint §08E: publication goes through SUAK).
@@ -86,7 +91,7 @@ export const announcementHandlers: { 'ann.list': Handler<'ann.list'>; 'ann.save'
       if (expiresAt) isoDateTime(expiresAt, 'Tarikh tamat')
       if (publishAt && expiresAt && Date.parse(expiresAt) <= Date.parse(publishAt)) throw badRequest('Tarikh tamat mesti selepas tarikh terbit.')
       const now = ctx.now.toISOString()
-      const values = { title, body, category, visibility, status, pinned: p.pinned === true ? 'true' : 'false', publish_at: publishAt || (status === 'published' ? now : ''), expires_at: expiresAt, updated_at: now }
+      const values = { title, body, title_en: titleEn, body_en: bodyEn, category, visibility, status, pinned: p.pinned === true ? 'true' : 'false', publish_at: publishAt || (status === 'published' ? now : ''), expires_at: expiresAt, updated_at: now }
       const id = typeof p.id === 'string' && p.id ? p.id : ''
       if (id) {
         const a = mustGet(ctx.store, 'announcements', id, 'Pengumuman tidak ditemui.')

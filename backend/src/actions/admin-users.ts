@@ -2,6 +2,7 @@ import type { UserSummary } from '@shared/api-contract'
 import { AREAS, ASSIGNABLE_ROLES, type AccountStatus, type AssignableRole } from '@shared/domain'
 import { isAllowedEmail, normaliseEmail } from '@shared/identity'
 import { activeRolesOf, areasOf, type HandlerContext } from '../context'
+import { envOf, notify } from '../notify'
 import { badRequest, conflict, notFound } from '../errors'
 import type { Row, TableStore } from '../store'
 import { asPayload, listOf, oneOf, str } from '../validate'
@@ -25,6 +26,12 @@ function summarise(store: TableStore, profile: Row): UserSummary {
     bureau: member?.bureau ?? '',
     publicListing: member?.public_listing === 'true',
   }
+}
+
+/** Access changes always email the person (security notice; cannot be switched off). */
+function securityNotice(ctx: HandlerContext, profile: Row, what: string): void {
+  const fresh = ctx.store.get('profiles', profile.id) ?? profile
+  notify(envOf(ctx), 'access_changed', fresh, { subject: 'Akses NO.VA anda telah diubah', body: `${what}\n\nJika anda tidak menjangka perubahan ini, sila hubungi SUAK.` })
 }
 
 function requireProfile(store: TableStore, profileId: string): Row {
@@ -141,6 +148,7 @@ export const adminUserHandlers: {
 
       const after = ctx.store.update('profiles', profileId, { account_status: status, updated_at: ctx.now.toISOString() })
       ctx.audit('profile.status', 'profile', profileId, { account_status: before.account_status }, { account_status: status })
+      securityNotice(ctx, after, status === 'active' ? 'Akaun anda telah diaktifkan.' : status === 'suspended' ? 'Akaun anda telah digantung.' : 'Akaun anda telah dinyahaktifkan.')
       return summarise(ctx.store, after)
     },
   },
@@ -156,6 +164,7 @@ export const adminUserHandlers: {
       if (activeRolesOf(ctx.store, profileId).includes(role)) throw conflict('Peranan ini telah diberikan.')
       grantRole(ctx, profileId, role)
       ctx.audit('role.grant', 'profile', profileId, null, { role })
+      securityNotice(ctx, profile, `Peranan "${role}" telah diberikan kepada anda.`)
       return summarise(ctx.store, profile)
     },
   },
@@ -175,6 +184,7 @@ export const adminUserHandlers: {
         ctx.store.update('user_roles', g.id, { revoked_by: ctx.actor!.profile.id, revoked_at: ctx.now.toISOString() })
       }
       ctx.audit('role.revoke', 'profile', profileId, { role }, null)
+      securityNotice(ctx, profile, `Peranan "${role}" telah ditarik balik.`)
       return summarise(ctx.store, profile)
     },
   },
@@ -215,6 +225,7 @@ export const adminUserHandlers: {
       if (areasOf(ctx.store, profileId).includes(area)) throw conflict('Bidang kuasa ini telah diberikan.')
       ctx.store.insert('profile_areas', { id: ctx.uuid(), profile_id: profileId, area, granted_by: ctx.actor!.profile.id, granted_at: ctx.now.toISOString() })
       ctx.audit('area.grant', 'profile', profileId, null, { area })
+      securityNotice(ctx, profile, `Bidang kuasa "${area}" telah diberikan kepada anda.`)
       return summarise(ctx.store, profile)
     },
   },
@@ -231,6 +242,7 @@ export const adminUserHandlers: {
       if (!grants.length) throw notFound('Bidang kuasa ini tidak dimiliki oleh pengguna.')
       for (const g of grants) ctx.store.update('profile_areas', g.id, { revoked_by: ctx.actor!.profile.id, revoked_at: ctx.now.toISOString() })
       ctx.audit('area.revoke', 'profile', profileId, { area }, null)
+      securityNotice(ctx, profile, `Bidang kuasa "${area}" telah ditarik balik.`)
       return summarise(ctx.store, profile)
     },
   },

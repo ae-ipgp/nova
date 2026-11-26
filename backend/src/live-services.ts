@@ -1,6 +1,6 @@
 import { DRIVE_FOLDERS } from '@shared/schema'
 import { getProp, PROP } from './config'
-import type { FileService, FolderKey, MailService, PdfService, Services } from './services'
+import type { FileService, FolderKey, MailService, PdfService, Services, ZipService } from './services'
 
 /** Google-backed services (Drive, Mail, HTML→PDF). Only constructed inside Apps Script. */
 function folder(key: FolderKey): GoogleAppsScript.Drive.Folder {
@@ -58,4 +58,8 @@ const pdf: PdfService = {
   },
 }
 
-export const liveServices: Services = { files, mail, pdf }
+const archive: ZipService = {
+  zip: (items) => Utilities.base64Encode(Utilities.zip(items.map((f) => Utilities.newBlob(f.content, 'text/plain', f.name)), 'nova-sandaran.zip').getBytes()),
+}
+
+export const liveServices: Services = { files, mail, pdf, archive }

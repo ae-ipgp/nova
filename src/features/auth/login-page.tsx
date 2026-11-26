@@ -8,6 +8,7 @@ import { buttonVariants } from '@/components/ui/button-variants'
 import { Mascot } from '@/components/brand/mascot'
 import { cn } from '@/lib/cn'
 import { safeNextPath } from '@/lib/next-path'
+import { t } from '@/i18n'
 
 /** Sign-in with the user's DELIMa Google account via Supabase (ADR-0002). */
 export function LoginPage() {
@@ -25,7 +26,7 @@ export function LoginPage() {
     try {
       await signIn(next) // redirects to Google
     } catch {
-      setError('Tidak dapat memulakan log masuk. Sila cuba lagi.')
+      setError(t('Tidak dapat memulakan log masuk. Sila cuba lagi.'))
       setPending(false)
     }
   }
@@ -33,15 +34,14 @@ export function LoginPage() {
   return (
     <div>
       <Mascot pose="shield" size={96} className="mb-4" />
-      <h1 className="text-h2 font-extrabold">Log masuk</h1>
+      <h1 className="text-h2 font-extrabold">{t('Log masuk')}</h1>
       <p className="mt-2 text-body text-slate">
-        Gunakan akaun DELIMa anda (<span className="font-mono text-caption text-ink">@{ALLOWED_EMAIL_DOMAIN}</span>). Hanya akaun yang telah
-        didaftarkan oleh Sekretariat boleh masuk ke ruang kerja.
+        {t('Gunakan akaun DELIMa anda (@{domain}). Hanya akaun yang telah didaftarkan oleh Sekretariat boleh masuk ke ruang kerja.', { domain: ALLOWED_EMAIL_DOMAIN })}
       </p>
 
       <Button size="lg" className="mt-8 w-full" disabled={mode !== 'live'} loading={pending} onClick={start}>
         <LogIn />
-        Log masuk dengan DELIMa
+        {t('Log masuk dengan DELIMa')}
       </Button>
 
       {error && (
@@ -53,20 +53,20 @@ export function LoginPage() {
       {mode !== 'live' && (
         <div role="note" className="mt-4 flex gap-3 rounded-input border border-amber/30 bg-amber-100/70 p-3 text-caption text-ink">
           <Info className="mt-0.5 size-4 shrink-0 text-amber" aria-hidden />
-          <p>Log masuk belum dikonfigurasi pada pelayan ini.</p>
+          <p>{t('Log masuk belum dikonfigurasi pada pelayan ini.')}</p>
         </div>
       )}
 
       <ul className="mt-8 space-y-2 text-caption text-slate">
-        <li>• NO.VA tidak menyimpan kata laluan anda. Pengesahan dibuat oleh Google.</li>
-        <li>• Akaun peribadi (contoh: Gmail) tidak diterima.</li>
+        <li>{t('• NO.VA tidak menyimpan kata laluan anda. Pengesahan dibuat oleh Google.')}</li>
+        <li>{t('• Akaun peribadi (contoh: Gmail) tidak diterima.')}</li>
       </ul>
 
       {mode === 'preview' && (
         <div className="mt-8 border-t border-line pt-6">
-          <p className="text-caption text-slate">Mod pembangunan:</p>
+          <p className="text-caption text-slate">{t('Mod pembangunan:')}</p>
           <Link to="/workspace" className={cn(buttonVariants({ variant: 'secondary' }), 'mt-3 w-full')}>
-            Pratonton struktur ruang kerja
+            {t('Pratonton struktur ruang kerja')}
           </Link>
         </div>
       )}

@@ -20,6 +20,7 @@ import { FileError, dataUri, shrinkImage } from '@/lib/files'
 import { cn } from '@/lib/cn'
 import { OPR_STATUS_UI } from '@/lib/status-ui'
 import { A4Preview } from './a4-preview'
+import { t } from '@/i18n'
 
 const STEPS = ['Identiti', 'Tujuan', 'Pelaksanaan', 'Penyertaan', 'Hasil', 'Media', 'Refleksi', 'Semakan'] as const
 const STYLE_LABEL: Record<OprStyle, string> = { corporate: 'Korporat', editorial: 'Editorial', infographic: 'Infografik' }
@@ -31,9 +32,9 @@ export function OprEditorPage() {
   const q = useGatewayQuery('opr.get', { id }, { enabled: id !== 'baru' })
   return (
     <div className="space-y-4">
-      <Link to="/workspace/e-opr" className="inline-flex items-center gap-1 text-caption font-medium text-blue hover:underline">
+      <Link to="/workspace/e-opr" className="inline-flex items-center gap-1 text-caption font-medium text-link hover:underline">
         <ArrowLeft className="size-4" aria-hidden />
-        Semua OPR
+        {t('Semua OPR')}
       </Link>
       {id === 'baru' ? <Editor key="new" /> : <QueryState query={q} isEmpty={() => false} empty={{ title: '' }}>{(o) => <Editor key={`${o.id}-${o.version}-${o.status}`} opr={o} />}</QueryState>}
     </div>
@@ -133,7 +134,7 @@ function Editor({ opr }: { opr?: OprView }) {
   const saveDraft = async () => {
     const o = await persist()
     if (o) {
-      toast.success('Draf disimpan.')
+      toast.success(t('Draf disimpan.'))
       if (!opr) navigate(`/workspace/e-opr/${o.id}`, { replace: true })
     }
   }
@@ -166,12 +167,12 @@ function Editor({ opr }: { opr?: OprView }) {
     }
   }
 
-  const previewHtml = useMemo(() => renderOprHtml(content, { style, images, orgName: site.settings.org_name || 'JPP IPGKKB', watermark: opr?.status === 'approved' ? '' : 'DRAF — BELUM DISAHKAN', footer: opr?.status === 'approved' ? `Disahkan melalui NO.VA · Versi ${opr.version}` : 'Draf — belum disahkan' }), [content, style, images, opr, site.settings.org_name])
+  const previewHtml = useMemo(() => renderOprHtml(content, { style, images, orgName: site.settings.org_name || 'JPP IPGKKB', watermark: opr?.status === 'approved' ? '' : 'DRAF — BELUM DISAHKAN', footer: opr?.status === 'approved' ? t('Disahkan melalui NO.VA · Versi {version}', { version: opr.version }) : 'Draf — belum disahkan' }), [content, style, images, opr, site.settings.org_name])
 
   const finish = async () => {
     const o = await persist()
     if (!o) return
-    submit.mutate({ id: o.id }, { onSuccess: () => (toast.success('OPR dihantar untuk pengesahan.'), navigate('/workspace/e-opr')) })
+    submit.mutate({ id: o.id }, { onSuccess: () => (toast.success(t('OPR dihantar untuk pengesahan.')), navigate('/workspace/e-opr')) })
   }
 
   // ----- Read-only view (submitted / approved / not the owner) ---------------------------------------
@@ -180,15 +181,15 @@ function Editor({ opr }: { opr?: OprView }) {
       <div className="space-y-4">
         <Card><CardBody className="space-y-3">
           <div className="flex flex-wrap items-center gap-2"><h2 className="text-h2 font-bold">{opr!.title}</h2><StatusBadge tone={OPR_STATUS_UI[opr!.status].tone}>{OPR_STATUS_UI[opr!.status].label}</StatusBadge></div>
-          {opr!.reviewNote && <Notice tone="warning">Catatan penyemak: {opr!.reviewNote}</Notice>}
+          {opr!.reviewNote && <Notice tone="warning">{t('Catatan penyemak:')} {opr!.reviewNote}</Notice>}
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => void download('opr.pdf', { id: opr!.id })}><Download />Muat turun PDF</Button>
-            {canReview && <><Button onClick={() => setReview('approve')}><Check />Sahkan</Button><Button variant="destructive" onClick={() => setReview('revise')}>Minta pembetulan</Button></>}
+            <Button variant="secondary" onClick={() => void download('opr.pdf', { id: opr!.id })}><Download />{t('Muat turun PDF')}</Button>
+            {canReview && <><Button onClick={() => setReview('approve')}><Check />{t('Sahkan')}</Button><Button variant="destructive" onClick={() => setReview('revise')}>{t('Minta pembetulan')}</Button></>}
           </div>
         </CardBody></Card>
-        <A4Preview html={previewHtml} title="Pratonton A4" />
-        <ConfirmDialog open={review === 'approve'} title="Sahkan OPR ini?" description="PDF akhir akan dijana, disimpan dalam e-Arkib dengan metadata, dan laporan dikunci daripada suntingan." confirmLabel="Sahkan" pending={reviewMut.isPending} error={reviewMut.error?.message} onClose={() => (setReview(null), reviewMut.reset())} onConfirm={() => reviewMut.mutate({ id: opr!.id, decision: 'approve' }, { onSuccess: () => (toast.success('OPR disahkan dan diarkibkan.'), setReview(null)) })} />
-        <ConfirmDialog open={review === 'revise'} title="Minta pembetulan" reasonLabel="Catatan untuk penyedia" confirmLabel="Hantar catatan" pending={reviewMut.isPending} error={reviewMut.error?.message} onClose={() => (setReview(null), reviewMut.reset())} onConfirm={(note) => reviewMut.mutate({ id: opr!.id, decision: 'revise', note }, { onSuccess: () => (toast.success('Dikembalikan untuk pembetulan.'), setReview(null)) })} />
+        <A4Preview html={previewHtml} title={t('Pratonton A4')} />
+        <ConfirmDialog open={review === 'approve'} title={t('Sahkan OPR ini?')} description={t('PDF akhir akan dijana, disimpan dalam e-Arkib dengan metadata, dan laporan dikunci daripada suntingan.')} confirmLabel={t('Sahkan')} pending={reviewMut.isPending} error={reviewMut.error?.message} onClose={() => (setReview(null), reviewMut.reset())} onConfirm={() => reviewMut.mutate({ id: opr!.id, decision: 'approve' }, { onSuccess: () => (toast.success(t('OPR disahkan dan diarkibkan.')), setReview(null)) })} />
+        <ConfirmDialog open={review === 'revise'} title={t('Minta pembetulan')} reasonLabel={t('Catatan untuk penyedia')} confirmLabel={t('Hantar catatan')} pending={reviewMut.isPending} error={reviewMut.error?.message} onClose={() => (setReview(null), reviewMut.reset())} onConfirm={(note) => reviewMut.mutate({ id: opr!.id, decision: 'revise', note }, { onSuccess: () => (toast.success(t('Dikembalikan untuk pembetulan.')), setReview(null)) })} />
       </div>
     )
   }
@@ -197,12 +198,12 @@ function Editor({ opr }: { opr?: OprView }) {
   const last = step === STEPS.length - 1
   return (
     <div className="space-y-5">
-      {restored && <Notice tone="info">Draf yang belum disimpan telah dipulihkan daripada peranti ini.</Notice>}
-      {opr?.reviewNote && <Notice tone="warning">Catatan penyemak: {opr.reviewNote}</Notice>}
-      <ol className="flex gap-1 overflow-x-auto" aria-label="Langkah">
+      {restored && <Notice tone="info">{t('Draf yang belum disimpan telah dipulihkan daripada peranti ini.')}</Notice>}
+      {opr?.reviewNote && <Notice tone="warning">{t('Catatan penyemak:')} {opr.reviewNote}</Notice>}
+      <ol className="flex gap-1 overflow-x-auto" aria-label={t('Langkah')}>
         {STEPS.map((s, i) => (
           <li key={s}>
-            <button type="button" onClick={() => setStep(i)} aria-current={step === i ? 'step' : undefined} className={cn('whitespace-nowrap rounded-full border px-3 py-1 text-caption font-medium', step === i ? 'border-navy bg-navy text-white' : i < step ? 'border-blue/40 bg-blue-100 text-blue' : 'border-line bg-paper text-slate')}>
+            <button type="button" onClick={() => setStep(i)} aria-current={step === i ? 'step' : undefined} className={cn('whitespace-nowrap rounded-full border px-3 py-1 text-caption font-medium', step === i ? 'border-navy bg-navy text-white' : i < step ? 'border-blue/40 bg-blue-100 text-link' : 'border-line bg-paper text-slate')}>
               {String(i + 1).padStart(2, '0')} {s}
             </button>
           </li>
@@ -211,52 +212,52 @@ function Editor({ opr }: { opr?: OprView }) {
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
         <Card><CardBody className="space-y-4">
-          {step === 0 && <><FormField label="Nama program" required {...text('programName')} /><FormField label="Penganjur" {...text('organiser')} /><div className="grid gap-4 sm:grid-cols-2"><FormField label="Tarikh" type="date" required value={content.date} onChange={(e) => set('date', e.target.value)} /><FormField label="Masa" {...text('time')} placeholder="cth. 8.00 pagi – 1.00 petang" /></div><FormField label="Tempat" required {...text('venue')} /></>}
-          {step === 1 && <><TextAreaField label="Latar belakang" rows={5} {...text('background')} /><TextAreaField label="Objektif" rows={4} required {...text('objectives')} /></>}
-          {step === 2 && <><TextAreaField label="Ringkasan pelaksanaan" rows={6} required {...text('execution')} hint="Aktiviti utama dan kaedah." /><TextAreaField label="Pihak terlibat" rows={2} {...text('parties')} /></>}
-          {step === 3 && <div className="grid gap-4 sm:grid-cols-2"><FormField label="Bilangan peserta" inputMode="numeric" {...text('participantCount')} /><FormField label="Kumpulan sasaran" {...text('targetGroup')} /></div>}
-          {step === 4 && <><TextAreaField label="Hasil / pencapaian" rows={5} required {...text('outcome')} /><TextAreaField label="Impak" rows={3} {...text('impact')} /></>}
+          {step === 0 && <><FormField label={t('Nama program')} required {...text('programName')} /><FormField label={t('Penganjur')} {...text('organiser')} /><div className="grid gap-4 sm:grid-cols-2"><FormField label={t('Tarikh')} type="date" required value={content.date} onChange={(e) => set('date', e.target.value)} /><FormField label={t('Masa')} {...text('time')} placeholder={t('cth. 8.00 pagi – 1.00 petang')} /></div><FormField label={t('Tempat')} required {...text('venue')} /></>}
+          {step === 1 && <><TextAreaField label={t('Latar belakang')} rows={5} {...text('background')} /><TextAreaField label={t('Objektif')} rows={4} required {...text('objectives')} /></>}
+          {step === 2 && <><TextAreaField label={t('Ringkasan pelaksanaan')} rows={6} required {...text('execution')} hint={t('Aktiviti utama dan kaedah.')} /><TextAreaField label={t('Pihak terlibat')} rows={2} {...text('parties')} /></>}
+          {step === 3 && <div className="grid gap-4 sm:grid-cols-2"><FormField label={t('Bilangan peserta')} inputMode="numeric" {...text('participantCount')} /><FormField label={t('Kumpulan sasaran')} {...text('targetGroup')} /></div>}
+          {step === 4 && <><TextAreaField label={t('Hasil / pencapaian')} rows={5} required {...text('outcome')} /><TextAreaField label={t('Impak')} rows={3} {...text('impact')} /></>}
           {step === 5 && (
             <>
-              <p className="text-caption text-slate">2–4 gambar (JPG/PNG/WebP). Gambar dikecilkan dan dipotong 4:3 secara automatik sebelum dimuat naik.</p>
-              <label className={cn('flex cursor-pointer items-center justify-center gap-2 rounded-input border border-dashed border-blue/50 bg-blue-100/40 p-4 text-caption font-semibold text-blue', (busy || content.images.length >= 4) && 'pointer-events-none opacity-50')}>
+              <p className="text-caption text-slate">{t('2–4 gambar (JPG/PNG/WebP). Gambar dikecilkan dan dipotong 4:3 secara automatik sebelum dimuat naik.')}</p>
+              <label className={cn('flex cursor-pointer items-center justify-center gap-2 rounded-input border border-dashed border-blue/50 bg-blue-100/40 p-4 text-caption font-semibold text-link', (busy || content.images.length >= 4) && 'pointer-events-none opacity-50')}>
                 <ImagePlus className="size-4" aria-hidden />
-                {busy ? 'Memproses…' : content.images.length >= 4 ? 'Had 4 gambar dicapai' : 'Tambah gambar'}
+                {busy ? t('Memproses…') : content.images.length >= 4 ? t('Had 4 gambar dicapai') : t('Tambah gambar')}
                 <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={(e) => { void addImages(e.target.files); e.target.value = '' }} />
               </label>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {content.images.map((im, i) => (
                   <li key={im.fileId} className="space-y-2 rounded-input border border-line p-2">
-                    {images[im.fileId] ? <img src={images[im.fileId]} alt={im.caption || `Gambar ${i + 1}`} className="aspect-[4/3] w-full rounded object-cover" /> : <div className="aspect-[4/3] animate-pulse rounded bg-slate-100" />}
-                    <FormField label="Kapsyen" value={im.caption} maxLength={120} onChange={(e) => set('images', content.images.map((x, k) => (k === i ? { ...x, caption: e.target.value } : x)))} />
-                    <FormField label="Kredit" value={im.credit} maxLength={80} onChange={(e) => set('images', content.images.map((x, k) => (k === i ? { ...x, credit: e.target.value } : x)))} />
-                    <Button size="sm" variant="tertiary" onClick={() => set('images', content.images.filter((_, k) => k !== i))}><Trash2 />Buang</Button>
+                    {images[im.fileId] ? <img src={images[im.fileId]} alt={im.caption || t('Gambar {v1}', { v1: i + 1 })} className="aspect-[4/3] w-full rounded object-cover" /> : <div className="aspect-[4/3] animate-pulse rounded bg-slate-100" />}
+                    <FormField label={t('Kapsyen')} value={im.caption} maxLength={120} onChange={(e) => set('images', content.images.map((x, k) => (k === i ? { ...x, caption: e.target.value } : x)))} />
+                    <FormField label={t('Kredit')} value={im.credit} maxLength={80} onChange={(e) => set('images', content.images.map((x, k) => (k === i ? { ...x, credit: e.target.value } : x)))} />
+                    <Button size="sm" variant="tertiary" onClick={() => set('images', content.images.filter((_, k) => k !== i))}><Trash2 />{t('Buang')}</Button>
                   </li>
                 ))}
               </ul>
             </>
           )}
-          {step === 6 && <><TextAreaField label="Kekuatan" rows={3} {...text('strengths')} /><TextAreaField label="Isu / cabaran" rows={3} {...text('issues')} /><TextAreaField label="Cadangan penambahbaikan" rows={3} {...text('suggestions')} /><FormField label="Disediakan oleh" required {...text('preparedBy')} /></>}
+          {step === 6 && <><TextAreaField label={t('Kekuatan')} rows={3} {...text('strengths')} /><TextAreaField label={t('Isu / cabaran')} rows={3} {...text('issues')} /><TextAreaField label={t('Cadangan penambahbaikan')} rows={3} {...text('suggestions')} /><FormField label={t('Disediakan oleh')} required {...text('preparedBy')} /></>}
           {step === 7 && (
             <>
-              <SelectField label="Gaya" value={style} onChange={(e) => { dirty.current = true; setStyle(e.target.value as OprStyle) }}>{OPR_STYLES.map((s) => <option key={s} value={s}>{STYLE_LABEL[s]}</option>)}</SelectField>
-              <p className="text-caption text-slate">Semak pratonton A4 di sebelah. Pastikan semua isi muat dalam satu halaman dan tiada teks terpotong.</p>
+              <SelectField label={t('Gaya')} value={style} onChange={(e) => { dirty.current = true; setStyle(e.target.value as OprStyle) }}>{OPR_STYLES.map((s) => <option key={s} value={s}>{STYLE_LABEL[s]}</option>)}</SelectField>
+              <p className="text-caption text-slate">{t('Semak pratonton A4 di sebelah. Pastikan semua isi muat dalam satu halaman dan tiada teks terpotong.')}</p>
               <div className="flex flex-wrap gap-2">
-                <Button variant="secondary" onClick={async () => { const o = await persist(); if (o) void download('opr.pdf', { id: o.id }) }}><Download />PDF draf</Button>
-                <Button loading={submit.isPending || save.isPending} onClick={() => void finish()}><Check />Hantar untuk pengesahan</Button>
+                <Button variant="secondary" onClick={async () => { const o = await persist(); if (o) void download('opr.pdf', { id: o.id }) }}><Download />{t('PDF draf')}</Button>
+                <Button loading={submit.isPending || save.isPending} onClick={() => void finish()}><Check />{t('Hantar untuk pengesahan')}</Button>
               </div>
             </>
           )}
-          <p className={cn('text-micro tabular', used > limit * 0.9 ? 'text-amber' : 'text-slate')} aria-live="polite">Panjang kandungan: {used}/{limit} aksara (had satu halaman{content.images.length ? ' dengan gambar' : ', lebih rendah jika anda menambah gambar'})</p>
-          {used > limit && <Notice>Kandungan melebihi had satu halaman. Ringkaskan sebelum menyimpan.</Notice>}
+          <p className={cn('text-micro tabular', used > limit * 0.9 ? 'text-amber' : 'text-slate')} aria-live="polite">{content.images.length ? t('Panjang kandungan: {used}/{limit} aksara (had satu halaman dengan gambar)', { used, limit }) : t('Panjang kandungan: {used}/{limit} aksara (had satu halaman, lebih rendah jika anda menambah gambar)', { used, limit })}</p>
+          {used > limit && <Notice>{t('Kandungan melebihi had satu halaman. Ringkaskan sebelum menyimpan.')}</Notice>}
           {(error || save.error || submit.error) && <Notice>{error ?? save.error?.message ?? submit.error?.message}</Notice>}
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4">
-            <Button variant="secondary" onClick={() => setStep(step - 1)} disabled={step === 0}><ArrowLeft />Sebelum</Button>
-            <Button variant="tertiary" onClick={() => void saveDraft()} loading={save.isPending}>Simpan draf</Button>
-            {!last && <Button onClick={() => setStep(step + 1)}>Seterusnya<ArrowRight /></Button>}
+            <Button variant="secondary" onClick={() => setStep(step - 1)} disabled={step === 0}><ArrowLeft />{t('Sebelum')}</Button>
+            <Button variant="tertiary" onClick={() => void saveDraft()} loading={save.isPending}>{t('Simpan draf')}</Button>
+            {!last && <Button onClick={() => setStep(step + 1)}>{t('Seterusnya')}<ArrowRight /></Button>}
           </div>
         </CardBody></Card>
-        <div className={cn(step === 7 ? 'block' : 'hidden xl:block')}><A4Preview html={previewHtml} title="Pratonton A4" /></div>
+        <div className={cn(step === 7 ? 'block' : 'hidden xl:block')}><A4Preview html={previewHtml} title={t('Pratonton A4')} /></div>
       </div>
     </div>
   )

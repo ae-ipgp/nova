@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { MeResult } from '@shared/api-contract'
 import type { Area, RoleKey } from '@shared/domain'
+import { t } from '@/i18n'
 
 /**
  * - live:         Supabase + gateway configured (normal operation)
@@ -34,7 +35,7 @@ export const AuthContext = createContext<AuthValue | null>(null)
 
 export function useAuth(): AuthValue {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used inside an auth provider')
+  if (!ctx) throw new Error(t('useAuth must be used inside an auth provider'))
   return ctx
 }
 

@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
+import { t } from '@/i18n'
 
 /**
  * Accessible modal: labelled, closes on Escape and backdrop click, moves focus
@@ -70,7 +71,7 @@ export function Dialog({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6">
-      <button type="button" aria-label="Tutup" tabIndex={-1} className="absolute inset-0 bg-navy-900/50" onClick={onClose} />
+      <button type="button" aria-label={t('Tutup')} tabIndex={-1} className="absolute inset-0 bg-navy-900/50" onClick={onClose} />
       <div
         ref={panel}
         role="dialog"
@@ -94,7 +95,7 @@ export function Dialog({
               </div>
             )}
           </div>
-          <button type="button" onClick={onClose} className="grid size-8 shrink-0 place-items-center rounded-input text-slate hover:bg-ice hover:text-navy" aria-label="Tutup dialog">
+          <button type="button" onClick={onClose} className="grid size-8 shrink-0 place-items-center rounded-input text-slate hover:bg-ice hover:text-heading" aria-label={t('Tutup dialog')}>
             <X className="size-4" />
           </button>
         </header>

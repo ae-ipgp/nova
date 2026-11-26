@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { t } from '@/i18n'
 import { cn } from '@/lib/cn'
 
 export function SearchBox({ value, onChange, placeholder = 'Cari…', className }: { value: string; onChange: (v: string) => void; placeholder?: string; className?: string }) {
@@ -35,7 +36,7 @@ export function DetailList({ items }: { items: [string, ReactNode][] }) {
     <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
       {items.map(([k, v]) => (
         <div key={k} className="min-w-0">
-          <dt className="text-micro font-semibold uppercase tracking-wide text-slate">{k}</dt>
+          <dt className="text-micro font-semibold uppercase tracking-wide text-slate">{t(k)}</dt>
           <dd className="mt-0.5 break-words text-body text-ink">{v || <span className="text-slate">—</span>}</dd>
         </div>
       ))}
@@ -52,9 +53,9 @@ export function FilterChips<T extends string>({ value, onChange, options, label 
           type="button"
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
-          className={cn('rounded-full border px-3 py-1 text-caption font-medium transition-colors', value === o.value ? 'border-navy bg-navy text-white' : 'border-line bg-paper text-slate hover:border-blue hover:text-blue')}
+          className={cn('rounded-full border px-3 py-1 text-caption font-medium transition-colors', value === o.value ? 'border-navy bg-navy text-white' : 'border-line bg-paper text-slate hover:border-blue hover:text-link')}
         >
-          {o.label}
+          {t(o.label)}
         </button>
       ))}
     </div>

@@ -6,6 +6,7 @@ import type { MascotPose } from '@/config/mascot'
 import { Button } from './button'
 import { EmptyState } from './empty-state'
 import { Skeleton } from './skeleton'
+import { t } from '@/i18n'
 
 /** One consistent loading / error / empty treatment for every list (Blueprint §04, Definition of Done). */
 export function QueryState<T>({
@@ -23,7 +24,7 @@ export function QueryState<T>({
 }) {
   if (query.isPending) {
     return (
-      <div className="space-y-3 p-5" aria-busy="true" aria-label="Memuatkan">
+      <div className="space-y-3 p-5" aria-busy="true" aria-label={t('Memuatkan')}>
         {Array.from({ length: rows }, (_, i) => (
           <Skeleton key={i} className="h-12 w-full" />
         ))}
@@ -34,11 +35,11 @@ export function QueryState<T>({
     return (
       <EmptyState
         icon={AlertTriangle}
-        title="Data tidak dapat dimuatkan"
+        title={t('Data tidak dapat dimuatkan')}
         description={query.error instanceof Error ? query.error.message : undefined}
         action={
           <Button variant="secondary" onClick={() => void query.refetch()}>
-            Cuba lagi
+            {t('Cuba lagi')}
           </Button>
         }
       />

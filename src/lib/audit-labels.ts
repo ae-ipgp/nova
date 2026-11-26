@@ -1,3 +1,5 @@
+import { t } from '@/i18n'
+
 /** Plain-language labels for audit actions. Unknown codes fall back to the raw code, never to a guess. */
 const LABELS: Record<string, string> = {
   'profile.register': 'Mendaftarkan pengguna',
@@ -63,4 +65,4 @@ const LABELS: Record<string, string> = {
   'announcement.update': 'Mengemas kini pengumuman',
 }
 
-export const describeAction = (code: string): string => LABELS[code] ?? code
+export const describeAction = (code: string): string => t(LABELS[code] ?? code)

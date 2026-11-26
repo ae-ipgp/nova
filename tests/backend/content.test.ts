@@ -228,7 +228,7 @@ describe('Papan Notis / Pengumuman', () => {
     gw.ok('ann.save', { ...A, title: 'Awam draf', visibility: 'public', status: 'draft' }, SUAK.id)
     const pub = gw.ok('public.announcements', {})
     expect(pub.map((a) => a.title)).toEqual(['Awam'])
-    expect(Object.keys(pub[0]).sort()).toEqual(['body', 'category', 'id', 'pinned', 'publishAt', 'title'])
+    expect(Object.keys(pub[0]).sort()).toEqual(['body', 'bodyEn', 'category', 'id', 'pinned', 'publishAt', 'title', 'titleEn'])
   })
 
   it('respects publish and expiry times, pins first, marks recent as TERKINI', () => {

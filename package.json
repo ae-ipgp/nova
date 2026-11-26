@@ -44,11 +44,12 @@
     "jsdom": "^31.0.1",
     "oxlint": "^1.90.0",
     "tailwindcss": "^4.3.5",
+    "ts-parser": "npm:typescript@^5.9.3",
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
   },
-  "description": "NO.VA \u2014 Digital Secretariat for JPP IPGKKB",
+  "description": "NO.VA — Digital Secretariat for JPP IPGKKB",
   "engines": {
     "node": ">=22"
   }

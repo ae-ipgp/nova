@@ -14,7 +14,7 @@ describe('workspace gate', () => {
   it('explains when a DELIMa account is not registered', async () => {
     await renderReady('/workspace', liveAuth({ status: 'signed_in', me: me({ status: 'unregistered', profile: null, roles: [] }) }))
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Akaun belum didaftarkan')
-    expect(screen.getByText('ali@moe-dl.edu.my')).toBeInTheDocument()
+    expect(screen.getByText(/ali@moe-dl\.edu\.my/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Log keluar' })).toBeInTheDocument()
   })
 

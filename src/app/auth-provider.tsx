@@ -10,6 +10,7 @@ import { rememberNextPath } from '@/lib/next-path'
 import { getSupabase } from '@/lib/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AuthContext, resolveMode, type AuthState, type AuthValue } from './auth-context'
+import { t } from '@/i18n'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const mode = resolveMode(isAuthConfigured && isApiConfigured, import.meta.env.DEV)
@@ -104,7 +105,7 @@ function LiveAuthProvider({ children }: { children: ReactNode }) {
       signIn: async (nextPath) => {
         if (nextPath) rememberNextPath(nextPath)
         const c = client ?? (await getSupabase())
-        if (!c) throw new Error('Log masuk belum dikonfigurasi.')
+        if (!c) throw new Error(t('Log masuk belum dikonfigurasi.'))
         const { error } = await c.auth.signInWithOAuth({
           provider: 'google',
           options: {
@@ -146,6 +147,7 @@ function previewMe(role: RoleKey): MeResult {
     activeSession: { id: 'preview', name: SITE.demoSessionLabel, startDate: '', endDate: '' },
     membership: null,
     areas: [],
+    notifyOff: [],
   }
 }
 

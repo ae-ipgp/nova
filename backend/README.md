@@ -86,3 +86,17 @@ Keep the same deployment so the `/exec` URL does not change.
 - Every write that checks-then-writes goes inside `withLock()`.
 - Read and write columns by header name (schema), never by position.
 - Public actions return only `publicColumns` of published rows.
+
+## Updating to the HiPER-parity release (schema v4)
+
+1. Paste the new `backend/dist/Code.js` (or `npm run backend:push`).
+2. Run **`setupSpreadsheet`** again: it adds the new columns (announcement English text, notification
+   preferences, canned replies and brand settings live in Settings). Nothing is deleted.
+3. Run **`installTriggers`** again: it adds `sendReminders` (daily, ~09:00) and `backupToDrive`
+   (monthly, 1st). Authorise the Drive permission if asked.
+4. Deploy → Manage deployments → edit → **New version**.
+5. In **Pengurusan → Tetapan** set *Alamat laman NO.VA* (`app_url`) so e-mails contain a working link.
+6. Open the site: sign in as SUAK, change the logo/favicon under *Jenama*, and check *Keterlihatan halaman*.
+
+Each person can switch system e-mails off under the profile menu → **Pilihan e-mel**. SUAK can switch all of
+them off with *Hantar e-mel sistem* in Tetapan.

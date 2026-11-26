@@ -34,6 +34,25 @@ export const AREA_LABELS: Record<Area, string> = {
   'meetings.verify': 'Sahkan kehadiran',
 }
 
+/** System emails a person can switch off. Security notices (access changed) cannot be switched off. */
+export const NOTIFY_KINDS = ['request_submitted', 'request_decision', 'opr_submitted', 'opr_decision', 'action_assigned', 'action_reminder'] as const
+export type NotifyKind = (typeof NOTIFY_KINDS)[number]
+export const NOTIFY_LABELS: Record<NotifyKind, string> = {
+  request_submitted: 'Permohonan nombor rujukan baharu (untuk SUAK)',
+  request_decision: 'Keputusan permohonan nombor rujukan saya',
+  opr_submitted: 'OPR baharu untuk disahkan (untuk penyemak)',
+  opr_decision: 'Keputusan OPR saya',
+  action_assigned: 'Tindakan susulan diberikan kepada saya',
+  action_reminder: 'Peringatan tarikh akhir tindakan',
+}
+
+export const VISIBILITY_STATES = ['published', 'soon', 'locked', 'hidden'] as const
+export type VisibilityState = (typeof VISIBILITY_STATES)[number]
+export const VISIBILITY_STATE_LABELS: Record<VisibilityState, string> = { published: 'Diterbitkan', soon: 'Akan datang', locked: 'Dikunci', hidden: 'Disembunyikan' }
+
+export const PUBLIC_PAGE_KEYS = ['mengenai', 'kehadiran', 'pengumuman', 'templat', 'arkib', 'semak'] as const
+export const WORKSPACE_PAGE_KEYS = ['e_surat', 'e_mesyuarat', 'nome', 'templat', 'e_opr', 'e_arkib', 'papan_notis'] as const
+
 export const SESSION_STATUSES = ['planned', 'active', 'archived'] as const
 export type SessionStatus = (typeof SESSION_STATUSES)[number]
 

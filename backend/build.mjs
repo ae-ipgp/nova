@@ -9,7 +9,7 @@ const dist = join(here, 'dist')
 mkdirSync(dist, { recursive: true })
 
 // Apps Script only discovers top-level function declarations as entry points.
-const ENTRY_POINTS = ['doGet', 'doPost', 'setupSpreadsheet', 'bootstrap', 'installTriggers', 'keepAlive', 'sendScheduledNotices']
+const ENTRY_POINTS = ['doGet', 'doPost', 'setupSpreadsheet', 'bootstrap', 'installTriggers', 'keepAlive', 'sendScheduledNotices', 'sendReminders', 'backupToDrive']
 const footer = ENTRY_POINTS.map((fn) => `function ${fn}(e) { return Nova.${fn}(e); }`).join('\n')
 
 await build({

@@ -28,7 +28,7 @@ export interface SheetDef {
 }
 
 /** Bump when columns or tabs change; setup records it in system_settings. */
-export const SCHEMA_VERSION = 3
+export const SCHEMA_VERSION = 4
 
 const ROW = ['id', 'created_at', 'updated_at', 'created_by'] as const
 
@@ -39,7 +39,7 @@ export const SHEETS = [
     workbook: 'data',
     // SUAK registers a member by DELIMa email (registration by SUAK only). user_id (the
     // Supabase Auth user id) is linked on the member's first sign-in.
-    columns: ['id', 'user_id', 'full_name', 'email', 'phone', 'account_status', 'created_at', 'updated_at'],
+    columns: ['id', 'user_id', 'full_name', 'email', 'phone', 'account_status', 'created_at', 'updated_at', 'notify_off'],
     unique: [['user_id'], ['email']],
     restricted: ['email', 'phone'],
   },
@@ -138,7 +138,7 @@ export const SHEETS = [
   {
     name: 'meeting_actions',
     workbook: 'data',
-    columns: [...ROW, 'meeting_id', 'description', 'owner_id', 'due_date', 'status'],
+    columns: [...ROW, 'meeting_id', 'description', 'owner_id', 'due_date', 'status', 'last_reminded_on'],
   },
 
   // M04 NoMe ---------------------------------------------------------------
@@ -204,8 +204,8 @@ export const SHEETS = [
   {
     name: 'announcements',
     workbook: 'data',
-    columns: [...ROW, 'title', 'body', 'visibility', 'status', 'publish_at', 'category', 'pinned', 'expires_at'],
-    publicColumns: ['id', 'title', 'body', 'publish_at', 'category', 'pinned'],
+    columns: [...ROW, 'title', 'body', 'visibility', 'status', 'publish_at', 'category', 'pinned', 'expires_at', 'title_en', 'body_en'],
+    publicColumns: ['id', 'title', 'body', 'publish_at', 'category', 'pinned', 'title_en', 'body_en'],
   },
   {
     name: 'system_settings',

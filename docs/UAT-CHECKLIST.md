@@ -74,3 +74,22 @@ line with the date and initials. Blueprint acceptance tests are cited (AT-xx).
 - [ ] On a phone: login, dashboard, e-Surat request, attendance view, OPR wizard all usable without sideways scrolling.
 - [ ] Keyboard only: tab through the login page and open/close a dialog; focus is visible.
 - [ ] "Install app" works on Android Chrome; after a deploy, reopening the app shows the new version.
+
+## 9. Themes, language, search, brand, visibility (HiPER-parity layer)
+- [ ] Appearance menu (palette icon): Mutiara, Lazuardi, Zamrud and Automatik all load without a white flash on reload;
+      Automatik follows the device's light/dark setting.
+- [ ] Switch to English: menus, forms, buttons, errors from the server and dates are English; PDFs, letters and e-mails stay Malay.
+      Ask a bilingual member to read the English text.
+- [ ] Ctrl+K (or `/`) finds a page, a letter, a meeting and a document you may see; a member never sees records they cannot open.
+      Signed out, `/` search shows only published public items.
+- [ ] Tetapan → Jenama: upload a logo and a favicon; both appear after a reload (browser tab shows the new favicon).
+      "Pulihkan lalai" restores NO.VA's own.
+- [ ] Tetapan → Keterlihatan halaman: set *Arkib Awam* to Akan datang (public sees the notice), *Templat* in the workspace to
+      Disembunyikan (a member cannot open it; SUAK still can, with a banner).
+- [ ] Submit a reference-number request: SUAK receives an e-mail. Approve it: the applicant receives one.
+      Switch the kind off in *Pilihan e-mel* and confirm it stops. An access-changed notice still arrives.
+- [ ] Assign a follow-up action due in 3 days; the owner gets the daily reminder (run `sendReminders` once by hand to test).
+- [ ] Run `backupToDrive` once; a dated folder appears in Drive. Tetapan → *Muat turun sandaran* downloads a ZIP that opens.
+- [ ] Turn the Wi-Fi off after loading the public site: the outage notice appears with the Secretariat's contacts.
+- [ ] Rejecting a request offers the canned replies from Tetapan.
+- [ ] Start a new announcement, reload the page: the unsaved draft is restored; "Buang draf" clears it.

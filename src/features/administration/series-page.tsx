@@ -11,6 +11,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { useToast } from '@/components/ui/toast'
 import { useGatewayMutation, useGatewayQuery } from '@/hooks/use-gateway'
 import { todayIso } from '@/lib/format'
+import { t } from '@/i18n'
 
 export function SeriesPage() {
   const q = useGatewayQuery('admin.series.list', {})
@@ -19,24 +20,24 @@ export function SeriesPage() {
     <section aria-labelledby="series-h" className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 id="series-h" className="text-h3 font-bold">Siri nombor rujukan</h2>
-          <p className="mt-1 max-w-2xl text-caption text-slate">Format ialah konfigurasi: gunakan <code className="font-mono">{'{PREFIX}'}</code>, <code className="font-mono">{'{YEAR}'}</code> dan <code className="font-mono">{'{SEQ}'}</code>. Satu siri aktif bagi setiap tahun. Tiada nombor boleh dikeluarkan sehingga siri ditetapkan.</p>
+          <h2 id="series-h" className="text-h3 font-bold">{t('Siri nombor rujukan')}</h2>
+          <p className="mt-1 max-w-2xl text-caption text-slate">{t('Format ialah konfigurasi: gunakan {PREFIX}, {YEAR} dan {SEQ}. Satu siri aktif bagi setiap tahun. Tiada nombor boleh dikeluarkan sehingga siri ditetapkan.', { PREFIX: '{PREFIX}', YEAR: '{YEAR}', SEQ: '{SEQ}' })}</p>
         </div>
-        <Button onClick={() => setEditing('new')}><Plus />Siri baharu</Button>
+        <Button onClick={() => setEditing('new')}><Plus />{t('Siri baharu')}</Button>
       </div>
-      <Notice tone="warning">Format rasmi (klasifikasi fail, turutan, reset tahunan) mesti disahkan oleh pihak institusi sebelum digunakan sebagai sistem rekod rasmi (Blueprint §16 #1). Contoh paparan hanyalah placeholder.</Notice>
+      <Notice tone="warning">{t('Format rasmi (klasifikasi fail, turutan, reset tahunan) mesti disahkan oleh pihak institusi sebelum digunakan sebagai sistem rekod rasmi (Blueprint §16 #1). Contoh paparan hanyalah placeholder.')}</Notice>
       <Card className="overflow-hidden">
-        <QueryState query={q} empty={{ icon: Hash, pose: 'construction', title: 'Siri belum ditetapkan', description: 'Cipta siri bagi tahun semasa supaya SUAK boleh meluluskan permohonan.' }}>
+        <QueryState query={q} empty={{ icon: Hash, pose: 'construction', title: t('Siri belum ditetapkan'), description: t('Cipta siri bagi tahun semasa supaya SUAK boleh meluluskan permohonan.') }}>
           {(rows) => (
             <ul className="divide-y divide-line">
               {rows.map((s) => (
                 <li key={s.id} className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="font-mono text-body font-semibold text-navy">{s.pattern}</p>
-                    <p className="text-caption text-slate">Tahun {s.year} · awalan “{s.prefix}” · seterusnya {s.nextSequence} (lapik {s.padding}) · versi {s.version}</p>
-                    <p className="font-mono text-micro text-blue">Pratonton: {s.preview}</p>
+                    <p className="font-mono text-body font-semibold text-heading">{s.pattern}</p>
+                    <p className="text-caption text-slate">{t('Tahun {year} · awalan “{prefix}” · seterusnya {next} (lapik {padding}) · versi {version}', { year: s.year, prefix: s.prefix, next: s.nextSequence, padding: s.padding, version: s.version })}</p>
+                    <p className="font-mono text-micro text-link">{t('Pratonton:')} {s.preview}</p>
                   </div>
-                  <div className="flex items-center gap-2"><StatusBadge tone={s.active ? 'approved' : 'archived'}>{s.active ? 'Aktif' : 'Tidak aktif'}</StatusBadge><Button size="sm" variant="secondary" onClick={() => setEditing(s)}>Sunting</Button></div>
+                  <div className="flex items-center gap-2"><StatusBadge tone={s.active ? 'approved' : 'archived'}>{s.active ? t('Aktif') : t('Tidak aktif')}</StatusBadge><Button size="sm" variant="secondary" onClick={() => setEditing(s)}>{t('Sunting')}</Button></div>
                 </li>
               ))}
             </ul>
@@ -58,19 +59,19 @@ function SeriesDialog({ existing, onClose }: { existing: SeriesView | null; onCl
     const bad = validatePattern(v.pattern)
     if (bad) return setError(bad)
     setError(null)
-    save.mutate({ id: existing?.id, prefix: v.prefix, pattern: v.pattern, year: Number(v.year), nextSequence: Number(v.nextSequence), padding: Number(v.padding), active: v.active }, { onSuccess: () => (toast.success('Siri disimpan.'), onClose()) })
+    save.mutate({ id: existing?.id, prefix: v.prefix, pattern: v.pattern, year: Number(v.year), nextSequence: Number(v.nextSequence), padding: Number(v.padding), active: v.active }, { onSuccess: () => (toast.success(t('Siri disimpan.')), onClose()) })
   }
   return (
-    <Dialog open onClose={onClose} title={existing ? 'Sunting siri' : 'Siri baharu'} footer={<><Button variant="secondary" onClick={onClose}>Batal</Button><Button type="submit" form="series-form" loading={save.isPending}>Simpan</Button></>}>
+    <Dialog open onClose={onClose} title={existing ? t('Sunting siri') : t('Siri baharu')} footer={<><Button variant="secondary" onClick={onClose}>{t('Batal')}</Button><Button type="submit" form="series-form" loading={save.isPending}>{t('Simpan')}</Button></>}>
       <form id="series-form" noValidate onSubmit={submit} className="space-y-4">
-        <FormField label="Format" className="font-mono" value={v.pattern} onChange={(e) => setV({ ...v, pattern: e.target.value })} required hint="Mesti mengandungi {SEQ}." />
-        <FormField label="Awalan ({PREFIX})" value={v.prefix} onChange={(e) => setV({ ...v, prefix: e.target.value })} maxLength={60} />
+        <FormField label={t('Format')} className="font-mono" value={v.pattern} onChange={(e) => setV({ ...v, pattern: e.target.value })} required hint={t('Mesti mengandungi {SEQ}.')} />
+        <FormField label={t('Awalan ({PREFIX})')} value={v.prefix} onChange={(e) => setV({ ...v, prefix: e.target.value })} maxLength={60} />
         <div className="grid gap-4 sm:grid-cols-3">
-          <FormField label="Tahun" type="number" value={v.year} onChange={(e) => setV({ ...v, year: e.target.value })} required />
-          <FormField label="Turutan seterusnya" type="number" min={1} value={v.nextSequence} onChange={(e) => setV({ ...v, nextSequence: e.target.value })} required />
-          <FormField label="Lapik sifar" type="number" min={0} max={8} value={v.padding} onChange={(e) => setV({ ...v, padding: e.target.value })} required />
+          <FormField label={t('Tahun')} type="number" value={v.year} onChange={(e) => setV({ ...v, year: e.target.value })} required />
+          <FormField label={t('Turutan seterusnya')} type="number" min={1} value={v.nextSequence} onChange={(e) => setV({ ...v, nextSequence: e.target.value })} required />
+          <FormField label={t('Lapik sifar')} type="number" min={0} max={8} value={v.padding} onChange={(e) => setV({ ...v, padding: e.target.value })} required />
         </div>
-        <label className="flex items-center gap-2 text-caption font-medium"><input type="checkbox" checked={v.active} onChange={(e) => setV({ ...v, active: e.target.checked })} className="size-4 accent-[var(--color-blue)]" />Aktif (menggantikan siri aktif lain bagi tahun ini)</label>
+        <label className="flex items-center gap-2 text-caption font-medium"><input type="checkbox" checked={v.active} onChange={(e) => setV({ ...v, active: e.target.checked })} className="size-4 accent-[var(--color-blue)]" />{t('Aktif (menggantikan siri aktif lain bagi tahun ini)')}</label>
         {(error || save.error) && <Notice>{error ?? save.error?.message}</Notice>}
       </form>
     </Dialog>

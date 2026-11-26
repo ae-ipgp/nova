@@ -7,18 +7,14 @@ import './styles/index.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppRouter } from './app/router'
+import { initPrefs } from './lib/prefs'
+import { initPwa } from './lib/pwa'
+
+initPrefs()
+initPwa()
 
 const root = document.getElementById('root')
 if (!root) throw new Error('Root element #root not found')
-
-// Offline shell + install. The worker caches only this site's own files, never gateway data.
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      /* installation is optional; the site works without it */
-    })
-  })
-}
 
 createRoot(root).render(
   <StrictMode>

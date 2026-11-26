@@ -1,0 +1,50 @@
+/*
+ * Themes (HiPER-style): Mutiara (pearl, light — the default in tokens.css), Lazuardi (lapis, dark),
+ * Zamrud (emerald, light). "Automatik" follows the device and resolves to Mutiara or Lazuardi.
+ * Only variable VALUES change; contrast of every text/surface pair is checked by tests/themes.test.ts.
+ */
+:root[data-theme='lazuardi'] {
+  color-scheme: dark;
+  --color-navy: #0f2a4d;
+  --color-navy-900: #07101f;
+  --color-navy-700: #1b3d63;
+  --color-blue: #2a72b8;
+  --color-electric: #4aa3f0;
+  --color-heading: #eef4fc;
+  --color-link: #7dbcf7;
+  --color-soft: #16304f;
+  --color-ice: #0a1424;
+  --color-paper: #11203a;
+  --color-ink: #e7eef8;
+  --color-slate: #9fb2c8;
+  --color-line: #26395a;
+  --color-teal: #5cc7c0;
+  --color-red: #ef8e8e;
+  --color-amber: #e6b25a;
+  --color-green: #62c88f;
+  --color-slate-100: rgb(255 255 255 / 0.07);
+  --color-amber-100: rgb(230 178 90 / 0.16);
+  --color-green-100: rgb(98 200 143 / 0.16);
+  --color-red-100: rgb(239 142 142 / 0.16);
+  --color-blue-100: rgb(74 163 240 / 0.16);
+  --color-teal-100: rgb(92 199 192 / 0.16);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.35);
+  --shadow-float: 0 12px 40px rgb(0 0 0 / 0.55);
+}
+
+:root[data-theme='zamrud'] {
+  --color-navy: #0c3a31;
+  --color-navy-900: #082a23;
+  --color-navy-700: #17594a;
+  --color-blue: #13805f;
+  --color-electric: #1fa77c;
+  --color-heading: #0c3a31;
+  --color-link: #0f6e52;
+  --color-soft: #d8f0e6;
+  --color-sky: #d8f0e6;
+  --color-ice: #eef7f3;
+  --color-ink: #14281f;
+  --color-slate: #50695c;
+  --color-line: #cfe3d9;
+  --color-blue-100: #dff3ea;
+}

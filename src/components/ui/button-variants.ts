@@ -6,10 +6,10 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: 'bg-blue text-white hover:bg-navy',
-        secondary: 'border border-line bg-paper text-navy hover:border-blue hover:text-blue',
-        tertiary: 'text-blue hover:bg-blue-100',
-        destructive: 'bg-red text-white hover:bg-red/90',
-        inverse: 'bg-white text-navy hover:bg-sky',
+        secondary: 'border border-line bg-paper text-heading hover:border-blue hover:text-link',
+        tertiary: 'text-link hover:bg-blue-100',
+        destructive: 'bg-danger text-white hover:bg-danger/90',
+        inverse: 'bg-white text-navy hover:bg-white/90',
         ghostInverse: 'border border-white/30 text-white hover:bg-white/10',
       },
       size: {

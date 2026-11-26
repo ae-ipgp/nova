@@ -31,7 +31,7 @@ describe('login', () => {
   it('offers DELIMa sign-in only, disabled while sign-in is not configured', () => {
     renderRoute('/log-masuk')
     expect(screen.getByRole('button', { name: /Log masuk dengan DELIMa/ })).toBeDisabled()
-    expect(screen.getByText('@moe-dl.edu.my')).toBeInTheDocument()
+    expect(screen.getByText(/@moe-dl\.edu\.my/, { selector: 'p' })).toBeInTheDocument()
     expect(screen.queryByLabelText(/Kata laluan/)).toBeNull()
   })
 })
@@ -45,10 +45,11 @@ describe('workspace shell', () => {
     expect(within(kpis).queryByText(/^\s*\d[\d,.]*\s*$/)).toBeNull()
   })
 
-  it('filters sidebar navigation by previewed role', async () => {
+  it('filters the module rail by previewed role', async () => {
     const user = userEvent.setup()
     await renderReady('/workspace')
-    const nav = screen.getAllByRole('complementary', { name: 'Navigasi ruang kerja' })[0]
+    await screen.findByRole('heading', { level: 1 })
+    const nav = screen.getByRole('navigation', { name: 'Modul ruang kerja' })
     expect(within(nav).getByRole('link', { name: 'Pengurusan' })).toBeInTheDocument()
 
     await user.selectOptions(screen.getByLabelText('Pratonton navigasi sebagai peranan'), 'member')

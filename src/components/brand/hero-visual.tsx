@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 /**
  * Hero visual — a restrained, abstract "document stack" built from layered
  * panels and the NO.VA node. One visual moment for the landing page only;
@@ -5,7 +6,7 @@
  */
 export function HeroVisual({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 420 420" className={className} role="img" aria-label="Ilustrasi abstrak susunan dokumen NO.VA">
+    <svg viewBox="0 0 420 420" className={className} role="img" aria-label={t('Ilustrasi abstrak susunan dokumen NO.VA')}>
       <defs>
         <linearGradient id="hv-panel" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#ffffff" />

@@ -3,6 +3,7 @@ import { OPR_STYLES, type OprStyle } from '@shared/domain'
 import { EMPTY_OPR, narrativeLength, narrativeLimit, OPR_TEXT_LIMITS, renderOprHtml } from '@shared/opr-html'
 import { badRequest, conflict, forbidden, notFound } from '../errors'
 import { hasArea, type HandlerContext } from '../context'
+import { envOf, notify, oprReviewers } from '../notify'
 import { getSetting } from '../settings'
 import type { Row } from '../store'
 import { asPayload, isoDate, oneOf, str } from '../validate'
@@ -214,6 +215,10 @@ export const oprHandlers: {
       const row = ctx.store.update('opr_reports', r.id, { status: 'submitted', version: String(version), submitted_at: now, review_note: '', updated_at: now })
       ctx.store.insert('opr_versions', { id: ctx.uuid(), opr_id: r.id, version: String(version), content_json: r.content_json, saved_by: actor.profile.id, saved_at: now })
       ctx.audit('opr.submit', 'opr', r.id, { status: r.status }, { status: 'submitted', version })
+      for (const reviewer of oprReviewers(ctx.store)) {
+        if (reviewer.id === actor.profile.id) continue
+        notify(envOf(ctx), 'opr_submitted', reviewer, { subject: `OPR untuk disahkan: ${r.title}`, body: `${actor.profile.full_name} menghantar OPR "${r.title}" (versi ${version}) untuk pengesahan.`, path: `/workspace/e-opr/${r.id}`, ctaText: 'Semak OPR' })
+      }
       return toView(ctx, row)
     },
   },
@@ -234,6 +239,7 @@ export const oprHandlers: {
       if (decision === 'revise') {
         const row = ctx.store.update('opr_reports', r.id, { status: 'revision_requested', review_note: note, reviewed_by: actor.profile.id, updated_at: now })
         ctx.audit('opr.revise', 'opr', r.id, { status: 'submitted' }, { status: 'revision_requested', note })
+        notify(envOf(ctx), 'opr_decision', ctx.store.get('profiles', r.created_by), { subject: `OPR perlu pembetulan: ${r.title}`, body: `Penyemak meminta pembetulan bagi OPR anda.\n\nCatatan: ${note}`, path: `/workspace/e-opr/${r.id}` })
         return toView(ctx, row)
       }
       // Approve: render the final PDF first, then file it with metadata in e-Arkib (OPR-08).
@@ -261,6 +267,7 @@ export const oprHandlers: {
       })
       const row = ctx.store.update('opr_reports', r.id, { status: 'approved', final_file_id: fileId, approved_by: actor.profile.id, approved_at: now, archive_id: archive.id, reviewed_by: actor.profile.id, review_note: note, updated_at: now })
       ctx.audit('opr.approve', 'opr', r.id, { status: 'submitted' }, { status: 'approved', archive: archive.id })
+      notify(envOf(ctx), 'opr_decision', ctx.store.get('profiles', r.created_by), { subject: `OPR disahkan: ${r.title}`, body: 'OPR anda telah disahkan dan disimpan dalam e-Arkib.', path: `/workspace/e-opr/${r.id}` })
       return toView(ctx, row)
     },
   },

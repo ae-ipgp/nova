@@ -13,6 +13,8 @@ import { getProp, PROP, setProp, type PropKey } from './config'
 import { pingSupabase } from './keep-alive'
 import { liveServices } from './live-services'
 import { processScheduledNotices } from './actions/notices'
+import { backupsToDelete } from './backup'
+import { sendDailyReminders } from './notify'
 import { withLock } from './lock'
 import { handleRequest, type GatewayDeps } from './router'
 import { ensureSheets, type SetupResult } from './setup'
@@ -164,11 +166,39 @@ export function sendScheduledNotices(): void {
   if (sent) console.log(`Scheduled notices sent: ${sent}`)
 }
 
+/** Daily 09:00 (script time zone Asia/Kuala_Lumpur): action due-date reminders. */
+export function sendReminders(): void {
+  const n = withLock(LockService.getScriptLock(), () => sendDailyReminders({ store: new TableStore(createSheetsIO()), services: liveServices, now: new Date(), uuid: () => Utilities.getUuid() }), 30_000)
+  if (n) console.log(`Reminders sent: ${n}`)
+}
+
+/** Monthly: copy both spreadsheets into the Sandaran folder and keep the newest 12 of each. */
+export function backupToDrive(): void {
+  const rootId = getProp(PROP.driveRootFolderId)
+  if (!rootId) throw new Error('Drive not configured.')
+  const folders = DriveApp.getFolderById(rootId).getFoldersByName(DRIVE_FOLDERS.sandaran)
+  const target = folders.hasNext() ? folders.next() : DriveApp.getFolderById(rootId).createFolder(DRIVE_FOLDERS.sandaran)
+  const stamp = new Date().toISOString().slice(0, 10)
+  for (const [key, label] of [[PROP.dataSpreadsheetId, 'Data'], [PROP.auditSpreadsheetId, 'Audit']] as const) {
+    const id = getProp(key)
+    if (id) DriveApp.getFileById(id).makeCopy(`NO.VA — ${label} — ${stamp}`, target)
+  }
+  const files: { id: string; name: string; createdMs: number }[] = []
+  const it = target.getFiles()
+  while (it.hasNext()) {
+    const f = it.next()
+    files.push({ id: f.getId(), name: f.getName(), createdMs: f.getDateCreated().getTime() })
+  }
+  for (const id of backupsToDelete(files, 12)) DriveApp.getFileById(id).setTrashed(true)
+}
+
 /** Installs the time-driven triggers (daily Supabase keep-alive, 15-minute notice scheduler). Idempotent. */
 export function installTriggers(): void {
   for (const t of ScriptApp.getProjectTriggers()) {
-    if (['keepAlive', 'sendScheduledNotices'].includes(t.getHandlerFunction())) ScriptApp.deleteTrigger(t)
+    if (['keepAlive', 'sendScheduledNotices', 'sendReminders', 'backupToDrive'].includes(t.getHandlerFunction())) ScriptApp.deleteTrigger(t)
   }
   ScriptApp.newTrigger('keepAlive').timeBased().everyDays(1).atHour(3).create()
   ScriptApp.newTrigger('sendScheduledNotices').timeBased().everyMinutes(15).create()
+  ScriptApp.newTrigger('sendReminders').timeBased().everyDays(1).atHour(9).create()
+  ScriptApp.newTrigger('backupToDrive').timeBased().onMonthDay(1).atHour(2).create()
 }

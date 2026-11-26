@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './tokens.css';
+@import './themes.css';
 
 @layer base {
   :root {
@@ -20,12 +21,12 @@
   h2,
   h3,
   h4 {
-    @apply font-display text-navy;
+    @apply font-display text-heading;
     letter-spacing: -0.015em;
   }
 
   ::selection {
-    @apply bg-sky text-navy;
+    @apply bg-soft text-heading;
   }
 
   :focus-visible {
@@ -56,4 +57,13 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Frosted surface for floating UI (navigation pill, dock, search palette). Falls back to a solid surface. */
+@utility glass {
+  background-color: color-mix(in srgb, var(--color-paper) 92%, transparent);
+  @supports (backdrop-filter: blur(1px)) {
+    background-color: color-mix(in srgb, var(--color-paper) 72%, transparent);
+    backdrop-filter: blur(18px) saturate(1.4);
+  }
 }

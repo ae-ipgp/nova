@@ -1,6 +1,7 @@
 import { Printer } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { t } from '@/i18n'
 
 const A4_W = 794 // 210 mm at 96 dpi
 const A4_H = 1123
@@ -30,7 +31,7 @@ export function A4Preview({ html, title }: { html: string; title: string }) {
       </div>
       <Button className="mt-2" size="sm" variant="secondary" onClick={() => frame.current?.contentWindow?.print()}>
         <Printer />
-        Cetak / simpan sebagai PDF
+        {t('Cetak / simpan sebagai PDF')}
       </Button>
     </div>
   )

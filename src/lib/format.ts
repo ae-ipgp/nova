@@ -1,22 +1,26 @@
+import { getLang } from './prefs'
+
 const TZ = 'Asia/Kuala_Lumpur'
+/** Dates follow the chosen language (the time zone is always Malaysia). */
+const locale = (): string => (getLang() === 'en' ? 'en-MY' : 'ms-MY')
 
 export function formatDate(iso: string): string {
   if (!iso) return '—'
   const d = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(`${iso}T00:00:00Z`) : new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return new Intl.DateTimeFormat('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', timeZone: /^\d{4}-\d{2}-\d{2}$/.test(iso) ? 'UTC' : TZ }).format(d)
+  return new Intl.DateTimeFormat(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: /^\d{4}-\d{2}-\d{2}$/.test(iso) ? 'UTC' : TZ }).format(d)
 }
 
 export function formatDateTime(iso: string): string {
   if (!iso) return '—'
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return new Intl.DateTimeFormat('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: TZ }).format(d)
+  return new Intl.DateTimeFormat(locale(), { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: TZ }).format(d)
 }
 
 export function formatTime(iso: string): string {
   const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat('ms-MY', { hour: 'numeric', minute: '2-digit', timeZone: TZ }).format(d)
+  return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit', timeZone: TZ }).format(d)
 }
 
 /** <input type="datetime-local"> value (Malaysia time) → ISO with the +08:00 offset the gateway expects. */

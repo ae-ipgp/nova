@@ -3,6 +3,7 @@ import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { useAuth } from '@/app/auth-context'
+import { t } from '@/i18n'
 
 /** Full-page explanation when the workspace cannot be opened. */
 export function AccessState({
@@ -20,7 +21,7 @@ export function AccessState({
   return (
     <div className="flex min-h-dvh flex-col bg-ice">
       <header className="container-content flex h-header items-center">
-        <Link to="/" aria-label="Laman utama NO.VA">
+        <Link to="/" aria-label={t('Laman utama NO.VA')}>
           <Logo />
         </Link>
       </header>
@@ -32,11 +33,11 @@ export function AccessState({
             {action}
             {showSignOut && (
               <Button variant="secondary" onClick={() => void signOut()}>
-                Log keluar
+                {t('Log keluar')}
               </Button>
             )}
             <Link to="/" className={buttonVariants({ variant: 'tertiary' })}>
-              Ke portal awam
+              {t('Ke portal awam')}
             </Link>
           </div>
         </div>

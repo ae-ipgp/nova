@@ -1,15 +1,34 @@
 # NO.VA release-candidate report
 
 **Status:** all eight modules, the public portal, the notice board, letter/certificate PDFs and the
-mascot slots are built. **Verified:** 305 automated tests, type-check, lint (0 warnings),
+mascot slots are built, plus the **HiPER-parity layer** (themes, dark mode, English, search, admin-managed logo/favicon, page visibility, system e-mails, daily reminders, monthly backup). **Verified:** 414 automated tests (gateway + interface), type-check, lint (0 warnings),
 production build, an end-to-end browser run of 17 screens under the production Content-Security-Policy,
 and a Chromium measurement of the one-page report layout. **Not verified:** anything that needs the real
 Google, Supabase or DELIMa accounts. Do [`UAT-CHECKLIST.md`](UAT-CHECKLIST.md) before publishing.
 
 Architecture: ADR-0001 (Sheets + Drive + Apps Script), ADR-0002 (DELIMa sign-in and ownership).
-Schema version **3**.
+Schema version **4**.
 
-## What changed in this release
+## HiPER-parity layer (added after the first release candidate)
+
+Requested: make the workspace feel like HiPER and add search, dark mode, English, themes and an admin-changeable logo/favicon.
+Source: the HiPER blueprint attached for NO.VA (sections 17B and the "build from start" list).
+
+| Area | Built |
+|---|---|
+| Workspace shell | Floating glass navigation pill, round module rail (desktop), bottom dock + menu sheet (phone), hero greeting, update/install banner, outage notice with cached contacts. |
+| Themes + dark mode | **Mutiara** (light, default), **Lazuardi** (dark), **Zamrud** (emerald light), **Automatik** (follows the device). Tokens only (`tokens.css` + `themes.css`); no-flash boot script; WCAG AA contrast tests for every text/surface pair. |
+| Bilingual | Malay (source) and English. `t('Malay')` + dictionaries in `src/i18n/en/`; language remounts screens; gateway errors are translated on the client; dates follow the language. **Letters, certificates, e-mails and PDFs stay Malay** (institutional wording). Announcements can carry an English version. |
+| Search | Ctrl/Cmd+K (or `/`) palette in the workspace and the public site. Workspace search is filtered by role *in the gateway* (`search.global`); public search returns only published rows (`public.search`). |
+| Brand | SUAK can change the **logo**, **favicon** and two brand colours in Tetapan → Jenama (reset to default any time). Images are shrunk in the browser, stored in Drive, cached by version. |
+| Page visibility | Each public page and workspace module can be Diterbitkan / Akan datang / Dikunci / Disembunyikan. Enforced by the gateway for everyone except SUAK. |
+| System e-mails | Request submitted/decided, OPR submitted/decided, action assigned + reminders (3 days before, on the day, weekly when overdue). Best-effort, never block the action, quota reserve of 25, each person can switch kinds off (**Pilihan e-mel**); security notices cannot be switched off. |
+| Backup | Monthly copy of every sheet to Drive (keeps 12) and an on-demand ZIP download (Tetapan → Sandaran data). |
+| Small things | Canned replies on reject/void, unsaved-draft restore on forms, optional feedback sounds (off by default), service-worker version stamp per build, update banner and install prompt. |
+
+Mailing-list headers and a separate sender domain (HiPER §17B) were **not** added: NoMe still sends from the owner's DELIMa mailbox (decision 6 below).
+
+## What changed in the first release candidate
 
 | Area | Built |
 |---|---|
@@ -85,7 +104,7 @@ P0 all implemented unless listed below. "Partial" = works but narrower than the 
 - **Apps Script behaviours assumed from documentation, to confirm in UAT:** HTML→PDF page size (A4 vs Letter) and inline-photo support; `MailApp` display-name/Reply-To; base64 download size for large files.
 - **Limits:** files ≤ 5 MB; NoMe ≤ 150 recipients per notice (writes run one at a time under one lock); mail quota per day is Google's (≈ 1,500 for a Workspace account) and is checked before sending; lists are capped (300–500 newest) and every request re-reads sheets, so expect ~1–2 s per action. Plan a new workbook per session if the audit log grows large.
 - **No rate limiting on the gateway** and no brute-force protection beyond Google/Supabase's own.
-- **No bilingual (English) interface, no dark theme**; Malay only.
+- **English covers the interface only.** Documents, e-mails and PDFs are Malay by design; the English wording of the interface was written by the build, not by a translator: have a bilingual member read it before announcing it.
 - **Public downloads go through the gateway** as base64 (not direct Drive links), which is safer but slower for big files.
 - **Service worker caches only the app's own files.** After a release, users may need to reload once.
 - **Realtime updates:** none; screens refresh on action or reload.

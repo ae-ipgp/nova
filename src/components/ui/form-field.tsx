@@ -1,5 +1,6 @@
 import { useId, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
+import { t } from '@/i18n'
 
 const CONTROL =
   'w-full rounded-input border bg-paper px-3 text-body text-ink placeholder:text-slate/70 focus:outline-none focus:ring-2 disabled:bg-ice disabled:text-slate'
@@ -65,10 +66,10 @@ export function SelectField({ label, hint, error, required, className, children,
   )
 }
 
-export function Notice({ tone: t = 'error', children, className }: { tone?: 'error' | 'info' | 'warning'; children: ReactNode; className?: string }) {
-  const cls = { error: 'border-red/30 bg-red-100 text-red', info: 'border-blue/20 bg-blue-100 text-navy', warning: 'border-amber/30 bg-amber-100/70 text-ink' }[t]
+export function Notice({ tone: tt = 'error', children, className }: { tone?: 'error' | 'info' | 'warning'; children: ReactNode; className?: string }) {
+  const cls = { error: t('border-red/30 bg-red-100 text-red'), info: 'border-blue/20 bg-blue-100 text-heading', warning: 'border-amber/30 bg-amber-100/70 text-ink' }[tt]
   return (
-    <p role={t === 'error' ? 'alert' : 'note'} className={cn('rounded-input border p-3 text-caption', cls, className)}>
+    <p role={tt === 'error' ? 'alert' : 'note'} className={cn('rounded-input border p-3 text-caption', cls, className)}>
       {children}
     </p>
   )

@@ -7,21 +7,29 @@
   /* Reset Tailwind's default palette so only approved tokens are available. */
   --color-*: initial;
 
-  /* Core palette */
-  --color-navy: #102d4f;        /* Midnight Navy — logo, hero, sidebar, headings */
-  --color-blue: #1769aa;        /* Institutional Blue — primary buttons, links, active nav */
-  --color-electric: #2c86d9;    /* Electric Blue — interaction accent, highlight, charts */
-  --color-sky: #dcebfa;         /* Soft Sky — soft visual backgrounds */
-  --color-ice: #f3f7fb;         /* Ice Surface — dashboard and table backgrounds */
-  --color-paper: #ffffff;       /* Paper White — cards, forms, content */
-  --color-ink: #172638;         /* Ink — primary text */
-  --color-slate: #63758a;       /* Slate — metadata and secondary text */
-  --color-line: #d9e2ec;        /* Line — borders and dividers */
-  --color-champagne: #d4b77a;   /* Champagne — restricted premium accent */
-  --color-teal: #287c78;        /* Teal — selected positive status */
-  --color-red: #b64a4a;         /* Muted Red — errors and rejection */
-  --color-amber: #b7791f;       /* Amber — pending (semantic status) */
-  --color-green: #2f7d4f;       /* Green — approved (semantic status) */
+  /*
+   * Core palette. Values below are the default theme "Mutiara". Themes override them under
+   * [data-theme] in themes.css (same variable names), so components never branch on theme.
+   * Roles are split on purpose: `heading`/`link` are TEXT colours, `navy`/`blue` are SURFACES.
+   */
+  --color-navy: #102d4f;        /* Midnight Navy — hero, footer, nav surfaces */
+  --color-blue: #1769aa;        /* Institutional Blue — primary buttons, active states (surface) */
+  --color-electric: #2c86d9;    /* Electric Blue — accents on dark surfaces, charts */
+  --color-heading: #102d4f;     /* Heading text */
+  --color-link: #1769aa;        /* Link / accent text */
+  --color-soft: #dcebfa;        /* Soft tinted background */
+  --color-sky: #dcebfa;         /* Light text on dark surfaces */
+  --color-ice: #f3f7fb;         /* Page background, table headers */
+  --color-paper: #ffffff;       /* Cards, forms, content */
+  --color-ink: #172638;         /* Primary text */
+  --color-slate: #58697d;       /* Secondary text */
+  --color-line: #d9e2ec;        /* Borders and dividers */
+  --color-champagne: #d4b77a;   /* Restricted premium accent */
+  --color-teal: #1f6b67;        /* Positive (text) */
+  --color-red: #9d3a3a;         /* Error (text) */
+  --color-danger: #b64a4a;      /* Destructive button surface */
+  --color-amber: #8a5a0c;       /* Pending (text) */
+  --color-green: #25693f;       /* Approved (text) */
 
   --color-white: #ffffff;
   --color-transparent: transparent;

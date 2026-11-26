@@ -3,6 +3,7 @@ import { useAuth, hasAnyRole } from '@/app/auth-context'
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/cn'
 import type { RoleKey } from '@shared/domain'
+import { t } from '@/i18n'
 
 const TABS: { to: string; label: string; roles: readonly RoleKey[] }[] = [
   { to: '/workspace/pengurusan/pengguna', label: 'Pengguna', roles: ['suak'] },
@@ -16,23 +17,23 @@ const TABS: { to: string; label: string; roles: readonly RoleKey[] }[] = [
 
 export function AdminLayout() {
   const { roles } = useAuth()
-  const tabs = TABS.filter((t) => hasAnyRole(roles, t.roles))
+  const tabs = TABS.filter((tt) => hasAnyRole(roles, tt.roles))
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="M08 · Pengurusan" title="Pengurusan" description="Pengguna, peranan dan sesi kepimpinan JPP." />
-      <nav aria-label="Seksyen pengurusan" className="flex gap-1 overflow-x-auto border-b border-line">
-        {tabs.map((t) => (
+      <PageHeader eyebrow={t('M08 · Pengurusan')} title={t('Pengurusan')} description={t('Pengguna, peranan dan sesi kepimpinan JPP.')} />
+      <nav aria-label={t('Seksyen pengurusan')} className="flex gap-1 overflow-x-auto border-b border-line">
+        {tabs.map((tt) => (
           <NavLink
-            key={t.to}
-            to={t.to}
+            key={tt.to}
+            to={tt.to}
             className={({ isActive }) =>
               cn(
                 '-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-caption font-semibold transition-colors',
-                isActive ? 'border-blue text-blue' : 'border-transparent text-slate hover:text-navy',
+                isActive ? 'border-blue text-link' : 'border-transparent text-slate hover:text-heading',
               )
             }
           >
-            {t.label}
+            {tt.label}
           </NavLink>
         ))}
       </nav>

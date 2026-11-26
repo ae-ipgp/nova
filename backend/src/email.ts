@@ -11,6 +11,10 @@ export interface ComposeInput {
   link: string
   orgName: string
   recipientName: string
+  /** Header label for system mails (defaults to the notice type's name). */
+  label?: string
+  /** Optional button linking back into NO.VA. */
+  cta?: { text: string; url: string }
 }
 
 const myt = (iso: string): string => {
@@ -41,12 +45,13 @@ export function composeNotice(i: ComposeInput): { subject: string; html: string;
 <body style="margin:0;padding:0;background:#f3f7fb;font-family:Arial,Helvetica,sans-serif;color:#172638;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:20px 10px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid #d9e2ec;border-radius:8px;">
-<tr><td style="padding:16px 24px;background:#102d4f;color:#ffffff;font-size:13px;letter-spacing:1px;">${escapeHtml(i.orgName)} · ${escapeHtml(NOTICE_TYPE_LABELS[i.type])}</td></tr>
+<tr><td style="padding:16px 24px;background:#102d4f;color:#ffffff;font-size:13px;letter-spacing:1px;">${escapeHtml(i.orgName)} · ${escapeHtml(i.label ?? NOTICE_TYPE_LABELS[i.type])}</td></tr>
 <tr><td style="padding:24px;">
 <h1 style="margin:0 0 16px 0;font-size:20px;color:#102d4f;">${escapeHtml(i.subject)}</h1>
 <p style="margin:0 0 12px 0;">Kepada ${escapeHtml(i.recipientName)},</p>
 ${bodyHtml}
 ${rows ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 12px 0;font-size:14px;">${rows}</table>` : ''}
+${i.cta ? `<p style="margin:16px 0 0 0;"><a href="${escapeHtml(i.cta.url)}" style="display:inline-block;background:#1769aa;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px;">${escapeHtml(i.cta.text)}</a></p>` : ''}
 </td></tr>
 <tr><td style="padding:14px 24px;border-top:1px solid #d9e2ec;font-size:12px;color:#63758a;">Dihantar oleh ${escapeHtml(i.orgName)} melalui NO.VA kepada ahli yang berdaftar. Anda boleh membalas e-mel ini untuk berhubung dengan Sekretariat.</td></tr>
 </table></td></tr></table></body></html>`
@@ -58,6 +63,8 @@ ${rows ? `<table role="presentation" cellpadding="0" cellspacing="0" style="marg
     '',
     i.body.trim(),
     ...(details.length ? ['', ...details.map(([k, v]) => `${k}: ${k === 'Tarikh & masa' ? myt(i.eventAt) : v}`)] : []),
+    '',
+    ...(i.cta ? ['', `${i.cta.text}: ${i.cta.url}`] : []),
     '',
     `— ${i.orgName} (NO.VA)`,
   ].join('\n')

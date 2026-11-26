@@ -13,11 +13,15 @@ export interface SettingDef {
   options?: readonly string[]
   max: number
   help?: string
+  /** Written only by a dedicated action (e.g. brand upload), never by the generic settings form. */
+  managed?: boolean
 }
+
+import { PUBLIC_PAGE_KEYS, VISIBILITY_STATES, WORKSPACE_PAGE_KEYS } from '@shared/domain'
 
 export const NOT_SET = 'Belum ditetapkan oleh pentadbir'
 
-export const SETTING_DEFS: readonly SettingDef[] = [
+export const SETTING_DEFS: SettingDef[] = [
   { key: 'org_name', public: true, fallback: 'JPP IPGKKB', label: 'Nama organisasi', kind: 'text', max: 120 },
   { key: 'contact_email', public: true, fallback: '', label: 'E-mel perhubungan', kind: 'text', max: 120 },
   { key: 'contact_phone', public: true, fallback: '', label: 'Telefon perhubungan', kind: 'text', max: 40 },
@@ -31,6 +35,14 @@ export const SETTING_DEFS: readonly SettingDef[] = [
   { key: 'maintenance_mode', public: true, fallback: 'false', label: 'Mod penyelenggaraan', kind: 'boolean', max: 5, help: 'Pengguna biasa tidak boleh menghantar; SUAK masih boleh.' },
   { key: 'maintenance_message', public: true, fallback: '', label: 'Mesej penyelenggaraan', kind: 'textarea', max: 300 },
   { key: 'letter_categories', public: false, fallback: 'Surat keluar\nSurat jemputan\nSurat permohonan\nSurat edaran\nLain-lain', label: 'Kategori surat (satu setiap baris)', kind: 'textarea', max: 600, help: 'Digunakan dalam permohonan nombor rujukan.' },
+  { key: 'brand_version', public: true, fallback: '0', label: 'Versi jenama', kind: 'text', max: 12, managed: true },
+  { key: 'brand_logo_id', public: false, fallback: '', label: 'Fail logo', kind: 'text', max: 80, managed: true },
+  { key: 'brand_favicon_id', public: false, fallback: '', label: 'Fail favicon', kind: 'text', max: 80, managed: true },
+  { key: 'brand_primary', public: true, fallback: '', label: 'Warna utama', kind: 'text', max: 7, managed: true },
+  { key: 'brand_accent', public: true, fallback: '', label: 'Warna aksen', kind: 'text', max: 7, managed: true },
+  { key: 'canned_replies', public: false, fallback: '', label: 'Jawapan sedia (satu setiap baris)', kind: 'textarea', max: 1500, help: 'Pilihan sekali-klik apabila menolak, membatalkan atau meminta pembetulan.' },
+  { key: 'notifications_enabled', public: false, fallback: 'true', label: 'Hantar e-mel sistem (status permohonan, peringatan)', kind: 'boolean', max: 5 },
+  { key: 'app_url', public: false, fallback: '', label: 'Alamat laman NO.VA (https) untuk pautan dalam e-mel', kind: 'text', max: 200 },
   { key: 'letterhead_line1', public: false, fallback: 'JPP IPGKKB', label: 'Kepala surat — baris 1', kind: 'text', max: 120 },
   { key: 'letterhead_line2', public: false, fallback: '', label: 'Kepala surat — baris 2', kind: 'text', max: 160 },
   { key: 'letterhead_line3', public: false, fallback: '', label: 'Kepala surat — alamat', kind: 'text', max: 200 },
@@ -41,6 +53,19 @@ export const SETTING_DEFS: readonly SettingDef[] = [
   { key: 'late_counts_as_present', public: false, fallback: 'true', label: 'Lewat dikira hadir', kind: 'boolean', max: 5, help: 'Keputusan SUAK/JPP (§16 #4). Lewat sentiasa dipaparkan berasingan.' },
   { key: 'public_attendance_mode', public: true, fallback: 'aggregate', label: 'Paparan kehadiran awam', kind: 'select', options: ['aggregate', 'named'], max: 10, help: 'aggregate = statistik sahaja (lalai, lebih selamat); named = nama + status. Perlu semakan privasi (§16 #5).' },
 ]
+
+const PAGE_LABEL: Record<string, string> = {
+  mengenai: 'Mengenai JPP', kehadiran: 'Kehadiran', pengumuman: 'Pengumuman', templat: 'Templat', arkib: 'Arkib Awam', semak: 'Semak Keaslian',
+  e_surat: 'e-Surat', e_mesyuarat: 'e-Mesyuarat', nome: 'NoMe', e_opr: 'e-OPR', e_arkib: 'e-Arkib', papan_notis: 'Papan Notis',
+}
+
+/** Page visibility (HiPER): Diterbitkan / Akan datang / Dikunci / Disembunyikan for each page and module. */
+export const visibilityKey = (scope: 'pub' | 'ws', page: string): string => `vis_${scope}_${page}`
+const VISIBILITY_DEFS: SettingDef[] = [
+  ...PUBLIC_PAGE_KEYS.map((k) => ({ key: visibilityKey('pub', k), public: true, fallback: 'published', label: `Halaman awam: ${PAGE_LABEL[k]}`, kind: 'select' as const, options: VISIBILITY_STATES, max: 10 })),
+  ...WORKSPACE_PAGE_KEYS.map((k) => ({ key: visibilityKey('ws', k), public: true, fallback: 'published', label: `Modul ruang kerja: ${PAGE_LABEL[k] ?? k}`, kind: 'select' as const, options: VISIBILITY_STATES, max: 10, help: k === 'templat' ? 'Templat dalaman' : undefined })),
+]
+SETTING_DEFS.push(...VISIBILITY_DEFS)
 
 const DEF_BY_KEY = new Map(SETTING_DEFS.map((d) => [d.key, d]))
 export const isKnownSetting = (key: string): boolean => DEF_BY_KEY.has(key)

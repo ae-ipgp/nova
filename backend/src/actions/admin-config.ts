@@ -76,6 +76,7 @@ export const adminConfigHandlers: {
       for (const [key, value] of Object.entries(values)) {
         if (!isKnownSetting(key)) throw badRequest(`Tetapan tidak dikenali: ${key}`)
         const def = settingDef(key)!
+        if (def.managed) throw badRequest('Tetapan ini diuruskan secara berasingan.')
         if (typeof value !== 'string') throw badRequest(`${def.label} tidak sah.`)
         const v = value.trim()
         if (v.length > def.max) throw badRequest(`${def.label} terlalu panjang.`)

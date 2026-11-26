@@ -5,7 +5,7 @@ import type { SystemInfo } from './actions/system'
 import type { Handler, HandlerMap } from './actions/types'
 import type { AuthUser, TokenVerifier } from './auth'
 import { activeRolesOf, areasOf, hasRole, isActiveProfile, makeAudit, type Actor, type HandlerContext } from './context'
-import { getBool, getSetting } from './settings'
+import { getBool, getSetting, visibilityKey } from './settings'
 import type { Services } from './services'
 import { AppError, forbidden, unauthenticated } from './errors'
 import { withLock, type LockLike } from './lock'
@@ -78,7 +78,7 @@ export function handleRequest(rawBody: string, deps: GatewayDeps): ApiResponse<u
   const handler = handlers[action as keyof HandlerMap] as Handler<keyof HandlerMap>
 
   try {
-    const data = execute(handler, payload, typeof token === 'string' ? token : '', deps)
+    const data = execute(action, handler, payload, typeof token === 'string' ? token : '', deps)
     return { ok: true, data }
   } catch (err) {
     if (err instanceof AppError) return fail(err.code, err.message)
@@ -88,7 +88,9 @@ export function handleRequest(rawBody: string, deps: GatewayDeps): ApiResponse<u
   }
 }
 
-function execute(handler: Handler<keyof HandlerMap>, payload: unknown, token: string, deps: GatewayDeps): unknown {
+const MODULE_OF: Record<string, string> = { ref: 'e_surat', corr: 'e_surat', mtg: 'e_mesyuarat', notice: 'nome', tpl: 'templat', opr: 'e_opr', arc: 'e_arkib', ann: 'papan_notis' }
+
+function execute(action: string, handler: Handler<keyof HandlerMap>, payload: unknown, token: string, deps: GatewayDeps): unknown {
   const now = deps.now()
 
   if (handler.access.kind === 'public') {
@@ -144,6 +146,9 @@ function execute(handler: Handler<keyof HandlerMap>, payload: unknown, token: st
       if (allowed !== 'any' && !actor.roles.some((r) => allowed.includes(r))) throw forbidden()
       if (allowed === 'any' && actor.roles.length === 0) throw forbidden()
     }
+    // Page visibility (Tetapan): a module that is "soon", "locked" or "hidden" is closed to everyone except SUAK.
+    const mod = MODULE_OF[action.split('.')[0]]
+    if (mod && !hasRole(actor, 'suak') && getSetting(store, visibilityKey('ws', mod)) !== 'published') throw forbidden('Modul ini tidak tersedia buat masa ini.')
     // Maintenance mode (Tetapan): ordinary users cannot change anything; SUAK / System Administrator can.
     if (handler.write && getBool(store, 'maintenance_mode') && !hasRole(actor, 'suak', 'system_admin')) {
       throw forbidden(getSetting(store, 'maintenance_message') || 'NO.VA sedang diselenggara. Sila cuba sebentar lagi.')

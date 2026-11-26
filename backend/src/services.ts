@@ -38,8 +38,14 @@ export interface PdfService {
   htmlToPdf(html: string): string
 }
 
+export interface ZipService {
+  /** Text files → one ZIP, base64. */
+  zip(files: { name: string; content: string }[]): string
+}
+
 export interface Services {
   files: FileService
   mail: MailService
   pdf: PdfService
+  archive: ZipService
 }
