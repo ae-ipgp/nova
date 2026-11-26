@@ -1,5 +1,5 @@
 /**
- * Help-bubble content. Only facts about how NO.VA itself works — never institutional policy,
+ * Help-bubble content. Only facts about how NoVA itself works — never institutional policy,
  * deadlines or eligibility (those are SUAK's to publish, Blueprint §16). Answers are written, not AI-generated.
  */
 export interface FaqItem {

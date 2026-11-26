@@ -167,7 +167,7 @@ function Editor({ opr }: { opr?: OprView }) {
     }
   }
 
-  const previewHtml = useMemo(() => renderOprHtml(content, { style, images, orgName: site.settings.org_name || 'JPP IPGKKB', watermark: opr?.status === 'approved' ? '' : 'DRAF — BELUM DISAHKAN', footer: opr?.status === 'approved' ? t('Disahkan melalui NO.VA · Versi {version}', { version: opr.version }) : 'Draf — belum disahkan' }), [content, style, images, opr, site.settings.org_name])
+  const previewHtml = useMemo(() => renderOprHtml(content, { style, images, orgName: site.settings.org_name || 'JPP IPGKKB', watermark: opr?.status === 'approved' ? '' : 'DRAF — BELUM DISAHKAN', footer: opr?.status === 'approved' ? t('Disahkan melalui NoVA · Versi {version}', { version: opr.version }) : 'Draf — belum disahkan' }), [content, style, images, opr, site.settings.org_name])
 
   const finish = async () => {
     const o = await persist()

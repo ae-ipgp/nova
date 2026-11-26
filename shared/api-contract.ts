@@ -201,6 +201,37 @@ export interface VerifyResult {
   typeName?: string
 }
 
+/** Admin-edited page content (texts, links, photos, files, lists). */
+export type ContentKind = 'text' | 'image' | 'file' | 'list'
+export interface ContentItem {
+  id: string
+  kind: ContentKind
+  ms: string
+  en: string
+  /** Link target (https://, /internal-path, mailto: or tel:). */
+  url: string
+  /** For lists: JSON array of items with string fields. */
+  json: string
+  /** Changes whenever the row or its file changes; clients cache files by it. */
+  version: string
+  /** The element is hidden from visitors (SUAK still sees it, faded, in edit mode). */
+  hidden: boolean
+}
+export interface ContentSetPayload {
+  id: string
+  kind: ContentKind
+  ms?: string
+  en?: string
+  url?: string
+  json?: string
+  file?: FilePayload
+  removeFile?: boolean
+  hidden?: boolean
+}
+export interface VisitResult {
+  total: number
+}
+
 export interface BrandResult {
   version: string
   logo: DownloadResult | null
@@ -714,6 +745,9 @@ export interface ActionMap {
   'public.leaders': { payload: Empty; result: { session: PublicSession | null; leaders: PublicLeader[] } }
   'public.verify': { payload: { reference: string }; result: VerifyResult }
   'public.brand': { payload: Empty; result: BrandResult }
+  'public.content': { payload: Empty; result: ContentItem[] }
+  'public.content.file': { payload: { id: string }; result: DownloadResult | null }
+  'public.visit': { payload: Empty; result: VisitResult }
   'public.search': { payload: { q: string }; result: SearchGroup[] }
 
   // identity & administration
@@ -739,6 +773,8 @@ export interface ActionMap {
   'admin.sessions.create': { payload: { name: string; startDate: string; endDate: string }; result: SessionInfo }
   'admin.sessions.activate': { payload: { sessionId: string }; result: SessionInfo[] }
   'admin.brand.set': { payload: BrandSetPayload; result: BrandResult }
+  'admin.content.set': { payload: ContentSetPayload; result: ContentItem }
+  'admin.content.reset': { payload: { id: string }; result: { id: string } }
   'admin.backup.export': { payload: Empty; result: DownloadResult }
   'admin.settings.get': { payload: Empty; result: SettingsResult }
   'admin.settings.set': { payload: { values: Record<string, string> }; result: SettingsResult }

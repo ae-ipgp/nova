@@ -49,7 +49,7 @@
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
   },
-  "description": "NO.VA — Digital Secretariat for JPP IPGKKB",
+  "description": "NoVA — Digital Secretariat for JPP IPGKKB",
   "engines": {
     "node": ">=22"
   }

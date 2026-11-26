@@ -124,7 +124,7 @@ describe('role-based access (UX layer; the gateway enforces)', () => {
 
 describe('public portal pages load real data', () => {
   it.each([
-    ['/mengenai', 'JPP IPGKKB', 'public.leaders'],
+    ['/organisasi', 'JPP IPGKKB', 'public.leaders'],
     ['/kehadiran', 'Rekod kehadiran mesyuarat', 'public.attendance'],
     ['/pengumuman', /Notis awam/, 'public.announcements'],
     ['/templat', 'Templat dokumen awam', 'public.templates'],

@@ -6,7 +6,7 @@ import { useSite } from '@/hooks/use-site'
 export type Scope = 'pub' | 'ws'
 
 export const PUBLIC_PAGE_OF_PATH: Record<string, string> = {
-  '/mengenai': 'mengenai',
+  '/organisasi': 'organisasi',
   '/kehadiran': 'kehadiran',
   '/pengumuman': 'pengumuman',
   '/templat': 'templat',

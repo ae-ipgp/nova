@@ -1,6 +1,7 @@
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { ToastProvider } from '@/components/ui/toast'
+import { ContentProvider } from '@/lib/content'
 import { BrandProvider } from '@/lib/brand'
 import type { AuthValue } from './auth-context'
 import { AuthProvider, StaticAuthProvider } from './auth-provider'
@@ -19,5 +20,9 @@ export function AppProviders({ children, auth, queryClient }: { children: ReactN
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  return <ToastProvider>{children}</ToastProvider>
+  return (
+    <ToastProvider>
+      <ContentProvider>{children}</ContentProvider>
+    </ToastProvider>
+  )
 }

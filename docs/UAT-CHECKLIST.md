@@ -83,7 +83,7 @@ line with the date and initials. Blueprint acceptance tests are cited (AT-xx).
 - [ ] Ctrl+K (or `/`) finds a page, a letter, a meeting and a document you may see; a member never sees records they cannot open.
       Signed out, `/` search shows only published public items.
 - [ ] Tetapan → Jenama: upload a logo and a favicon; both appear after a reload (browser tab shows the new favicon).
-      "Pulihkan lalai" restores NO.VA's own.
+      "Pulihkan lalai" restores NoVA's own.
 - [ ] Tetapan → Keterlihatan halaman: set *Arkib Awam* to Akan datang (public sees the notice), *Templat* in the workspace to
       Disembunyikan (a member cannot open it; SUAK still can, with a banner).
 - [ ] Submit a reference-number request: SUAK receives an e-mail. Approve it: the applicant receives one.
@@ -93,3 +93,13 @@ line with the date and initials. Blueprint acceptance tests are cited (AT-xx).
 - [ ] Turn the Wi-Fi off after loading the public site: the outage notice appears with the Secretariat's contacts.
 - [ ] Rejecting a request offers the canned replies from Tetapan.
 - [ ] Start a new announcement, reload the page: the unsaved draft is restored; "Buang draf" clears it.
+
+## 10. NoVA rename, editable content, footer, Organisasi
+- [ ] The name reads **NoVA** everywhere (tab title, header, e-mails, PDFs). The header shows the new logo and "Notion of Virtual Assistance"; the favicon is the new logo.
+- [ ] Home hero reads "Inovasi Maya, untuk Legasi" (English: "Virtual Innovation, for the Legacy"). Switch the language and check the footer line "Berwibawa, berintegriti" / "Authoritative, and with Integrity" is italic.
+- [ ] Footer: both phone numbers show with **Hubungi** (opens the phone app) and **WhatsApp** (opens a chat with the right number); the first address line is bold; the visitor counter goes up by one per new browser session; the JPP portal link opens in a new tab.
+- [ ] `/log-masuk` has the same header and footer as the home page. `/mengenai` redirects to `/organisasi`.
+- [ ] Sign in with your DELIMa account: the header shows your Google photo (initials if none) and the dashboard greets you with your full name ("Selamat pagi, MUHAMMAD …").
+- [ ] As SUAK press **Suntingan**: dashed outlines appear. Change the hero text (both languages), a button label and its link, hide a block, upload a photo (Organisasi → Carta) and a PDF, and add items to *Kemajuan kerja* and *Legasi kepimpinan*. Reload as a signed-out visitor: the changes show. **Pulihkan asal** brings the original back.
+- [ ] A member and a visitor do not see the **Suntingan** button, and calling `admin.content.set` with a member's token is refused.
+- [ ] The appearance (theme) popover is solid, not see-through.

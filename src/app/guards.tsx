@@ -20,7 +20,7 @@ export function RequireWorkspace() {
   if (mode === 'unconfigured') {
     return (
       <AccessState title={t('Ruang kerja belum tersedia')} showSignOut={false}>
-        <p>{t('NO.VA belum dikonfigurasi pada pelayan ini. Hubungi pentadbir sistem.')}</p>
+        <p>{t('NoVA belum dikonfigurasi pada pelayan ini. Hubungi pentadbir sistem.')}</p>
       </AccessState>
     )
   }
@@ -41,7 +41,7 @@ export function RequireWorkspace() {
     return (
       <AccessState title={t('Akaun belum didaftarkan')}>
         <p>
-          {t('Anda log masuk sebagai {email}, tetapi akaun ini belum didaftarkan dalam NO.VA.', { email: me.email })}
+          {t('Anda log masuk sebagai {email}, tetapi akaun ini belum didaftarkan dalam NoVA.', { email: me.email })}
         </p>
         <p>{t('Hubungi Sekretariat atau SUAK untuk mendaftarkan akaun DELIMa anda.')}</p>
       </AccessState>

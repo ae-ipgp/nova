@@ -24,12 +24,17 @@ export const NOT_SET = 'Belum ditetapkan oleh pentadbir'
 export const SETTING_DEFS: SettingDef[] = [
   { key: 'org_name', public: true, fallback: 'JPP IPGKKB', label: 'Nama organisasi', kind: 'text', max: 120 },
   { key: 'contact_email', public: true, fallback: '', label: 'E-mel perhubungan', kind: 'text', max: 120 },
-  { key: 'contact_phone', public: true, fallback: '', label: 'Telefon perhubungan', kind: 'text', max: 40 },
+  { key: 'contact_phone', public: true, fallback: '', label: 'Telefon perhubungan (SUAK)', kind: 'text', max: 40 },
+  { key: 'contact_phone_label', public: true, fallback: 'SUAK', label: 'Label telefon pertama', kind: 'text', max: 60 },
+  { key: 'contact_phone2', public: true, fallback: '', label: 'Telefon perhubungan (Naib SUAK)', kind: 'text', max: 40 },
+  { key: 'contact_phone2_label', public: true, fallback: 'Naib SUAK', label: 'Label telefon kedua', kind: 'text', max: 60 },
+  { key: 'jpp_portal_url', public: true, fallback: '', label: 'Pautan portal rasmi JPP (https)', kind: 'text', max: 200 },
+  { key: 'visitor_count', public: true, fallback: '0', label: 'Bilangan pelawat', kind: 'text', max: 12, managed: true },
   { key: 'contact_address', public: true, fallback: '', label: 'Alamat', kind: 'textarea', max: 300 },
   { key: 'social_instagram', public: true, fallback: '', label: 'Pautan Instagram (https)', kind: 'text', max: 200 },
   { key: 'social_facebook', public: true, fallback: '', label: 'Pautan Facebook (https)', kind: 'text', max: 200 },
   { key: 'social_tiktok', public: true, fallback: '', label: 'Pautan TikTok (https)', kind: 'text', max: 200 },
-  { key: 'about_text', public: true, fallback: '', label: 'Teks Mengenai JPP', kind: 'textarea', max: 3000 },
+  { key: 'about_text', public: true, fallback: '', label: 'Teks pengenalan Organisasi', kind: 'textarea', max: 3000 },
   { key: 'privacy_text', public: true, fallback: '', label: 'Dasar privasi', kind: 'textarea', max: 8000, help: 'Perlu diluluskan oleh pihak institusi sebelum diterbitkan.' },
   { key: 'privacy_effective_date', public: true, fallback: '', label: 'Tarikh berkuat kuasa dasar privasi', kind: 'text', max: 20 },
   { key: 'maintenance_mode', public: true, fallback: 'false', label: 'Mod penyelenggaraan', kind: 'boolean', max: 5, help: 'Pengguna biasa tidak boleh menghantar; SUAK masih boleh.' },
@@ -42,20 +47,20 @@ export const SETTING_DEFS: SettingDef[] = [
   { key: 'brand_accent', public: true, fallback: '', label: 'Warna aksen', kind: 'text', max: 7, managed: true },
   { key: 'canned_replies', public: false, fallback: '', label: 'Jawapan sedia (satu setiap baris)', kind: 'textarea', max: 1500, help: 'Pilihan sekali-klik apabila menolak, membatalkan atau meminta pembetulan.' },
   { key: 'notifications_enabled', public: false, fallback: 'true', label: 'Hantar e-mel sistem (status permohonan, peringatan)', kind: 'boolean', max: 5 },
-  { key: 'app_url', public: false, fallback: '', label: 'Alamat laman NO.VA (https) untuk pautan dalam e-mel', kind: 'text', max: 200 },
+  { key: 'app_url', public: false, fallback: '', label: 'Alamat laman NoVA (https) untuk pautan dalam e-mel', kind: 'text', max: 200 },
   { key: 'letterhead_line1', public: false, fallback: 'JPP IPGKKB', label: 'Kepala surat — baris 1', kind: 'text', max: 120 },
   { key: 'letterhead_line2', public: false, fallback: '', label: 'Kepala surat — baris 2', kind: 'text', max: 160 },
   { key: 'letterhead_line3', public: false, fallback: '', label: 'Kepala surat — alamat', kind: 'text', max: 200 },
   { key: 'signatory_title', public: false, fallback: 'Setiausaha Agung Kehormat', label: 'Jawatan penandatangan', kind: 'text', max: 100 },
   { key: 'verify_url', public: false, fallback: '', label: 'URL semakan keaslian (cth. https://nova.example/semak)', kind: 'text', max: 200 },
-  { key: 'mail_sender_name', public: false, fallback: 'JPP IPGKKB · NO.VA', label: 'Nama pengirim e-mel', kind: 'text', max: 80 },
+  { key: 'mail_sender_name', public: false, fallback: 'JPP IPGKKB · NoVA', label: 'Nama pengirim e-mel', kind: 'text', max: 80 },
   { key: 'mail_reply_to', public: false, fallback: '', label: 'Alamat balas (Reply-To)', kind: 'text', max: 120 },
   { key: 'late_counts_as_present', public: false, fallback: 'true', label: 'Lewat dikira hadir', kind: 'boolean', max: 5, help: 'Keputusan SUAK/JPP (§16 #4). Lewat sentiasa dipaparkan berasingan.' },
   { key: 'public_attendance_mode', public: true, fallback: 'aggregate', label: 'Paparan kehadiran awam', kind: 'select', options: ['aggregate', 'named'], max: 10, help: 'aggregate = statistik sahaja (lalai, lebih selamat); named = nama + status. Perlu semakan privasi (§16 #5).' },
 ]
 
 const PAGE_LABEL: Record<string, string> = {
-  mengenai: 'Mengenai JPP', kehadiran: 'Kehadiran', pengumuman: 'Pengumuman', templat: 'Templat', arkib: 'Arkib Awam', semak: 'Semak Keaslian',
+  organisasi: 'Organisasi', kehadiran: 'Kehadiran', pengumuman: 'Pengumuman', templat: 'Templat', arkib: 'Arkib Awam', semak: 'Semak Keaslian',
   e_surat: 'e-Surat', e_mesyuarat: 'e-Mesyuarat', nome: 'NoMe', e_opr: 'e-OPR', e_arkib: 'e-Arkib', papan_notis: 'Papan Notis',
 }
 

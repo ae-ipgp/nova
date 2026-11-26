@@ -7,7 +7,7 @@ import { renderReady, renderRoute } from './render-route'
 describe('public portal', () => {
   it('renders the landing hero and all eight modules', () => {
     renderRoute('/')
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('The Secretariat, in Motion.')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Inovasi Maya, untuk Legasi')
     for (const m of MODULES) expect(screen.getAllByText(m.name).length).toBeGreaterThan(0)
   })
 
@@ -39,7 +39,7 @@ describe('login', () => {
 describe('workspace shell', () => {
   it('renders the dashboard without invented figures', async () => {
     await renderReady('/workspace')
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Your secretariat, at a glance.')
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Panel suntingan anda.')
     const kpis = await screen.findByRole('region', { name: 'Penunjuk utama' })
     expect(within(kpis).getAllByText('Tiada data')).toHaveLength(4)
     expect(within(kpis).queryByText(/^\s*\d[\d,.]*\s*$/)).toBeNull()

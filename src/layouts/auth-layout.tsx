@@ -11,15 +11,9 @@ export function AuthLayout() {
           <Logo inverse />
         </Link>
         <div className="relative z-10">
-          <p className="font-display text-[3.25rem] font-extrabold leading-[1.02] tracking-tight">
-            {t('One platform.')}
-            <br />
-            {t('One Secretariat.')}
-            <br />
-            <span className="text-electric">{t('One official record.')}</span>
-          </p>
+          <p className="font-display text-[3.25rem] font-extrabold italic leading-[1.02] tracking-tight">{t(SITE.tagline)}</p>
         </div>
-        <p className="text-caption text-sky/60">{SITE.organisationLong}</p>
+        <p className="text-caption text-sky/60">{t(SITE.organisationLong)}</p>
         <div className="pointer-events-none absolute -right-32 -bottom-32 size-[28rem] rounded-full border border-white/10" aria-hidden />
         <div className="pointer-events-none absolute -right-12 -bottom-12 size-[18rem] rounded-full border border-white/10" aria-hidden />
       </aside>

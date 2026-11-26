@@ -116,7 +116,7 @@ function renderPdf(ctx: HandlerContext, r: Row, watermark: string): string {
     images: loadImages(ctx, content),
     orgName: getSetting(ctx.store, 'org_name'),
     watermark,
-    footer: watermark ? 'Draf — belum disahkan' : `Disahkan melalui NO.VA · Versi ${r.version}`,
+    footer: watermark ? 'Draf — belum disahkan' : `Disahkan melalui NoVA · Versi ${r.version}`,
   })
   return ctx.services.pdf.htmlToPdf(html)
 }

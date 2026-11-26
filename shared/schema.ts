@@ -1,5 +1,5 @@
 /**
- * NO.VA data schema on Google Sheets (ADR-0001).
+ * NoVA data schema on Google Sheets (ADR-0001).
  *
  * Each entry is one tab. Blueprint §10 tables map 1:1 to tabs; file paths
  * become Google Drive file IDs. Columns are addressed by HEADER NAME, never by
@@ -28,7 +28,7 @@ export interface SheetDef {
 }
 
 /** Bump when columns or tabs change; setup records it in system_settings. */
-export const SCHEMA_VERSION = 4
+export const SCHEMA_VERSION = 5
 
 const ROW = ['id', 'created_at', 'updated_at', 'created_by'] as const
 
@@ -208,6 +208,14 @@ export const SHEETS = [
     publicColumns: ['id', 'title', 'body', 'publish_at', 'category', 'pinned', 'title_en', 'body_en'],
   },
   {
+    name: 'site_content',
+    workbook: 'data',
+    // v5: admin-edited page content (texts, links, photos, files, lists). id = content key such as "home.hero.title".
+    columns: ['id', 'kind', 'ms', 'en', 'url', 'file_id', 'json', 'version', 'updated_at', 'updated_by', 'hidden'],
+    publicColumns: ['id', 'kind', 'ms', 'en', 'url', 'json', 'version', 'hidden'],
+    restricted: ['file_id'],
+  },
+  {
     name: 'system_settings',
     workbook: 'data',
     // Non-secret configuration only. Secrets live in Apps Script Script Properties.
@@ -250,7 +258,7 @@ export function getSheetDef(name: SheetName): SheetDef {
   return def
 }
 
-/** Drive folder layout created under the NO.VA root folder. */
+/** Drive folder layout created under the NoVA root folder. */
 export const DRIVE_FOLDERS = {
   surat: 'e-Surat',
   mesyuarat: 'e-Mesyuarat',

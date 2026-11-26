@@ -13,11 +13,12 @@ import { usePublic } from '@/hooks/use-public'
 import { isApiConfigured } from '@/lib/env'
 import { formatDate } from '@/lib/format'
 import { t } from '@/i18n'
+import { Cms, CmsLink } from '@/lib/content'
 
 const PRINCIPLES = [
-  { icon: Stamp, title: 'Kelulusan sebelum pengeluaran', text: 'Nombor rujukan rasmi hanya wujud selepas kelulusan SUAK.' },
-  { icon: ShieldCheck, title: 'Peribadi secara lalai', text: 'Maklumat awam diterbitkan; dokumen dalaman kekal terhad.' },
-  { icon: History, title: 'Boleh dijejak', text: 'Tindakan kritikal merekodkan pelaku, masa, objek dan perubahan.' },
+  { icon: Stamp, title: 'Semak dan lulus', text: 'Nombor rujukan rasmi hanya dikeluarkan selepas kelulusan SUAK.' },
+  { icon: ShieldCheck, title: 'Privasi diutamakan', text: 'Maklumat awam diterbitkan; dokumen dalaman kekal terhad.' },
+  { icon: History, title: 'Boleh dijejak', text: 'Perekodan pengguna, masa, tetapan dan perubahan.' },
 ] as const
 
 export function HomePage() {
@@ -29,38 +30,39 @@ export function HomePage() {
           <div>
             <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-micro uppercase tracking-[0.16em] text-sky">
               <span className="size-1.5 rounded-full bg-electric" aria-hidden />
-              {SITE.organisation} {t('· Digital Secretariat')}
+              {SITE.organisation}
             </p>
             <h1 className="text-display font-extrabold tracking-[-0.03em] text-white">
-              {t('The Secretariat,')}{' '}
+              <Cms id="home.hero.line1" ms="Inovasi Maya," />{' '}
               <br className="hidden sm:block" />
-              <span className="text-electric">{t('in Motion.')}</span>
+              <span className="text-electric">
+                <Cms id="home.hero.line2" ms="untuk Legasi" />
+              </span>
             </h1>
-            <p className="mt-6 max-w-xl text-body-lg text-sky/85">{t(SITE.heroSubheading)}</p>
+            <p className="mt-6 max-w-xl text-body-lg text-sky/85">
+              <Cms id="home.hero.text" ms="Satu ruang digital untuk menyelaras persuratan, mesyuarat, dokumentasi dan rekod rasmi JPP IPGKKB." multiline />
+            </p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <Link to="/log-masuk" className={buttonVariants({ variant: 'inverse', size: 'lg' })}>
-                {t('Masuk ke Workspace')}
+              <CmsLink id="home.hero.cta1" to="/log-masuk" ms="Masuk ke Ruang Kerja" className={buttonVariants({ variant: 'inverse', size: 'lg' })}>
                 <ArrowRight />
-              </Link>
-              <a href="#modul" className={buttonVariants({ variant: 'ghostInverse', size: 'lg' })}>
-                {t('Terokai NO.VA')}
-              </a>
+              </CmsLink>
+              <CmsLink id="home.hero.cta2" to="#modul" ms="Terokai NoVA" className={buttonVariants({ variant: 'ghostInverse', size: 'lg' })} />
             </div>
           </div>
           <div className="relative mx-auto w-full max-w-[26rem] lg:max-w-none">
-            <Mascot pose="wave" size={420} label={t('{MASCOT_NAME}, maskot NO.VA, melambai', { MASCOT_NAME: MASCOT_NAME })} className="mx-auto max-w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.3)]" fallback={<HeroVisual className="w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.25)]" />} />
+            <Mascot pose="wave" size={420} label={t('{MASCOT_NAME}, maskot NoVA, melambai', { MASCOT_NAME: MASCOT_NAME })} className="mx-auto max-w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.3)]" fallback={<HeroVisual className="w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.25)]" />} />
           </div>
         </div>
       </section>
 
       <section aria-labelledby="prinsip" className="relative z-10 -mt-10">
-        <h2 id="prinsip" className="sr-only">{t('Prinsip NO.VA')}</h2>
+        <h2 id="prinsip" className="sr-only">{t('Prinsip NoVA')}</h2>
         <div className="container-content">
-          <ul className="grid gap-px overflow-hidden rounded-hero border border-line bg-line shadow-soft md:grid-cols-3">
-            {PRINCIPLES.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="flex gap-4 bg-paper p-6">
+          <ul className="grid gap-4 md:grid-cols-3">
+            {PRINCIPLES.map(({ icon: Icon, title, text }, i) => (
+              <li key={title} className="flex gap-4 rounded-card border border-line/70 bg-paper p-6 shadow-float">
                 <Icon className="mt-0.5 size-5 shrink-0 text-link" aria-hidden />
-                <div><p className="font-display font-bold text-heading">{t(title)}</p><p className="mt-1 text-caption text-slate">{t(text)}</p></div>
+                <div><p className="font-display font-bold text-heading"><Cms id={`home.principle.${i + 1}.title`} ms={title} /></p><p className="mt-1 text-caption text-slate"><Cms id={`home.principle.${i + 1}.text`} ms={text} multiline /></p></div>
               </li>
             ))}
           </ul>
@@ -71,16 +73,16 @@ export function HomePage() {
         <div className="container-content">
           <div className="grid gap-6 md:grid-cols-[1fr_1.2fr] md:items-end">
             <div>
-              <Eyebrow>{t('Lapan modul · satu rekod')}</Eyebrow>
-              <h2 id="modul-heading" className="mt-3 text-h1 font-extrabold">{t('Satu aplikasi untuk keseluruhan kitaran kesetiausahaan.')}</h2>
+              <Eyebrow><Cms id="home.modules.eyebrow" ms="Lapan modul · satu rekod" /></Eyebrow>
+              <h2 id="modul-heading" className="mt-3 text-h1 font-extrabold"><Cms id="home.modules.title" ms="Pusat pendigitalan kesetiausahaan" /></h2>
             </div>
-            <p className="text-body-lg text-slate md:pb-1">{t('Persuratan, mesyuarat, notis, templat, laporan dan arkib berkongsi identiti pengguna, navigasi dan standard data yang sama — bukan laman web berasingan.')}</p>
+            <p className="text-body-lg text-slate md:pb-1"><Cms id="home.modules.text" ms="Persuratan, mesyuarat, notis, templat, laporan dan arkib berkongsi identiti pengguna, navigasi dan standard data yang sama — bukan laman web berasingan." multiline /></p>
           </div>
-          <ol className="mt-12 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {MODULES.map((m) => {
               const Icon = m.icon
               return (
-                <li key={m.code} className="group flex flex-col bg-paper p-6 transition-colors hover:bg-ice">
+                <li key={m.code} className="group flex flex-col rounded-card border border-line/70 bg-paper p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:border-blue">
                   <div className="flex items-center justify-between"><span className="font-mono text-micro text-slate">{m.code}</span><Icon className="size-5 text-link transition-transform group-hover:-translate-y-0.5" aria-hidden /></div>
                   <p className="mt-8 font-display text-h3 font-bold text-heading">{t(m.name)}</p>
                   <p className="mt-2 text-caption text-slate">{t(m.summary)}</p>
@@ -93,13 +95,18 @@ export function HomePage() {
 
       <Transparency />
 
-      <section className="border-t border-line py-14" aria-labelledby="semak-h">
-        <div className="container-content flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <BadgeCheck className="size-10 shrink-0 text-link" aria-hidden />
-            <div><h2 id="semak-h" className="text-h3 font-bold">{t('Semak keaslian surat atau sijil')}</h2><p className="text-body text-slate">{t('Sahkan nombor rujukan yang dikeluarkan oleh NO.VA.')}</p></div>
-          </div>
-          <Link to="/semak" className={buttonVariants({ size: 'lg' })}>{t('Semak nombor rujukan')}</Link>
+      <section className="border-t border-line bg-soft/40 py-16" aria-labelledby="semak-h">
+        <div className="container-content flex flex-col items-center gap-4 text-center">
+          <span className="grid size-16 place-items-center rounded-2xl bg-paper text-link shadow-soft">
+            <BadgeCheck className="size-8" aria-hidden />
+          </span>
+          <h2 id="semak-h" className="text-h2 font-bold">
+            <Cms id="home.verify.title" ms="Semak keaslian surat atau sijil" />
+          </h2>
+          <p className="max-w-xl text-body text-slate">
+            <Cms id="home.verify.text" ms="Sahkan nombor rujukan yang dikeluarkan oleh NoVA." multiline />
+          </p>
+          <CmsLink id="home.verify.cta" to="/semak" ms="Semak nombor rujukan" className={buttonVariants({ size: 'lg' })} />
         </div>
       </section>
     </>
@@ -113,8 +120,8 @@ function Transparency() {
   return (
     <section className="border-t border-line bg-ice py-20 md:py-24" aria-labelledby="ketelusan">
       <div className="container-content">
-        <Eyebrow>{t('Ketelusan awam')}</Eyebrow>
-        <h2 id="ketelusan" className="mt-3 max-w-2xl text-h1 font-extrabold">{t('Rekod yang disahkan, dipaparkan secara terkawal.')}</h2>
+        <Eyebrow><Cms id="home.transparency.eyebrow" ms="Ketelusan awam" /></Eyebrow>
+        <h2 id="ketelusan" className="mt-3 max-w-2xl text-h1 font-extrabold"><Cms id="home.transparency.title" ms="Rekod yang disahkan, dipaparkan secara terkawal." /></h2>
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           <Card2 title={t('Kehadiran')} to="/kehadiran" icon={CalendarCheck2} state={att} empty={t('Belum ada rekod kehadiran yang diterbitkan.')} items={(d) => d.meetings.slice(0, 3).map((m) => ({ k: m.id, t: m.title, s: t('{v1} hadir · {v2}', { v1: m.counts.present + m.counts.late, v2: formatDate(m.startsAt) }) }))} />
           <Card2 title={t('Pengumuman')} to="/pengumuman" icon={Megaphone} state={ann} empty={t('Belum ada pengumuman rasmi.')} items={(d) => d.slice(0, 3).map((a) => ({ k: a.id, t: a.title, s: `${t(a.category)} · ${formatDate(a.publishAt)}` }))} />
@@ -129,7 +136,7 @@ interface QueryLike<T> { isPending: boolean; isError: boolean; data?: T }
 function Card2<T>({ title, to, icon, state, empty, items }: { title: string; to: string; icon: typeof Megaphone; state: QueryLike<T>; empty: string; items: (d: T) => { k: string; t: string; s: string }[] }) {
   const rows = state.data ? items(state.data) : []
   return (
-    <article className="flex flex-col rounded-card border border-line bg-paper">
+    <article className="flex flex-col rounded-card border border-line/70 bg-paper shadow-soft">
       <header className="flex items-center justify-between border-b border-line px-5 py-4">
         <h3 className="text-body font-bold">{title}</h3>
         <Link to={to} className="inline-flex items-center gap-1 text-caption font-medium text-link hover:underline">{t('Lihat semua')}<ArrowUpRight className="size-3.5" aria-hidden /></Link>

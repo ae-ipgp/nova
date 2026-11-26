@@ -6,10 +6,10 @@
 
 ## Decision
 
-| Concern            | Blueprint v1.0               | NO.VA now                                            |
+| Concern            | Blueprint v1.0               | NoVA now                                            |
 | ------------------ | ---------------------------- | ---------------------------------------------------- |
 | Records            | Supabase PostgreSQL          | **Google Sheets** (two spreadsheets: Data, Audit)    |
-| Files              | Supabase Storage             | **Google Drive** (private folders under `NO.VA/`)    |
+| Files              | Supabase Storage             | **Google Drive** (private folders under `NoVA/`)    |
 | Server logic       | Supabase server functions    | **Google Apps Script** web app (the "gateway")       |
 | Email (NoMe)       | Resend                       | Apps Script `MailApp` from the owner account (Phase 2) |
 | Login              | Supabase Auth                | **Supabase Auth** (unchanged, nothing else stored there) |
@@ -31,8 +31,8 @@ controls, without database size, storage bucket or usage-tier limits to monitor.
    ├─ verifies token with Supabase  (Phase 1, result cached briefly)
    ├─ loads roles from user_roles sheet, checks the action's access rule
    ├─ LockService script lock for every read-check-write
-   ├─ SpreadsheetApp ──▶ NO.VA — Data  /  NO.VA — Audit   (never shared)
-   ├─ DriveApp       ──▶ NO.VA/ folders                   (never shared, except Awam)
+   ├─ SpreadsheetApp ──▶ NoVA — Data  /  NoVA — Audit   (never shared)
+   ├─ DriveApp       ──▶ NoVA/ folders                   (never shared, except Awam)
    └─ MailApp        ──▶ NoMe email (Phase 2)
 ```
 
@@ -59,7 +59,7 @@ account and is the only door in.
 These are published Google/Supabase quotas at the time of writing; check the current
 values before launch. All are far above expected JPP usage except where noted.
 
-| Limit | Value | Impact for NO.VA |
+| Limit | Value | Impact for NoVA |
 | ----- | ----- | ---------------- |
 | Cells per spreadsheet | 10 million | Years of headroom. Audit log lives in its own spreadsheet; can roll over per session. |
 | Apps Script execution time | 6 min per call | Irrelevant for normal requests (≈ 1 s). |
@@ -87,5 +87,5 @@ values before launch. All are far above expected JPP usage except where noted.
 
 ## Open decision (added to Blueprint §16)
 
-**#11 — Which Google account owns NO.VA?** *Resolved by ADR-0002:* a personal DELIMa
+**#11 — Which Google account owns NoVA?** *Resolved by ADR-0002:* a personal DELIMa
 (`@moe-dl.edu.my`) account, with a mandatory handover procedure and go/no-go checks.

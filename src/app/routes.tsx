@@ -1,8 +1,9 @@
-import type { RouteObject } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 import { CallbackPage } from '@/features/auth/callback-page'
 import { LoginPage } from '@/features/auth/login-page'
 import { HomePage } from '@/features/public/home-page'
-import { AboutPage, AnnouncementsPage, AttendancePage, PublicArchivePage, PublicTemplatesPage } from '@/features/public/pages'
+import { AnnouncementsPage, AttendancePage, PublicArchivePage, PublicTemplatesPage } from '@/features/public/pages'
+import { OrganisationPage } from '@/features/public/organisation-page'
 import { PrivacyPage } from '@/features/public/privacy-page'
 import { VerifyPage } from '@/features/public/verify-page'
 import { NotFoundPage } from '@/features/shared/not-found-page'
@@ -12,7 +13,7 @@ import { RequireRoles, RequireWorkspace } from './guards'
 
 /**
  * Route map (Blueprint §05).
- *  - Public portal:  /, /mengenai, /kehadiran, /pengumuman, /templat, /arkib, /semak, /privasi
+ *  - Public portal:  /, /organisasi, /kehadiran, /pengumuman, /templat, /arkib, /semak, /privasi
  *  - Auth:           /log-masuk, /auth/callback
  *  - Workspace:      /workspace and one route tree per module
  *
@@ -32,7 +33,9 @@ export const routes: RouteObject[] = [
     element: <PublicLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'mengenai', element: <AboutPage /> },
+      { path: 'organisasi', element: <OrganisationPage /> },
+      { path: 'mengenai', element: <Navigate to="/organisasi" replace /> },
+      { path: 'log-masuk', element: <LoginPage /> },
       { path: 'kehadiran', element: <AttendancePage /> },
       { path: 'pengumuman', element: <AnnouncementsPage /> },
       { path: 'templat', element: <PublicTemplatesPage /> },
@@ -45,7 +48,6 @@ export const routes: RouteObject[] = [
   {
     element: <AuthLayout />,
     children: [
-      { path: 'log-masuk', element: <LoginPage /> },
       { path: 'auth/callback', element: <CallbackPage /> },
     ],
   },

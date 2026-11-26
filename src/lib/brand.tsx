@@ -14,7 +14,7 @@ interface Cached {
   favicon: string | null
 }
 const KEY = 'nova.brand'
-const DEFAULT_FAVICON = '/favicon.svg'
+const DEFAULT_FAVICON = '/favicon.png'
 
 function load(): Cached | null {
   try {

@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/toast'
 import { useGatewayMutation } from '@/hooks/use-gateway'
 import { useSite } from '@/hooks/use-site'
 import { useBrand } from '@/lib/brand'
+import { LOGO_MAIN } from '@/components/brand/logo'
 import { FileError, shrinkFavicon, shrinkLogo } from '@/lib/files'
 import { t } from '@/i18n'
 
@@ -55,7 +56,7 @@ export function BrandCard() {
           <div className="space-y-2">
             <p className="text-caption font-medium">{t('Logo')}</p>
             <div className="grid h-24 place-items-center rounded-input border border-line bg-navy p-3">
-              {logo ? <img src={logo} alt={t('Logo semasa')} className="max-h-full max-w-full object-contain" /> : <span className="text-caption text-sky/70">{t('Logo lalai NO.VA')}</span>}
+              <img src={logo ?? LOGO_MAIN} alt={logo ? t('Logo semasa') : t('Logo lalai NoVA')} className="max-h-full max-w-full rounded-lg bg-white object-contain p-1" />
             </div>
             <div className="flex flex-wrap gap-2">
               <label className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-input border border-line bg-paper px-3 text-caption font-medium text-heading hover:border-blue">

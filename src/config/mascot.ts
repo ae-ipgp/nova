@@ -1,7 +1,7 @@
 /**
  * Mascot "Nuri" — static PNG poses and expressions only (no animation/video).
  * Files live in /public/mascot/ named `nuri-<pose>.png` and `nuri-face-<expression>.png`.
- * Until a file exists the UI falls back to the NO.VA monogram/icon, so nothing breaks
+ * Until a file exists the UI falls back to the NoVA monogram/icon, so nothing breaks
  * while images are being added. Rename the mascot in one place: MASCOT_NAME.
  */
 export const MASCOT_NAME = 'Nuri'

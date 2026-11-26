@@ -1,23 +1,20 @@
-import { Hourglass, LayoutGrid, Lock, LogOut, Mail, X, type LucideIcon } from 'lucide-react'
+import { Hourglass, LayoutGrid, Lock, X, type LucideIcon } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { hasAnyRole, useAuth } from '@/app/auth-context'
 import { HelpBubble } from '@/components/brand/help-bubble'
-import { Logo, Monogram } from '@/components/brand/logo'
+import { Logo } from '@/components/brand/logo'
 import { PageGate } from '@/components/page-gate'
-import { SearchProvider, SearchTrigger } from '@/components/search-palette'
-import { EmailPrefsDialog } from '@/components/shell/email-prefs-dialog'
-import { Popover } from '@/components/shell/popover'
-import { PrefsMenu } from '@/components/shell/prefs-menu'
+import { SearchProvider } from '@/components/search-palette'
 import { OutageNotice } from '@/components/shell/outage-notice'
+import { SiteHeader } from '@/components/shell/site-header'
 import { UpdateBanner } from '@/components/shell/update-banner'
 import { MODULES, workspacePath } from '@/config/modules'
 import { allWorkspacePages, boardPage } from '@/config/nav'
 import { useSite } from '@/hooks/use-site'
+import { t } from '@/i18n'
 import { cn } from '@/lib/cn'
 import { useVisibility, wsKey } from '@/lib/visibility'
-import { ROLE_KEYS, ROLE_LABELS, type RoleKey } from '@/types/domain'
-import { t } from '@/i18n'
 
 interface Item {
   to: string
@@ -68,14 +65,14 @@ export function WorkspaceLayout() {
         <a href="#workspace-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-input focus:bg-paper focus:px-4 focus:py-2 focus:text-heading">
           {t('Langkau ke kandungan')}
         </a>
-        <TopPill />
+        <SiteHeader variant="workspace" />
         <Rail items={items} />
-        <div className="flex min-h-dvh flex-col pt-[5.25rem] lg:pl-[5.5rem]">
+        <div className="flex min-h-[calc(100dvh-var(--spacing-header))] flex-col lg:pl-[5.25rem]">
           <UpdateBanner />
           <OutageNotice />
           <MaintenanceBanner />
           {mode === 'preview' && <PreviewBanner />}
-          <main id="workspace-main" className="container-content w-full flex-1 pt-4 pb-32 md:pt-6 lg:pb-16">
+          <main id="workspace-main" className="container-content w-full flex-1 pt-6 pb-32 md:pt-8 lg:pb-16">
             {gateKey ? (
               <PageGate scope="ws" page={gateKey}>
                 <Outlet />
@@ -93,62 +90,11 @@ export function WorkspaceLayout() {
   )
 }
 
-/** Floating glass navigation pill: identity, where you are, search, appearance, profile. */
-function TopPill() {
-  const { state, mode } = useAuth()
-  const session = state.status === 'signed_in' ? state.me.activeSession : null
-  return (
-    <header className="fixed inset-x-0 top-3 z-30 px-3 print:hidden">
-      <div className="glass mx-auto flex h-14 max-w-[var(--container-content)] items-center gap-2 rounded-full border border-line pr-2 pl-4 shadow-soft">
-        <Link to="/workspace" aria-label={t('Dashboard NO.VA')} className="shrink-0">
-          <span className="hidden sm:block">
-            <Logo showDescriptor={false} />
-          </span>
-          <span className="sm:hidden">
-            <Monogram />
-          </span>
-        </Link>
-        <Breadcrumb />
-        <div className="ml-auto flex items-center gap-1">
-          <span className="mr-1 hidden max-w-[16rem] items-center gap-2 truncate rounded-full border border-line bg-ice px-3 py-1 text-micro font-medium text-slate xl:inline-flex" title={t('Sesi JPP aktif')}>
-            <span className={cn('size-1.5 shrink-0 rounded-full', session ? 'bg-teal' : 'bg-slate')} aria-hidden />
-            <span className="truncate">{session ? session.name : t('Tiada sesi aktif')}</span>
-          </span>
-          <SearchTrigger className="hidden md:inline-flex" />
-          <SearchTrigger compact className="md:hidden" />
-          {mode === 'preview' && <RolePreviewSelect />}
-          <PrefsMenu />
-          <ProfileMenu />
-        </div>
-      </div>
-    </header>
-  )
-}
-
-function Breadcrumb() {
-  const { pathname } = useLocation()
-  const slug = pathname.replace(/^\/workspace\/?/, '').split('/')[0] ?? ''
-  const current = slug === 'papan-notis' ? { name: t('Papan Notis') } : MODULES.find((m) => m.slug === slug)
-  if (!current || !slug) return null
-  return (
-    <nav aria-label={t('Breadcrumb')} className="hidden min-w-0 md:block">
-      <ol className="flex items-center gap-2 truncate text-caption">
-        <li aria-hidden className="text-line">
-          /
-        </li>
-        <li aria-current="page" className="truncate font-semibold text-heading">
-          {current.name}
-        </li>
-      </ol>
-    </nav>
-  )
-}
-
-/** Vertical round-button module rail (desktop). */
+/** Vertical navy module rail with a rounded edge and a white tile for the current module (desktop). */
 function Rail({ items }: { items: Item[] }) {
   const { stateOf } = useVisibility()
   return (
-    <nav aria-label={t('Modul ruang kerja')} className="fixed top-[5.25rem] left-4 z-20 hidden flex-col gap-2 lg:flex print:hidden">
+    <nav aria-label={t('Modul ruang kerja')} className="fixed top-[var(--spacing-header)] bottom-0 left-0 z-30 hidden w-[5.25rem] flex-col items-center gap-2 overflow-y-auto rounded-r-[2.25rem] bg-navy py-6 shadow-float lg:flex print:hidden">
       {items.map((i) => {
         const Icon = i.icon
         const st = i.vis ? stateOf('ws', i.vis) : 'published'
@@ -159,12 +105,7 @@ function Rail({ items }: { items: Item[] }) {
             to={i.to}
             end={i.end}
             aria-label={t(i.label)}
-            className={({ isActive }) =>
-              cn(
-                'group glass relative grid size-12 place-items-center rounded-full border shadow-soft transition-all hover:-translate-y-0.5',
-                isActive ? 'border-blue bg-blue text-white' : 'border-line text-slate hover:border-blue hover:text-link',
-              )
-            }
+            className={({ isActive }) => cn('group relative grid size-12 shrink-0 place-items-center rounded-2xl transition-all', isActive ? 'bg-white text-navy shadow-soft' : 'text-sky/75 hover:bg-white/10 hover:text-white')}
           >
             <Icon className="size-5" aria-hidden />
             {Badge && <Badge className="absolute -top-0.5 -right-0.5 size-4 rounded-full bg-amber-100 p-0.5 text-amber" aria-hidden />}
@@ -254,89 +195,6 @@ function MenuSheet({ items, onClose }: { items: Item[]; onClose: () => void }) {
   )
 }
 
-function initials(name: string): string {
-  return (
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]!.toUpperCase())
-      .join('') || '?'
-  )
-}
-
-function ProfileMenu() {
-  const { state, roles, signOut, mode } = useAuth()
-  const navigate = useNavigate()
-  const [emailOpen, setEmailOpen] = useState(false)
-  if (state.status !== 'signed_in') return null
-  const { me } = state
-  const name = me.profile?.fullName ?? me.email
-  return (
-    <>
-      <Popover
-        label={t('Menu profil')}
-        panelClassName="w-72"
-        trigger={({ open, toggle }) => (
-          <button
-            type="button"
-            onClick={toggle}
-            aria-expanded={open}
-            aria-haspopup="dialog"
-            aria-label={t('Menu profil: {name}', { name: name })}
-            className="grid size-10 place-items-center rounded-full bg-navy font-display text-caption font-bold text-white hover:bg-blue"
-          >
-            {initials(name)}
-          </button>
-        )}
-      >
-        {(close) => (
-          <>
-            <div className="border-b border-line px-3 pb-3 pt-2">
-              <p className="truncate font-semibold text-heading">{name}</p>
-              <p className="truncate font-mono text-micro text-slate">{me.email}</p>
-              {me.membership && <p className="mt-1 text-micro text-slate">{[me.membership.position, me.membership.bureau].filter(Boolean).join(' · ')}</p>}
-              <p className="mt-2 flex flex-wrap gap-1">
-                {roles.map((r) => (
-                  <span key={r} className="rounded bg-soft px-1.5 py-0.5 text-micro font-semibold text-link">
-                    {t(ROLE_LABELS[r])}
-                  </span>
-                ))}
-              </p>
-            </div>
-            <button
-              type="button"
-              disabled={mode !== 'live'}
-              onClick={() => {
-                close()
-                setEmailOpen(true)
-              }}
-              className="mt-1 flex w-full items-center gap-2 rounded-input px-3 py-2 text-left text-caption text-ink hover:bg-soft disabled:opacity-50"
-            >
-              <Mail className="size-4" aria-hidden />
-              {t('Pilihan e-mel')}
-            </button>
-            <button
-              type="button"
-              disabled={mode !== 'live'}
-              onClick={async () => {
-                close()
-                await signOut()
-                navigate('/', { replace: true })
-              }}
-              className="flex w-full items-center gap-2 rounded-input px-3 py-2 text-left text-caption text-ink hover:bg-soft disabled:opacity-50"
-            >
-              <LogOut className="size-4" aria-hidden />
-              {t('Log keluar')}
-            </button>
-          </>
-        )}
-      </Popover>
-      <EmailPrefsDialog open={emailOpen} onClose={() => setEmailOpen(false)} />
-    </>
-  )
-}
-
 function MaintenanceBanner() {
   const { site } = useSite()
   if (site.settings.maintenance_mode !== 'true') return null
@@ -345,24 +203,6 @@ function MaintenanceBanner() {
       <p className="container-content py-2 text-caption text-ink">
         <strong className="font-semibold">{t('Mod penyelenggaraan.')}</strong> {site.settings.maintenance_message || t('Pengguna biasa tidak boleh menghantar atau menyunting buat sementara waktu.')}
       </p>
-    </div>
-  )
-}
-
-function RolePreviewSelect() {
-  const { roles, setPreviewRole } = useAuth()
-  return (
-    <div className="flex items-center gap-2 rounded-input border border-dashed border-amber/60 bg-amber-100/60 py-1 pr-1 pl-2.5">
-      <span className="hidden text-micro font-semibold uppercase tracking-wide text-amber sm:inline" aria-hidden>
-        {t('Pratonton')}
-      </span>
-      <select aria-label={t('Pratonton navigasi sebagai peranan')} value={roles[0]} onChange={(e) => setPreviewRole?.(e.target.value as RoleKey)} className="h-8 rounded-[6px] border border-line bg-paper px-2 text-caption text-heading">
-        {ROLE_KEYS.filter((r) => r !== 'public').map((r) => (
-          <option key={r} value={r}>
-            {t(ROLE_LABELS[r])}
-          </option>
-        ))}
-      </select>
     </div>
   )
 }

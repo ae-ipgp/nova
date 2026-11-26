@@ -37,7 +37,7 @@ export function allWorkspacePages(roles: readonly RoleKey[]): NavPage[] {
     )
   }
   if (has(roles, ['suak', 'system_admin'])) admin.push({ to: '/workspace/pengurusan/audit', label: t('Log audit'), icon: ScrollText, keywords: 'audit log sejarah' })
-  return [{ to: '/workspace', label: t('Dashboard'), icon: BadgeCheck, keywords: 'utama home' }, boardPage(), ...workspaceModules(roles).filter((m) => m.to !== '/workspace'), ...admin]
+  return [{ to: '/workspace', label: t('Papan Pemuka'), icon: BadgeCheck, keywords: 'utama home' }, boardPage(), ...workspaceModules(roles).filter((m) => m.to !== '/workspace'), ...admin]
 }
 
 export const publicSearchPages = (): { to: string; label: string; keywords?: string }[] => [

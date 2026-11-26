@@ -1,11 +1,11 @@
 /*
- * NO.VA service worker. Caches ONLY the site's own static files so the app shell opens quickly and
+ * NoVA service worker. Caches ONLY the site's own static files so the app shell opens quickly and
  * works offline-ish. It never caches gateway/Supabase responses: records, files and sign-in state
  * must always come live from the server (Blueprint §11).
  * Bump VERSION on every release so old caches are removed.
  */
 const VERSION = 'nova-v1'
-const SHELL = ['/', '/favicon.svg', '/brand/icon-192.png']
+const SHELL = ['/', '/favicon.png', '/brand/icon-192.png']
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))

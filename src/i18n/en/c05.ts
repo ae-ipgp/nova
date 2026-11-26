@@ -21,7 +21,7 @@ export default {
   'Selesai: {sentCount} berjaya, {failedCount} gagal.': 'Done: {sentCount} succeeded, {failedCount} failed.',
   'Semak': 'Review',
   'Semak Keaslian': 'Verify Authenticity',
-  'Semak ejaan nombor. Jika dokumen anda membawa nombor ini, hubungi Sekretariat.': 'Check the spelling of the number. If your document carries this number, contact the Secretariat.',
+  'Semak ejaan nombor. Jika dokumen anda membawa nombor ini, hubungi Sekretariat.': 'Check the spelling of the number. If your document carries this number, contact the Secretary\'s Office.',
   'Semak keaslian': 'Verify authenticity',
   'Semak keaslian surat atau sijil': 'Check whether a letter or certificate is genuine',
   'Semak nombor rujukan': 'Check a reference number',

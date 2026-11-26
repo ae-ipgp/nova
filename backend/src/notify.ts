@@ -60,8 +60,8 @@ export function notify(env: NotifyEnv, kind: NotifyKind | 'access_changed', prof
       link: '',
       orgName: getSetting(env.store, 'org_name'),
       recipientName: profile.full_name,
-      label: 'Makluman NO.VA',
-      cta: appUrl && msg.path ? { text: msg.ctaText ?? 'Buka dalam NO.VA', url: `${appUrl}${msg.path}` } : undefined,
+      label: 'Makluman NoVA',
+      cta: appUrl && msg.path ? { text: msg.ctaText ?? 'Buka dalam NoVA', url: `${appUrl}${msg.path}` } : undefined,
     })
     const res = env.services.mail.send({ to: profile.email, subject: mail.subject, html: mail.html, text: mail.text, replyTo: getSetting(env.store, 'mail_reply_to') || undefined, senderName: getSetting(env.store, 'mail_sender_name') })
     env.store.insert('email_logs', { id: env.uuid(), notice_id: '', recipient_id: profile.id, event_type: res.ok ? `system:${kind}` : `system-failed:${kind}`, detail: res.ok ? '' : res.error.slice(0, 200), occurred_at: env.now.toISOString() })

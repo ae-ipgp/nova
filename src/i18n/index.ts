@@ -53,3 +53,6 @@ export function translateServer(message: string): string {
   }
   return message
 }
+
+/** The English dictionary entry for a Malay message ('' when there is none): used to pre-fill the content editor. */
+export const englishOf = (ms: string): string => EN[ms] ?? EN[squash(ms)] ?? ''

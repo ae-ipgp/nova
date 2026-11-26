@@ -83,6 +83,7 @@ export const adminConfigHandlers: {
         if (def.kind === 'boolean' && v !== 'true' && v !== 'false') throw badRequest(`${def.label} tidak sah.`)
         if (def.kind === 'select' && !def.options?.includes(v)) throw badRequest(`${def.label} tidak sah.`)
         if (key.startsWith('social_') && v && !/^https:\/\/[^\s]+$/.test(v)) throw badRequest(`${def.label} mesti bermula dengan https://`)
+        if (key === 'jpp_portal_url' && v && !/^https:\/\/[^\s]+$/.test(v)) throw badRequest(`${def.label} mesti bermula dengan https://`)
         if (key === 'verify_url' && v && !/^https:\/\/[^\s]+$/.test(v)) throw badRequest(`${def.label} mesti bermula dengan https://`)
         if ((key === 'contact_email' || key === 'mail_reply_to') && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) throw badRequest(`${def.label} tidak sah.`)
         const existing = ctx.store.find('system_settings', (r) => r.key === key)

@@ -1,11 +1,10 @@
-import { Archive, CalendarCheck2, Download, FileStack, Megaphone, Pin, Users } from 'lucide-react'
+import { Archive, CalendarCheck2, Download, FileStack, Megaphone, Pin } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { ATTENDANCE_LABELS } from '@shared/domain'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody } from '@/components/ui/card'
 import { FilterChips, TableShell, Td, Th } from '@/components/ui/misc'
 import { StatusBadge } from '@/components/ui/status-badge'
-import { useSite } from '@/hooks/use-site'
 import { usePublic } from '@/hooks/use-public'
 import { saveFile } from '@/lib/files'
 import { callApi } from '@/lib/api'
@@ -17,40 +16,10 @@ import { PublicState } from './public-state'
 import { useToast } from '@/components/ui/toast'
 import { t } from '@/i18n'
 
-export function AboutPage() {
-  const { site } = useSite()
-  const leaders = usePublic('public.leaders')
-  const about = site.settings.about_text
-  return (
-    <PublicPage eyebrow={t('Mengenai JPP')} title={site.settings.org_name || t('JPP IPGKKB')} description={t('Profil, fungsi dan senarai kepimpinan sesi aktif.')}>
-      <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-        <div>
-          <h2 className="text-h3 font-bold">{t('Profil')}</h2>
-          <p className="mt-3 whitespace-pre-line text-body-lg text-ink">{about || t('Belum ditetapkan oleh pentadbir.')}</p>
-        </div>
-        <div>
-          <h2 className="text-h3 font-bold">{t('Kepimpinan')} {site.activeSession ? `· ${site.activeSession.name}` : ''}</h2>
-          <div className="mt-3">
-            <PublicState query={leaders} isEmpty={(d) => d.leaders.length === 0} empty={{ icon: Users, pose: 'book', title: t('Senarai kepimpinan belum diterbitkan'), description: t('Nama hanya dipaparkan dengan persetujuan ahli dan selepas disahkan SUAK.') }}>
-              {(d) => (
-                <ul className="divide-y divide-line rounded-card border border-line bg-paper">
-                  {d.leaders.map((l, i) => (
-                    <li key={i} className="px-4 py-3"><p className="font-semibold text-heading">{l.name}</p><p className="text-caption text-slate">{[l.position, l.bureau].filter(Boolean).join(' · ')}</p></li>
-                  ))}
-                </ul>
-              )}
-            </PublicState>
-          </div>
-        </div>
-      </div>
-    </PublicPage>
-  )
-}
-
 export function AttendancePage() {
   const q = usePublic('public.attendance')
   return (
-    <PublicPage eyebrow={t('Kehadiran')} title={t('Rekod kehadiran mesyuarat')} description={t('Hanya rekod yang telah disahkan dan diterbitkan oleh SUAK dipaparkan. Alasan peribadi tidak sekali-kali diterbitkan.')}>
+    <PublicPage id="attendance" eyebrowMs="Kehadiran" titleMs="Rekod kehadiran mesyuarat" descriptionMs="Hanya rekod yang telah disahkan dan diterbitkan oleh SUAK dipaparkan.">
       <PublicState query={q} isEmpty={(d) => d.meetings.length === 0} empty={{ icon: CalendarCheck2, pose: 'checklist', title: t('Belum ada rekod kehadiran yang diterbitkan'), description: t('Rekod dipaparkan selepas disahkan dan diterbitkan.') }}>
         {(d) => (
           <div className="space-y-6">
@@ -83,7 +52,7 @@ export function AnnouncementsPage() {
   const [cat, setCat] = useState('all')
   const cats = useMemo(() => ['all', ...new Set((q.data ?? []).map((a) => a.category))], [q.data])
   return (
-    <PublicPage eyebrow={t('Pengumuman')} title={t('Notis awam & makluman rasmi')} description={t('Hebahan dan makluman yang telah diluluskan untuk paparan awam.')}>
+    <PublicPage id="announcements" eyebrowMs="Pengumuman" titleMs="Notis awam & makluman rasmi" descriptionMs="Hebahan dan makluman yang telah diluluskan untuk paparan awam.">
       <PublicState query={q} isEmpty={(d) => d.length === 0} empty={{ icon: Megaphone, pose: 'sleeping', title: t('Belum ada pengumuman'), description: t('Pengumuman akan dipaparkan di sini selepas diterbitkan.') }}>
         {(rows) => (
           <div className="space-y-5">
@@ -122,7 +91,7 @@ export function PublicTemplatesPage() {
   const q = usePublic('public.templates')
   const download = useDownload()
   return (
-    <PublicPage eyebrow={t('Pusat Templat')} title={t('Templat dokumen awam')} description={t('Templat yang ditandakan Awam dan boleh dimuat turun. Semak setiap templat sebelum menggunakannya.')}>
+    <PublicPage id="templates" eyebrowMs="Pusat Templat" titleMs="Templat dokumen awam" descriptionMs="Templat yang boleh dimuat turun. Semak setiap templat sebelum menggunakannya.">
       <PublicState query={q} isEmpty={(d) => d.length === 0} empty={{ icon: FileStack, pose: 'book', title: t('Belum ada templat awam'), description: t('Templat rasmi akan disenaraikan selepas diluluskan.') }}>
         {(rows) => (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -146,7 +115,7 @@ export function PublicArchivePage() {
   const q = usePublic('public.archive')
   const download = useDownload()
   return (
-    <PublicPage eyebrow={t('Arkib Awam')} title={t('Dokumen yang diluluskan untuk penerbitan')} description={t('Dokumen dalaman tidak menjadi awam hanya kerana mempunyai URL — setiap penerbitan melalui kelulusan SUAK.')}>
+    <PublicPage id="archive" eyebrowMs="Arkib Awam" titleMs="Dokumen yang diluluskan untuk penerbitan" descriptionMs="Dokumen dalaman yang diterbitkan melalui kelulusan SUAK.">
       <PublicState query={q} isEmpty={(d) => d.length === 0} empty={{ icon: Archive, pose: 'search', title: t('Belum ada dokumen awam'), description: t('Dokumen akan muncul di sini selepas melalui proses penerbitan.') }}>
         {(rows) => (
           <Card className="overflow-hidden">

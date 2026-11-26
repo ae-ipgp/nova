@@ -11,11 +11,11 @@ import { BrandCard } from './brand-card'
 import { useDownloader, useGatewayMutation, useGatewayQuery } from '@/hooks/use-gateway'
 import { t } from '@/i18n'
 
-const PUBLIC_LABEL: Record<string, string> = { mengenai: 'Mengenai JPP', kehadiran: 'Kehadiran', pengumuman: 'Pengumuman', templat: 'Templat', arkib: 'Arkib Awam', semak: 'Semak Keaslian' }
+const PUBLIC_LABEL: Record<string, string> = { organisasi: 'Organisasi', kehadiran: 'Kehadiran', pengumuman: 'Pengumuman', templat: 'Templat', arkib: 'Arkib Awam', semak: 'Semak Keaslian' }
 const WS_LABEL: Record<string, string> = { e_surat: 'e-Surat', e_mesyuarat: 'e-Mesyuarat', nome: 'NoMe', templat: 'Templat', e_opr: 'e-OPR', e_arkib: 'e-Arkib', papan_notis: 'Papan Notis' }
 
 const GROUPS: { title: string; keys: string[] }[] = [
-  { title: 'Identiti & perhubungan', keys: ['org_name', 'contact_email', 'contact_phone', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'] },
+  { title: 'Identiti & perhubungan', keys: ['org_name', 'contact_email', 'contact_phone', 'contact_phone_label', 'contact_phone2', 'contact_phone2_label', 'contact_address', 'jpp_portal_url', 'social_instagram', 'social_facebook', 'social_tiktok'] },
   { title: 'Kandungan awam', keys: ['about_text', 'privacy_text', 'privacy_effective_date'] },
   { title: 'Kepala surat & penandatangan', keys: ['letterhead_line1', 'letterhead_line2', 'letterhead_line3', 'signatory_title', 'verify_url', 'letter_categories'] },
   { title: 'Jawapan sedia', keys: ['canned_replies'] },

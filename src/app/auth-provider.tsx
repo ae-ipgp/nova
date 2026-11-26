@@ -118,11 +118,25 @@ function LiveAuthProvider({ children }: { children: ReactNode }) {
       signOut,
       getToken: async () => (await client?.auth.getSession())?.data.session?.access_token,
       refresh: async () => setReload((n) => n + 1),
+      identity: token ? identityOf(token) : undefined,
     }),
-    [client, state, signOut],
+    [client, state, signOut, token],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>
+}
+
+/** The Google profile (full name, photo) travels in the Supabase access token's user_metadata. */
+function identityOf(token: string): { name?: string; avatarUrl?: string } {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { user_metadata?: Record<string, unknown> }
+    const um = payload.user_metadata ?? {}
+    const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined)
+    const avatar = str(um.avatar_url) ?? str(um.picture)
+    return { name: str(um.full_name) ?? str(um.name), avatarUrl: avatar && /^https:\/\//.test(avatar) ? avatar : undefined }
+  } catch {
+    return {}
+  }
 }
 
 function decodeSub(token: string): string {

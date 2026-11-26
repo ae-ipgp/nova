@@ -32,7 +32,7 @@ export function Popover({
     <div ref={ref} className="relative">
       {trigger({ open, toggle: () => setOpen((v) => !v) })}
       {open && (
-        <div role="dialog" aria-label={label} className={cn('glass absolute top-full z-50 mt-2 rounded-card border border-line p-2 shadow-float', align === 'right' ? 'right-0' : 'left-0', panelClassName)}>
+        <div role="dialog" aria-label={label} className={cn('absolute top-full z-50 mt-2 rounded-card border border-line bg-paper p-2 shadow-float', align === 'right' ? 'right-0' : 'left-0', panelClassName)}>
           {children(() => setOpen(false))}
         </div>
       )}

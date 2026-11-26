@@ -50,7 +50,7 @@ export const VISIBILITY_STATES = ['published', 'soon', 'locked', 'hidden'] as co
 export type VisibilityState = (typeof VISIBILITY_STATES)[number]
 export const VISIBILITY_STATE_LABELS: Record<VisibilityState, string> = { published: 'Diterbitkan', soon: 'Akan datang', locked: 'Dikunci', hidden: 'Disembunyikan' }
 
-export const PUBLIC_PAGE_KEYS = ['mengenai', 'kehadiran', 'pengumuman', 'templat', 'arkib', 'semak'] as const
+export const PUBLIC_PAGE_KEYS = ['organisasi', 'kehadiran', 'pengumuman', 'templat', 'arkib', 'semak'] as const
 export const WORKSPACE_PAGE_KEYS = ['e_surat', 'e_mesyuarat', 'nome', 'templat', 'e_opr', 'e_arkib', 'papan_notis'] as const
 
 export const SESSION_STATUSES = ['planned', 'active', 'archived'] as const

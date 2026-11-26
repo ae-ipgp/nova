@@ -15,19 +15,19 @@ export function buildBackupZip(store: TableStore, services: Services, now: Date)
     counts[def.name] = rows.length
     files.push({ name: `${def.workbook}/${def.name}.csv`, content: toCsv(def.columns, rows.map((r) => def.columns.map((c) => r[c] ?? ''))) })
   }
-  files.push({ name: 'manifest.json', content: JSON.stringify({ app: 'NO.VA', schemaVersion: SCHEMA_VERSION, exportedAt: now.toISOString(), rows: counts }, null, 2) })
+  files.push({ name: 'manifest.json', content: JSON.stringify({ app: 'NoVA', schemaVersion: SCHEMA_VERSION, exportedAt: now.toISOString(), rows: counts }, null, 2) })
   files.push({
     name: 'BACA-SAYA.txt',
     content: [
-      'NO.VA — sandaran / backup',
+      'NoVA — sandaran / backup',
       '',
-      'BM: Setiap fail CSV ialah satu tab dalam hamparan "NO.VA — Data" (folder data) atau "NO.VA — Audit" (folder audit).',
+      'BM: Setiap fail CSV ialah satu tab dalam hamparan "NoVA — Data" (folder data) atau "NoVA — Audit" (folder audit).',
       'Untuk memulihkan: buka hamparan, pilih tab, Fail > Import > Muat naik CSV > "Gantikan helaian semasa". Jangan ubah baris pengepala.',
-      'Fail Drive (PDF, lampiran, imej) tidak termasuk dalam ZIP ini; ia kekal dalam folder "NO.VA" di Drive.',
+      'Fail Drive (PDF, lampiran, imej) tidak termasuk dalam ZIP ini; ia kekal dalam folder "NoVA" di Drive.',
       '',
-      'EN: Each CSV is one tab of the "NO.VA — Data" or "NO.VA — Audit" spreadsheet.',
+      'EN: Each CSV is one tab of the "NoVA — Data" or "NoVA — Audit" spreadsheet.',
       'To restore: open the spreadsheet, select the tab, File > Import > Upload CSV > "Replace current sheet". Keep the header row.',
-      'Drive files (PDFs, attachments, images) are not in this ZIP; they stay in the "NO.VA" Drive folder.',
+      'Drive files (PDFs, attachments, images) are not in this ZIP; they stay in the "NoVA" Drive folder.',
       '',
       'Kandungan ini mengandungi data peribadi (e-mel, alasan kehadiran). Simpan dengan selamat. / Contains personal data. Store securely.',
     ].join('\n'),
@@ -39,7 +39,7 @@ export function buildBackupZip(store: TableStore, services: Services, now: Date)
 export function backupsToDelete(files: { id: string; name: string; createdMs: number }[], keep = 12): string[] {
   const byKind = new Map<string, typeof files>()
   for (const f of files) {
-    const kind = f.name.startsWith('NO.VA — Data') ? 'data' : f.name.startsWith('NO.VA — Audit') ? 'audit' : ''
+    const kind = f.name.startsWith('NoVA — Data') ? 'data' : f.name.startsWith('NoVA — Audit') ? 'audit' : ''
     if (!kind) continue // never touch anything we didn't name ourselves
     byKind.set(kind, [...(byKind.get(kind) ?? []), f])
   }

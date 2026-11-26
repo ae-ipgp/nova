@@ -1,18 +1,33 @@
-# NO.VA release-candidate report
+# NoVA release-candidate report
 
 **Status:** all eight modules, the public portal, the notice board, letter/certificate PDFs and the
-mascot slots are built, plus the **HiPER-parity layer** (themes, dark mode, English, search, admin-managed logo/favicon, page visibility, system e-mails, daily reminders, monthly backup). **Verified:** 414 automated tests (gateway + interface), type-check, lint (0 warnings),
+mascot slots are built, plus the **HiPER-parity layer** (themes, dark mode, English, search, admin-managed logo/favicon, page visibility, system e-mails, daily reminders, monthly backup). **Verified:** 434 automated tests (gateway + interface), type-check, lint (0 warnings),
 production build, an end-to-end browser run of 17 screens under the production Content-Security-Policy,
 and a Chromium measurement of the one-page report layout. **Not verified:** anything that needs the real
 Google, Supabase or DELIMa accounts. Do [`UAT-CHECKLIST.md`](UAT-CHECKLIST.md) before publishing.
 
 Architecture: ADR-0001 (Sheets + Drive + Apps Script), ADR-0002 (DELIMa sign-in and ownership).
-Schema version **4**.
+Schema version **5**.
+
+## NoVA rename and editable content (latest)
+
+Schema version **5**. Requested by the owner: rename to **NoVA (Notion of Virtual Assistance)**, new logos (nav, favicon, footer), new wording (hero, principles, login, page descriptions), `Mengenai JPP` → **Organisasi**, a footer with both phone numbers (call + WhatsApp), visitor counter and JPP portal link, login page with the home header/footer, the workspace using the home header, Google photo and full name, a card-style redesign, and **admin-editable content** on every public page.
+
+| Area | Built |
+|---|---|
+| Rename + wording | NO.VA → NoVA in code, e-mails, PDFs and docs; all requested wording changes in Malay and English ("The Secretary's Office"). |
+| Editable content | `site_content` sheet; `<Cms>`, `<CmsLink>`, `<CmsImage>`, `<CmsFile>`, lists; SUAK-only "Suntingan" mode; hide, reset to original, versioned photos. Covers the home page, page headers, Organisasi, login, footer lines and the dashboard heading. |
+| Organisasi | Organisation chart (photo + PDF), active leadership (existing consent rules), work progress and leadership legacies (SUAK-entered lists; nothing invented). |
+| Footer | New logo, italic tagline, two phone numbers with call/WhatsApp, bold first address line, visitor counter (one per browser session, no personal data), JPP portal link (set in Tetapan). |
+| Identity | Google name and photo read from the sign-in token; CSP allows Google image hosts. |
+| Redesign | Rounded cards, soft shadows, navy curved rail, light dashboard with mascot and action tiles, solid popovers. |
+
+**Not covered by editable content:** the workspace's working screens (forms, tables, buttons inside modules) keep fixed wording; only their dashboard heading is editable. Contacts, phone numbers and links are edited in Tetapan. Two mascot poses (waving, hand on chest) are in; the rest still fall back to icons.
 
 ## HiPER-parity layer (added after the first release candidate)
 
 Requested: make the workspace feel like HiPER and add search, dark mode, English, themes and an admin-changeable logo/favicon.
-Source: the HiPER blueprint attached for NO.VA (sections 17B and the "build from start" list).
+Source: the HiPER blueprint attached for NoVA (sections 17B and the "build from start" list).
 
 | Area | Built |
 |---|---|

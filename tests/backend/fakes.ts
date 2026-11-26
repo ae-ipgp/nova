@@ -32,7 +32,7 @@ export class FakeServices implements Services {
   readonly mail: MailService = {
     send: (m) => {
       if (this.failFor.has(m.to)) return { ok: false, error: 'Invalid address' }
-      ;(m.html.includes('Makluman NO.VA') ? this.system : this.sent).push(m)
+      ;(m.html.includes('Makluman NoVA') ? this.system : this.sent).push(m)
       this.quota--
       return { ok: true }
     },

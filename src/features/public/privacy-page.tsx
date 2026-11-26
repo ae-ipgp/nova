@@ -8,7 +8,7 @@ export function PrivacyPage() {
   const { site } = useSite()
   const text = site.settings.privacy_text
   return (
-    <PublicPage eyebrow={t('Privasi')} title={t('Dasar privasi')} description={t('Bagaimana NO.VA mengendalikan data organisasi dan peribadi.')}>
+    <PublicPage id="privacy" eyebrowMs="Privasi" titleMs="Dasar privasi" descriptionMs="Bagaimana NoVA mengendalikan data organisasi dan peribadi.">
       <div className="mx-auto max-w-3xl">
         {text ? (
           <>
@@ -20,7 +20,7 @@ export function PrivacyPage() {
         )}
         <h2 className="mt-10 text-h3 font-bold">{t('Ringkasan teknikal')}</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-body text-slate">
-          <li>{t('Log masuk menggunakan akaun DELIMa melalui Google; NO.VA tidak menyimpan kata laluan.')}</li>
+          <li>{t('Log masuk menggunakan akaun DELIMa melalui Google; NoVA tidak menyimpan kata laluan.')}</li>
           <li>{t('Rekod disimpan di Google Sheets dan fail di Google Drive milik akaun pentadbir, tidak dikongsi dengan pengguna.')}</li>
           <li>{t('Maklumat awam ialah output terkawal yang diterbitkan SUAK; akses terus kepada rekod dalaman tidak disediakan.')}</li>
           <li>{t('Tindakan kritikal direkodkan dalam log audit.')}</li>

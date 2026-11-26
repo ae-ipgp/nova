@@ -34,7 +34,7 @@ export function VerifyPage() {
   }
 
   return (
-    <PublicPage eyebrow={t('Semak keaslian')} title={t('Semak nombor rujukan')} description={t('Masukkan nombor rujukan pada surat atau sijil untuk mengesahkan sama ada ia dikeluarkan oleh sistem ini.')}>
+    <PublicPage id="verify" eyebrowMs="Semak keaslian" titleMs="Semak nombor rujukan" descriptionMs="Masukkan nombor rujukan pada surat atau sijil untuk mengesahkan sama ada ia dikeluarkan oleh sistem ini.">
       <div className="mx-auto grid max-w-3xl gap-8 md:grid-cols-[1fr_auto] md:items-start">
         <div className="space-y-5">
           <form onSubmit={submit} className="space-y-4" noValidate>

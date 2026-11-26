@@ -61,9 +61,22 @@
 
 /* Frosted surface for floating UI (navigation pill, dock, search palette). Falls back to a solid surface. */
 @utility glass {
-  background-color: color-mix(in srgb, var(--color-paper) 92%, transparent);
+  background-color: color-mix(in srgb, var(--color-paper) 96%, transparent);
   @supports (backdrop-filter: blur(1px)) {
-    background-color: color-mix(in srgb, var(--color-paper) 72%, transparent);
+    background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
     backdrop-filter: blur(18px) saturate(1.4);
   }
+}
+
+/* Admin edit mode: every editable element is outlined so SUAK can see and click it. */
+.cms-edit {
+  outline: 2px dashed var(--color-blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 120ms;
+}
+.cms-edit:hover,
+.cms-edit:focus-visible {
+  background-color: color-mix(in srgb, var(--color-blue) 14%, transparent);
 }

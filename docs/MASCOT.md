@@ -8,7 +8,7 @@ Static PNG poses and expressions only (no animation or video). The name is a sin
 1. Name each file exactly as in the table and put it in `public/mascot/`
    (transparent background, ideally 1024–2048 px, optimised; the site shows them at 64–420 px).
 2. Run `npm run mascot:check` to see what is present and what is still missing.
-3. Commit and deploy. Missing files are skipped: the site shows the NO.VA monogram or an icon
+3. Commit and deploy. Missing files are skipped: the site shows the NoVA monogram or an icon
    instead, so you can add images in batches (for example 5 at a time) without breaking anything.
 
 Start with the three that appear most: `wave`, `avatar`, `shrug`.

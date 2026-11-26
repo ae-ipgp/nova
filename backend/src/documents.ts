@@ -81,7 +81,7 @@ export function renderLetterHtml(i: LetterInput): string {
       <p><b>${escapeHtml(i.signatoryName)}</b><br>${escapeHtml(i.signatoryTitle)}</p>
       <div style="height:12pt"></div>
       <table width="100%"><tr><td style="border-top:0.75pt solid #d9e2ec;padding-top:5pt;" class="small muted">
-        Dokumen ini dijana oleh NO.VA selepas kelulusan SUAK dan tidak memerlukan tandatangan basah. ${escapeHtml(i.verifyLine)}</td></tr></table>
+        Dokumen ini dijana oleh NoVA selepas kelulusan SUAK dan tidak memerlukan tandatangan basah. ${escapeHtml(i.verifyLine)}</td></tr></table>
     </div>`,
   )
 }

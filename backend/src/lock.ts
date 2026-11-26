@@ -14,7 +14,7 @@ export class BusyError extends AppError {
 }
 
 /**
- * Runs `fn` while holding the script-wide lock. This is NO.VA's replacement for
+ * Runs `fn` while holding the script-wide lock. This is NoVA's replacement for
  * a database transaction: every read-check-write that must be atomic (reference
  * number issuance, unique checks, status transitions) runs inside it.
  */

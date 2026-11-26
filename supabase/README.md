@@ -1,12 +1,12 @@
 # Supabase — sign-in only (DELIMa via Google)
 
-NO.VA uses Supabase **only for sign-in** (ADR-0001, ADR-0002). No tables, storage buckets or
-edge functions. Users sign in with their **DELIMa Google account** (`@moe-dl.edu.my`); NO.VA
+NoVA uses Supabase **only for sign-in** (ADR-0001, ADR-0002). No tables, storage buckets or
+edge functions. Users sign in with their **DELIMa Google account** (`@moe-dl.edu.my`); NoVA
 never handles passwords.
 
 What Supabase holds: auth users (email, Google identity link) and sessions.
 What it does **not** hold: profiles, roles, membership or any records. Those live in Sheets.
-Whether someone may use NO.VA is decided by the gateway (domain check + registered profile),
+Whether someone may use NoVA is decided by the gateway (domain check + registered profile),
 not by Supabase.
 
 ## Setup (Phase 1)

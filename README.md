@@ -1,13 +1,13 @@
-# NO.VA — Digital Secretariat
+# NoVA — Digital Secretariat
 
 **One platform. One Secretariat. One official record.**
 
-NO.VA is the web-based secretariat platform for JPP IPGKKB. It brings correspondence,
+NoVA is the web-based secretariat platform for JPP IPGKKB. It brings correspondence,
 meetings, notices, templates, reporting, archive and administration into one modular
 application with one identity system and one source of record.
 
 > Status: **Release candidate** — all eight modules, the public portal, the notice board and
-> letter/certificate PDFs are built and tested against fakes (414 automated tests). It has **not**
+> letter/certificate PDFs are built and tested against fakes (434 automated tests). It has **not**
 > yet been run against the real Google/Supabase accounts: do the steps in
 > [`docs/UAT-CHECKLIST.md`](docs/UAT-CHECKLIST.md) before publishing.
 > See [`docs/RELEASE-1.0-REPORT.md`](docs/RELEASE-1.0-REPORT.md).

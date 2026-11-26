@@ -40,14 +40,14 @@ export interface ModuleDefinition {
 const INTERNAL: readonly RoleKey[] = ['member', 'secretariat', 'suak', 'system_admin']
 
 /**
- * The eight NO.VA modules (Blueprint §02, requirements §07).
+ * The eight NoVA modules (Blueprint §02, requirements §07).
  * This list drives the sidebar, routes and Phase placeholders.
  */
 export const MODULES: readonly ModuleDefinition[] = [
   {
     code: 'M01',
     slug: '',
-    name: 'Dashboard',
+    name: 'Papan Pemuka',
     summary: 'Ringkasan operasi, status dan akses pantas.',
     icon: LayoutDashboard,
     phase: 1,
@@ -158,7 +158,7 @@ export const MODULES: readonly ModuleDefinition[] = [
       { id: 'OPR-02', priority: 'P0', text: 'Simpan draf secara selamat dan benarkan sambung kemudian.' },
       { id: 'OPR-03', priority: 'P0', text: 'Pratonton A4 sebelum eksport.' },
       { id: 'OPR-04', priority: 'P0', text: 'Jana PDF satu halaman dengan pemotongan/saiz imej terkawal.' },
-      { id: 'OPR-05', priority: 'P1', text: 'Sediakan gaya Corporate, Editorial dan Infographic yang masih mematuhi identiti NO.VA.' },
+      { id: 'OPR-05', priority: 'P1', text: 'Sediakan gaya Corporate, Editorial dan Infographic yang masih mematuhi identiti NoVA.' },
       { id: 'OPR-06', priority: 'P0', text: 'Sediakan semakan/pengesahan sebelum status rasmi.' },
       { id: 'OPR-07', priority: 'P1', text: 'Rekod versi dan sejarah perubahan.' },
       { id: 'OPR-08', priority: 'P0', text: 'Simpan salinan akhir ke e-Arkib dengan metadata.' },

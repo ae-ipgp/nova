@@ -27,6 +27,8 @@ export interface AuthValue {
   getToken(): Promise<string | undefined>
   /** Re-reads profile and roles from the gateway. */
   refresh(): Promise<void>
+  /** Name and photo of the Google account (from the sign-in token). */
+  identity?: { name?: string; avatarUrl?: string }
   /** Preview mode only. */
   setPreviewRole?(role: RoleKey): void
 }

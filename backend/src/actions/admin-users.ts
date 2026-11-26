@@ -31,7 +31,7 @@ function summarise(store: TableStore, profile: Row): UserSummary {
 /** Access changes always email the person (security notice; cannot be switched off). */
 function securityNotice(ctx: HandlerContext, profile: Row, what: string): void {
   const fresh = ctx.store.get('profiles', profile.id) ?? profile
-  notify(envOf(ctx), 'access_changed', fresh, { subject: 'Akses NO.VA anda telah diubah', body: `${what}\n\nJika anda tidak menjangka perubahan ini, sila hubungi SUAK.` })
+  notify(envOf(ctx), 'access_changed', fresh, { subject: 'Akses NoVA anda telah diubah', body: `${what}\n\nJika anda tidak menjangka perubahan ini, sila hubungi SUAK.` })
 }
 
 function requireProfile(store: TableStore, profileId: string): Row {

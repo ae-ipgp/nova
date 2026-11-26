@@ -1,4 +1,4 @@
-# NO.VA gateway (Google Apps Script)
+# NoVA gateway (Google Apps Script)
 
 The only path from the web app to Google Sheets and Drive. See
 [ADR-0001](../docs/adr/0001-google-sheets-drive-storage.md) for the why.
@@ -34,8 +34,8 @@ go/no-go check for anonymous web-app access.
 2. Locally: `cp backend/.clasp.json.example backend/.clasp.json` and paste the Script ID.
 3. `npx @google/clasp@3 login` (as the owner DELIMa account), then `npm run backend:push`.
 4. In the Apps Script editor, run **`setupSpreadsheet`** and approve the permissions.
-   It creates the `NO.VA` Drive folder, its subfolders, the **NO.VA — Data** and
-   **NO.VA — Audit** spreadsheets, every tab and header, and stores their IDs in Script Properties.
+   It creates the `NoVA` Drive folder, its subfolders, the **NoVA — Data** and
+   **NoVA — Audit** spreadsheets, every tab and header, and stores their IDs in Script Properties.
 5. Project Settings → Script properties: add `SUPABASE_URL` and `SUPABASE_ANON_KEY`
    (from Supabase → Project Settings → API), plus `BOOTSTRAP_SUAK_EMAIL` (the first SUAK's
    DELIMa address) and optionally `BOOTSTRAP_SUAK_NAME`.
@@ -53,7 +53,7 @@ deletes, renames or reorders anything. **Schema v2 (Phase 1)** adds `user_roles.
 if you ran setup before Phase 1, run `setupSpreadsheet` again before `bootstrap`.
 
 After the first SUAK signs in, everyone else is registered from **Pengurusan → Pengguna**
-in NO.VA. Do not add users by editing the sheets.
+in NoVA. Do not add users by editing the sheets.
 
 ## Updating an existing deployment to this release (schema v3)
 
@@ -67,6 +67,16 @@ in NO.VA. Do not add users by editing the sheets.
 7. Redeploy the site on Vercel (new security headers and screens).
 
 Then follow `docs/UAT-CHECKLIST.md`.
+
+## Updating to the NoVA release (schema v5)
+
+1. Paste the new `backend/dist/Code.js` (or `npm run backend:push`).
+2. Run **`setupSpreadsheet`** again: it adds the `site_content` tab (editable page content). Nothing is deleted.
+3. Deploy → Manage deployments → edit → **New version**.
+4. In **Pengurusan → Tetapan** fill in *Telefon perhubungan (SUAK)*, *Telefon perhubungan (Naib SUAK)* (and their labels),
+   *Alamat* (the first line is shown in bold) and *Pautan portal rasmi JPP*. The footer shows the call and WhatsApp buttons only for numbers that are set.
+5. Sign in as SUAK and use the **Suntingan** button in the header to edit page texts, links, photos and files.
+   Under **Organisasi**, add the organisation chart, the work-progress list and the leadership legacies.
 
 ## Handover to a new owner
 
@@ -95,7 +105,7 @@ Keep the same deployment so the `/exec` URL does not change.
 3. Run **`installTriggers`** again: it adds `sendReminders` (daily, ~09:00) and `backupToDrive`
    (monthly, 1st). Authorise the Drive permission if asked.
 4. Deploy → Manage deployments → edit → **New version**.
-5. In **Pengurusan → Tetapan** set *Alamat laman NO.VA* (`app_url`) so e-mails contain a working link.
+5. In **Pengurusan → Tetapan** set *Alamat laman NoVA* (`app_url`) so e-mails contain a working link.
 6. Open the site: sign in as SUAK, change the logo/favicon under *Jenama*, and check *Keterlihatan halaman*.
 
 Each person can switch system e-mails off under the profile menu → **Pilihan e-mel**. SUAK can switch all of

@@ -13,7 +13,7 @@ export interface ComposeInput {
   recipientName: string
   /** Header label for system mails (defaults to the notice type's name). */
   label?: string
-  /** Optional button linking back into NO.VA. */
+  /** Optional button linking back into NoVA. */
   cta?: { text: string; url: string }
 }
 
@@ -53,7 +53,7 @@ ${bodyHtml}
 ${rows ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 12px 0;font-size:14px;">${rows}</table>` : ''}
 ${i.cta ? `<p style="margin:16px 0 0 0;"><a href="${escapeHtml(i.cta.url)}" style="display:inline-block;background:#1769aa;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px;">${escapeHtml(i.cta.text)}</a></p>` : ''}
 </td></tr>
-<tr><td style="padding:14px 24px;border-top:1px solid #d9e2ec;font-size:12px;color:#63758a;">Dihantar oleh ${escapeHtml(i.orgName)} melalui NO.VA kepada ahli yang berdaftar. Anda boleh membalas e-mel ini untuk berhubung dengan Sekretariat.</td></tr>
+<tr><td style="padding:14px 24px;border-top:1px solid #d9e2ec;font-size:12px;color:#63758a;">Dihantar oleh ${escapeHtml(i.orgName)} melalui NoVA kepada ahli yang berdaftar. Anda boleh membalas e-mel ini untuk berhubung dengan Sekretariat.</td></tr>
 </table></td></tr></table></body></html>`
 
   const text = [
@@ -66,7 +66,7 @@ ${i.cta ? `<p style="margin:16px 0 0 0;"><a href="${escapeHtml(i.cta.url)}" styl
     '',
     ...(i.cta ? ['', `${i.cta.text}: ${i.cta.url}`] : []),
     '',
-    `— ${i.orgName} (NO.VA)`,
+    `— ${i.orgName} (NoVA)`,
   ].join('\n')
 
   return { subject: i.subject, html, text }

@@ -13,7 +13,7 @@ export function UpdateBanner() {
         {update ? (
           <>
             <span>
-              <strong className="font-semibold">{t('Versi baharu NO.VA tersedia.')}</strong> {t('Muat semula untuk menggunakannya.')}
+              <strong className="font-semibold">{t('Versi baharu NoVA tersedia.')}</strong> {t('Muat semula untuk menggunakannya.')}
             </span>
             <button type="button" onClick={() => void refreshApp()} className="inline-flex items-center gap-1.5 font-semibold text-link hover:underline">
               <RefreshCw className="size-3.5" aria-hidden /> {t('Kemas kini')}
@@ -21,7 +21,7 @@ export function UpdateBanner() {
           </>
         ) : (
           <>
-            <span>{t('Pasang NO.VA sebagai aplikasi pada peranti anda.')}</span>
+            <span>{t('Pasang NoVA sebagai aplikasi pada peranti anda.')}</span>
             <button type="button" onClick={() => void promptInstall()} className="inline-flex items-center gap-1.5 font-semibold text-link hover:underline">
               <Download className="size-3.5" aria-hidden /> {t('Pasang')}
             </button>

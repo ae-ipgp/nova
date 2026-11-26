@@ -26,7 +26,7 @@ describe('system notification emails', () => {
     const m = gw.services.system[0]
     expect(m.subject).toContain('Permohonan Ujian')
     expect(m.html).toContain(`https://nova.example/workspace/e-surat?open=${r.id}`)
-    expect(m.html).toContain('Makluman NO.VA')
+    expect(m.html).toContain('Makluman NoVA')
   })
 
   it('drafts send nothing; decisions email the applicant with the reason or the number', () => {
@@ -63,7 +63,7 @@ describe('system notification emails', () => {
     const aliProfile = gw.rows('profiles').find((p) => p.email === 'ali@moe-dl.edu.my')!.id
     gw.ok('admin.settings.set', { values: { notifications_enabled: 'false' } }, SUAK.id)
     gw.ok('admin.roles.grant', { profileId: aliProfile, role: 'secretariat' }, SUAK.id)
-    expect(gw.services.system.map((m) => m.subject)).toEqual(['Akses NO.VA anda telah diubah']) // security notice still sent
+    expect(gw.services.system.map((m) => m.subject)).toEqual(['Akses NoVA anda telah diubah']) // security notice still sent
     gw.services.system.length = 0
     gw.ok('ref.request.save', REQ, ali)
     expect(gw.services.system).toHaveLength(0) // global switch off
@@ -179,7 +179,7 @@ describe('backup export', () => {
     expect(files).toEqual(expect.arrayContaining(['data/profiles.csv', 'data/reference_register.csv', 'audit/audit_logs.csv', 'manifest.json', 'BACA-SAYA.txt']))
     const profiles = gw.services.zips[0].find((f) => f.name === 'data/profiles.csv')!.content
     expect(profiles).toContain('suak@moe-dl.edu.my')
-    expect(JSON.parse(gw.services.zips[0].find((f) => f.name === 'manifest.json')!.content).schemaVersion).toBe(4)
+    expect(JSON.parse(gw.services.zips[0].find((f) => f.name === 'manifest.json')!.content).schemaVersion).toBe(5)
     expect(gw.rows('audit_logs').some((a) => a.action === 'backup.export')).toBe(true)
   })
 
@@ -190,8 +190,8 @@ describe('backup export', () => {
   })
 
   it('keeps the newest 12 copies per workbook and never touches files it did not name', () => {
-    const files = Array.from({ length: 15 }, (_, i) => ({ id: `d${i}`, name: `NO.VA — Data — 2026-${i}`, createdMs: i })).concat(
-      Array.from({ length: 13 }, (_, i) => ({ id: `a${i}`, name: `NO.VA — Audit — x${i}`, createdMs: 100 + i })),
+    const files = Array.from({ length: 15 }, (_, i) => ({ id: `d${i}`, name: `NoVA — Data — 2026-${i}`, createdMs: i })).concat(
+      Array.from({ length: 13 }, (_, i) => ({ id: `a${i}`, name: `NoVA — Audit — x${i}`, createdMs: 100 + i })),
       [{ id: 'other', name: 'Catatan peribadi', createdMs: 0 }],
     )
     const del = backupsToDelete(files, 12)

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * NO.VA i18n tooling (Malay is the source language; English lives in src/i18n/en/*.ts).
+ * NoVA i18n tooling (Malay is the source language; English lives in src/i18n/en/*.ts).
  *
  *   node scripts/i18n.mjs list            list every translatable message found in src/ (JSON on stdout)
  *   node scripts/i18n.mjs missing         messages that have no English entry (JSON)
@@ -115,6 +115,18 @@ function scan(file) {
       return
     }
 
+    // <Cms ms="…"> / <CmsLink ms="…"> / <CmsFile ms="…">: the Malay source of an editable text (translated inside the component)
+    // eyebrowMs="…" / titleMs="…" / descriptionMs="…": Malay sources of editable texts
+    if (ts.isJsxAttribute(n) && /Ms$/.test(n.name.getText()) && n.initializer && ts.isStringLiteral(n.initializer)) {
+      const msg = norm(n.initializer.text)
+      if (msg && hasWords(msg)) found.push({ msg, kind: 'cms', line: line(n) })
+      return
+    }
+    if (ts.isJsxAttribute(n) && n.name.getText() === 'ms' && n.initializer && ts.isStringLiteral(n.initializer) && /^Cms(Link|File)?$/.test(n.parent.parent.tagName?.getText() ?? '')) {
+      const msg = norm(n.initializer.text)
+      if (msg && hasWords(msg)) found.push({ msg, kind: 'cms', line: line(n) })
+      return
+    }
     if (ts.isJsxAttribute(n) && n.initializer && ts.isStringLiteral(n.initializer) && ATTRS.has(n.name.getText())) {
       const msg = norm(n.initializer.text)
       if (msg && hasWords(msg)) add(msg, 'attr', n, { start: n.initializer.getStart(sf), end: n.initializer.getEnd(), replace: `{t(${esc(msg)})}` })
@@ -220,7 +232,7 @@ function tableMessages() {
         const key = n.parent.name.getText()
         const msg = norm(n.text)
         const wanted = nameRe ? nameRe.test(name) : true
-        const skipKey = /^(to|href|icon|slug|code|phase|id|status|tone|kind|key|pose|navRoles|priority|email|domain)$/.test(key)
+        const skipKey = /^(to|href|icon|slug|code|phase|id|status|tone|kind|key|pose|navRoles|priority|email|domain|fullName)$/.test(key)
         if (wanted && !skipKey && hasWords(msg) && (/\s/.test(msg) || /^[A-Z]/.test(msg)) && !/^(https?:|\/|@)/.test(msg)) {
           if (rel.endsWith('modules.ts') && ts.isObjectLiteralExpression(n.parent.parent) && !['name', 'summary'].includes(key)) {
             /* requirement texts are specification references, not UI copy */

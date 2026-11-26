@@ -88,7 +88,7 @@ function ensureFolder(parent: GoogleAppsScript.Drive.Folder, name: string): Goog
 function ensureRootFolder(): GoogleAppsScript.Drive.Folder {
   const id = getProp(PROP.driveRootFolderId)
   if (id) return DriveApp.getFolderById(id)
-  const folder = DriveApp.createFolder('NO.VA')
+  const folder = DriveApp.createFolder('NoVA')
   setProp(PROP.driveRootFolderId, folder.getId())
   return folder
 }
@@ -116,15 +116,15 @@ function setupWorkbook(key: PropKey, title: string, workbook: Workbook, root: Go
 }
 
 /**
- * Creates (or upgrades) the NO.VA Drive folder, both spreadsheets and every
+ * Creates (or upgrades) the NoVA Drive folder, both spreadsheets and every
  * tab/column in shared/schema.ts. Safe to run repeatedly; never deletes data.
  */
 export function setupSpreadsheet(): void {
   const root = ensureRootFolder()
   for (const name of Object.values(DRIVE_FOLDERS)) ensureFolder(root, name)
 
-  const data = setupWorkbook(PROP.dataSpreadsheetId, 'NO.VA — Data', 'data', root)
-  const audit = setupWorkbook(PROP.auditSpreadsheetId, 'NO.VA — Audit', 'audit', root)
+  const data = setupWorkbook(PROP.dataSpreadsheetId, 'NoVA — Data', 'data', root)
+  const audit = setupWorkbook(PROP.auditSpreadsheetId, 'NoVA — Audit', 'audit', root)
   setProp(PROP.schemaVersion, String(SCHEMA_VERSION))
 
   console.log(JSON.stringify({ schemaVersion: SCHEMA_VERSION, data, audit }, null, 2))
@@ -181,7 +181,7 @@ export function backupToDrive(): void {
   const stamp = new Date().toISOString().slice(0, 10)
   for (const [key, label] of [[PROP.dataSpreadsheetId, 'Data'], [PROP.auditSpreadsheetId, 'Audit']] as const) {
     const id = getProp(key)
-    if (id) DriveApp.getFileById(id).makeCopy(`NO.VA — ${label} — ${stamp}`, target)
+    if (id) DriveApp.getFileById(id).makeCopy(`NoVA — ${label} — ${stamp}`, target)
   }
   const files: { id: string; name: string; createdMs: number }[] = []
   const it = target.getFiles()

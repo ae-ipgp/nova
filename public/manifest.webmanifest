@@ -1,7 +1,7 @@
 {
-  "name": "NO.VA — Digital Secretariat",
-  "short_name": "NO.VA",
-  "description": "Sistem kesetiausahaan digital JPP IPGKKB.",
+  "name": "NoVA — Notion of Virtual Assistance",
+  "short_name": "NoVA",
+  "description": "Pusat pendigitalan kesetiausahaan JPP IPGKKB.",
   "lang": "ms",
   "start_url": "/workspace",
   "scope": "/",

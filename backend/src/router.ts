@@ -151,7 +151,7 @@ function execute(action: string, handler: Handler<keyof HandlerMap>, payload: un
     if (mod && !hasRole(actor, 'suak') && getSetting(store, visibilityKey('ws', mod)) !== 'published') throw forbidden('Modul ini tidak tersedia buat masa ini.')
     // Maintenance mode (Tetapan): ordinary users cannot change anything; SUAK / System Administrator can.
     if (handler.write && getBool(store, 'maintenance_mode') && !hasRole(actor, 'suak', 'system_admin')) {
-      throw forbidden(getSetting(store, 'maintenance_message') || 'NO.VA sedang diselenggara. Sila cuba sebentar lagi.')
+      throw forbidden(getSetting(store, 'maintenance_message') || 'NoVA sedang diselenggara. Sila cuba sebentar lagi.')
     }
     return handler.run(payload, ctx)
   }

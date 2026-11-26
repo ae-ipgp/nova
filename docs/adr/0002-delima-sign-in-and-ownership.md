@@ -6,11 +6,11 @@
 
 ## Decision
 
-1. **Owner account.** The NO.VA Drive folder, both spreadsheets and the Apps Script gateway
+1. **Owner account.** The NoVA Drive folder, both spreadsheets and the Apps Script gateway
    are owned by a **personal DELIMa account** (`@moe-dl.edu.my`) held by the person
-   responsible for NO.VA (normally SUAK).
+   responsible for NoVA (normally SUAK).
 2. **User sign-in.** Students sign in with **their own DELIMa account** through Supabase
-   Auth's **Google provider**. Email/password sign-in is not offered. NO.VA never sees or
+   Auth's **Google provider**. Email/password sign-in is not offered. NoVA never sees or
    stores passwords.
 
 ## Sign-in flow
@@ -18,7 +18,7 @@
 ```
 "Log masuk dengan DELIMa"
   → Supabase signInWithOAuth('google', hd=moe-dl.edu.my, prompt=select_account)
-  → Google (DELIMa) consent → Supabase callback → back to NO.VA with a session
+  → Google (DELIMa) consent → Supabase callback → back to NoVA with a session
   → every gateway call carries the Supabase access token
   → gateway: verify token with Supabase → email must pass isAllowedEmail()
            → email must match an ACTIVE row in `profiles` (registered by SUAK)
@@ -49,10 +49,10 @@ access on the next request (AT-12), whatever Supabase says.
 
 | # | Risk | Mitigation |
 | - | ---- | ---------- |
-| R1 | **The owner graduates or leaves and the DELIMa account is suspended or deleted. Every file, the spreadsheets and the gateway go with it.** | Mandatory handover (below) before the owner's last semester ends. Recommended: give **one** long-term recovery holder (e.g. the JPP advisor's DELIMa account) *Editor* access to the `NO.VA` folder, recorded as the §16 #10 recovery holder. |
+| R1 | **The owner graduates or leaves and the DELIMa account is suspended or deleted. Every file, the spreadsheets and the gateway go with it.** | Mandatory handover (below) before the owner's last semester ends. Recommended: give **one** long-term recovery holder (e.g. the JPP advisor's DELIMa account) *Editor* access to the `NoVA` folder, recorded as the §16 #10 recovery holder. |
 | R2 | The DELIMa (MOE) Workspace admin may block web apps with **anonymous access** ("Who has access: Anyone"). The public portal needs it. | **Go/no-go check before Phase 1** (below). If blocked, the public portal cannot read from the gateway; alternatives need a new decision. |
 | R3 | The admin may block student access to Google Cloud Console, which is needed to create the OAuth client for Supabase's Google provider. | The OAuth client can be created under **any** Google account (it only identifies the app). Publish the consent screen as *External / In production* with scopes `openid email profile`, which need no Google verification. |
-| R4 | The domain admin can see, retain or suspend the owner account's data. | Accepted: NO.VA records are institutional records of JPP IPGKKB. Do not store data the institution should not hold. |
+| R4 | The domain admin can see, retain or suspend the owner account's data. | Accepted: NoVA records are institutional records of JPP IPGKKB. Do not store data the institution should not hold. |
 | R5 | Per-user Drive storage caps set by the domain admin are unknown. | Check the owner's storage in Drive settings; enforce upload limits and compress OPR photos. |
 | R6 | Supabase free projects pause when idle (unchanged from ADR-0001). | Daily `keepAlive` trigger; confirm in the dashboard. |
 
@@ -74,7 +74,7 @@ workaround inside this architecture.
 
 Old owner = O, new owner = N (both DELIMa).
 
-1. O: in Drive, share the `NO.VA` folder with N as Editor, then **Transfer ownership** of the
+1. O: in Drive, share the `NoVA` folder with N as Editor, then **Transfer ownership** of the
    folder, both spreadsheets and the Apps Script project to N. Transfers within the same
    Workspace domain are allowed. Check that no files are left owned by O.
 2. N: open the Apps Script project → Project Settings → confirm the Script Properties are present.
@@ -83,6 +83,6 @@ Old owner = O, new owner = N (both DELIMa).
 4. N: run `installTriggers` (triggers belong to the user who created them and do not transfer).
 5. Update `VITE_API_URL` in Vercel to the new `/exec` URL and redeploy the site. Verify `/exec`
    health and a sign-in.
-6. O: archive the old deployment. In NO.VA, SUAK updates roles (O loses SUAK, N gains it); this
+6. O: archive the old deployment. In NoVA, SUAK updates roles (O loses SUAK, N gains it); this
    is recorded in the audit log.
 7. Record the handover (date, O, N, recovery holder) in `system_settings` / the session archive.

@@ -1,18 +1,19 @@
 import { Activity, CalendarDays, FileText, Inbox, ListChecks, Mail, Plus, Send } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth, useCan } from '@/app/auth-context'
-import { buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGatewayQuery } from '@/hooks/use-gateway'
-import { cn } from '@/lib/cn'
 import { describeAction } from '@/lib/audit-labels'
 import { formatDate, formatDateTime } from '@/lib/format'
 import { ROLE_LABELS } from '@/types/domain'
 import { AnnouncementCard } from '../board/board-page'
 import { t } from '@/i18n'
+import { useDisplayName } from '@/components/shell/profile-menu'
+import { Cms } from '@/lib/content'
+import { Mascot } from '@/components/brand/mascot'
 
 function greeting(): string {
   const h = new Date().getHours()
@@ -22,16 +23,17 @@ function greeting(): string {
 export function DashboardPage() {
   const { roles, state, mode } = useAuth()
   const me = state.status === 'signed_in' ? state.me : null
+  const displayName = useDisplayName()
   const canSend = useCan('nome.prepare')
   const staff = roles.includes('suak') || roles.includes('secretariat')
   const q = useGatewayQuery('dashboard.summary', {}, { enabled: mode === 'live' && roles.some((r) => r !== 'system_admin') })
   const d = q.data
   const eyebrow = [roles.map((r) => ROLE_LABELS[r]).join(' · '), me?.activeSession?.name ?? 'Tiada sesi aktif'].filter(Boolean).join(' · ')
   const actions = [
-    { label: t('Mohon nombor rujukan'), icon: Plus, to: '/workspace/e-surat', show: roles.some((r) => r !== 'system_admin') },
-    { label: t('Cipta mesyuarat'), icon: CalendarDays, to: '/workspace/e-mesyuarat', show: staff },
-    { label: t('Cipta NoMe'), icon: Send, to: '/workspace/nome/baru', show: canSend },
-    { label: t('Cipta OPR'), icon: FileText, to: '/workspace/e-opr/baru', show: roles.some((r) => r !== 'system_admin') },
+    { label: t('Mohon nombor rujukan'), description: t('Hantar permohonan untuk kelulusan SUAK'), icon: Plus, to: '/workspace/e-surat', show: roles.some((r) => r !== 'system_admin') },
+    { label: t('Cipta mesyuarat'), description: t('Jadualkan mesyuarat dan jemput ahli'), icon: CalendarDays, to: '/workspace/e-mesyuarat', show: staff },
+    { label: t('Cipta NoMe'), description: t('Sediakan dan hantar notis e-mel'), icon: Send, to: '/workspace/nome/baru', show: canSend },
+    { label: t('Cipta OPR'), description: t('Bina laporan program satu halaman'), icon: FileText, to: '/workspace/e-opr/baru', show: roles.some((r) => r !== 'system_admin') },
   ].filter((a) => a.show)
 
   const kpis = [
@@ -43,23 +45,37 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section aria-label={t('Sambutan')} className="relative overflow-hidden rounded-hero bg-navy p-6 text-white md:p-8">
-        <p className="font-mono text-micro uppercase tracking-[0.14em] text-sky/80">{eyebrow}</p>
-        <h1 className="mt-2 max-w-2xl text-h1 font-extrabold text-white">{t('Your secretariat, at a glance.')}</h1>
-        <p className="mt-2 max-w-xl text-body-lg text-sky/85">
-          {me?.profile?.fullName ? `${greeting()}, ${me.profile.fullName.split(' ')[0]}. ` : ''}{t('Ringkasan operasi, tindakan tertunggak dan aktiviti terkini mengikut peranan anda.')}
-        </p>
-        {actions.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-2">
-            {actions.map((a, i) => (
-              <Link key={a.label} to={a.to} className={buttonVariants({ variant: i === 0 ? 'inverse' : 'ghostInverse', size: 'sm' })}>
-                <a.icon />
-                {a.label}
-              </Link>
-            ))}
+      <section aria-label={t('Sambutan')} className="relative overflow-hidden rounded-hero border border-line/70 bg-paper p-6 shadow-soft md:p-10">
+        <div className="grid items-center gap-6 md:grid-cols-[1fr_auto]">
+          <div>
+            <p className="font-mono text-micro uppercase tracking-[0.14em] text-link">{eyebrow}</p>
+            <h1 className="mt-2 max-w-2xl text-h1 font-extrabold tracking-[-0.02em] text-heading">
+              <Cms id="dashboard.hero.title" ms="Panel suntingan anda." />
+            </h1>
+            <p className="mt-3 max-w-xl text-body-lg text-slate">
+              {displayName ? <strong className="font-semibold text-heading">{`${greeting()}, ${displayName}. `}</strong> : null}
+              <Cms id="dashboard.hero.text" ms="Ringkasan operasi, tindakan tertunggak dan aktiviti terkini mengikut peranan anda." multiline />
+            </p>
           </div>
-        )}
+          <Mascot pose="wave" size={190} className="hidden md:block" />
+        </div>
       </section>
+
+      {actions.length > 0 && (
+        <section aria-label={t('Tindakan pantas')} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {actions.map((a) => (
+            <Link key={a.label} to={a.to} className="group flex flex-col gap-3 rounded-card border border-line/70 bg-paper p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-blue">
+              <span className="grid size-12 place-items-center rounded-2xl bg-soft text-link transition-colors group-hover:bg-blue group-hover:text-white">
+                <a.icon className="size-6" aria-hidden />
+              </span>
+              <span>
+                <span className="block font-display text-body-lg font-bold text-heading">{a.label}</span>
+                <span className="mt-0.5 block text-caption text-slate">{a.description}</span>
+              </span>
+            </Link>
+          ))}
+        </section>
+      )}
 
       <section aria-label={t('Penunjuk utama')} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
@@ -111,12 +127,6 @@ export function DashboardPage() {
         </section>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader><CardTitle>{t('Tindakan pantas')}</CardTitle></CardHeader>
-            <CardBody>
-              {actions.length ? <ul className="grid gap-2">{actions.map((a) => <li key={a.label}><Link to={a.to} className={cn(buttonVariants({ variant: 'secondary' }), 'w-full justify-start')}><a.icon />{a.label}</Link></li>)}</ul> : <p className="text-caption text-slate">{t('Tiada tindakan pantas untuk peranan ini.')}</p>}
-            </CardBody>
-          </Card>
           <Card>
             <CardHeader><CardTitle>{t('Aktiviti terkini')}</CardTitle></CardHeader>
             {d && d.recentActivity.length > 0 ? <ul className="divide-y divide-line text-caption">{d.recentActivity.map((a, i) => <li key={i} className="px-5 py-2.5"><span className="font-mono text-micro text-slate">{formatDateTime(a.at)}</span><br />{describeAction(a.action)} <span className="text-slate">· {a.actor}</span></li>)}</ul> : <EmptyState icon={Activity} title={t('Belum ada aktiviti')} description={t('Perubahan terkini yang anda dibenarkan lihat akan muncul di sini.')} />}

@@ -1,0 +1,22 @@
+// English dictionary — second round of wording changes (NoVA rename)
+export default {
+  'Masuk ke Ruang Kerja': 'Enter the Workspace',
+  'Semak dan lulus': 'Review and approve',
+  'Nombor rujukan rasmi hanya dikeluarkan selepas kelulusan SUAK.': 'The official reference number is only issued after SUAK approval.',
+  'Privasi diutamakan': 'Privacy first',
+  'Perekodan pengguna, masa, tetapan dan perubahan.': 'Records of users, time, settings and changes.',
+  'Pusat pendigitalan kesetiausahaan': 'The secretariat digitalisation hub',
+  'Papan Pemuka': 'Dashboard',
+  'Papan Pemuka NoVA': 'NoVA Dashboard',
+  'Berwibawa, berintegriti': 'Authoritative, and with Integrity',
+  'Pejabat Setiausaha Agung Kehormat': "The Secretary's Office",
+  'Inovasi Maya,': 'Virtual Innovation,',
+  'untuk Legasi': 'for the Legacy',
+  'Inovasi Maya, untuk Legasi': 'Virtual Innovation, for the Legacy',
+  'Satu ruang digital untuk menyelaras persuratan, mesyuarat, dokumentasi dan rekod rasmi JPP IPGKKB.': 'One digital space to coordinate correspondence, meetings, documentation and the official records of JPP IPGKKB.',
+  'Gunakan akaun DELIMa anda (@{domain}). Hanya akaun yang telah didaftarkan oleh pentadbir boleh masuk ke Ruang Kerja.': 'Use your DELIMa account (@{domain}). Only accounts registered by the administrator can enter the Workspace.',
+  'Hanya rekod yang telah disahkan dan diterbitkan oleh SUAK dipaparkan.': 'Only records verified and published by SUAK are shown.',
+  'Templat yang boleh dimuat turun. Semak setiap templat sebelum menggunakannya.': 'Templates available for download. Review each template before using it.',
+  'Dokumen dalaman yang diterbitkan melalui kelulusan SUAK.': 'Internal documents published through SUAK approval.',
+  'Organisasi': 'Organisation',
+} as Record<string, string>

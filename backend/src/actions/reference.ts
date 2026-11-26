@@ -292,7 +292,7 @@ export const referenceHandlers: {
           signatoryTitle: getSetting(ctx.store, 'signatory_title'),
           verifyLine: getSetting(ctx.store, 'verify_url')
             ? `Semak keaslian: ${getSetting(ctx.store, 'verify_url')} (rujukan ${number}).`
-            : `Semak keaslian dengan rujukan ${number} di portal NO.VA.`,
+            : `Semak keaslian dengan rujukan ${number} di portal NoVA.`,
           isDemo: type.is_demo === 'true',
           kind: type.kind === 'certificate' ? 'certificate' : 'letter',
         })
@@ -358,7 +358,7 @@ export const referenceHandlers: {
       ctx.audit('ref.approve', 'ref_request', id, { status: 'submitted' }, { status: 'approved', referenceNumber: number })
       notify(envOf(ctx), 'request_decision', ctx.store.get('profiles', req.applicant_id), {
         subject: `Permohonan diluluskan: ${req.subject}`,
-        body: `Permohonan nombor rujukan anda telah diluluskan.\n\nTajuk: ${req.subject}\nNombor rujukan: ${number}${pdfId ? '\n\nPDF surat/sijil tersedia untuk dimuat turun dalam NO.VA.' : ''}`,
+        body: `Permohonan nombor rujukan anda telah diluluskan.\n\nTajuk: ${req.subject}\nNombor rujukan: ${number}${pdfId ? '\n\nPDF surat/sijil tersedia untuk dimuat turun dalam NoVA.' : ''}`,
         path: `/workspace/e-surat?open=${id}`,
       })
       return toRequestView(ctx.store, updated)

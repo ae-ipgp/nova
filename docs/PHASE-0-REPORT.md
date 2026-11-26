@@ -22,14 +22,14 @@ scripts or deployment configuration had to be preserved.
 | ----------- | --------------------------------------------------------- |
 | Frontend    | React 19 + TypeScript (strict) + Vite 8                   |
 | Routing     | React Router 7 (data router)                              |
-| UI system   | Tailwind CSS 4 with NO.VA tokens; shadcn-style primitives (`cva` + `tailwind-merge`) written in-repo |
+| UI system   | Tailwind CSS 4 with NoVA tokens; shadcn-style primitives (`cva` + `tailwind-merge`) written in-repo |
 | Icons       | lucide-react                                              |
 | Fonts       | Manrope (display/heading), Inter (body), IBM Plex Mono (data) — self-hosted via Fontsource, no third-party font CDN |
 | Lint        | oxlint (Vite template default)                            |
 | Tests       | Vitest + Testing Library + jsdom                          |
 | Hosting     | Vercel, static site only (`vercel.json`: SPA rewrites + security headers) |
-| Data        | Google Sheets (`NO.VA — Data`, `NO.VA — Audit`) — schema in `shared/schema.ts` |
-| Files       | Google Drive, private folders under `NO.VA/`              |
+| Data        | Google Sheets (`NoVA — Data`, `NoVA — Audit`) — schema in `shared/schema.ts` |
+| Files       | Google Drive, private folders under `NoVA/`              |
 | Server      | Google Apps Script web app ("gateway", `backend/`), bundled with esbuild, deployed with clasp |
 | Login       | DELIMa Google accounts via Supabase Auth (Google provider) — **not connected yet** (Phase 1) |
 
@@ -128,7 +128,7 @@ Resend is no longer required.
 
 | # | Risk / dependency | Mitigation |
 | - | ----------------- | ---------- |
-| 1 | **Owner is a personal DELIMa account** that disappears when its holder leaves (ADR-0002 R1) | Mandatory handover procedure; one long-term recovery holder with Editor access to `NO.VA/` |
+| 1 | **Owner is a personal DELIMa account** that disappears when its holder leaves (ADR-0002 R1) | Mandatory handover procedure; one long-term recovery holder with Editor access to `NoVA/` |
 | 1a | **DELIMa admin may block anonymous web apps** (ADR-0002 R2) | Go/no-go check before Phase 1; the only blocker with no workaround in this architecture |
 | 2 | Official reference-number format not approved (§08A, §16 #1) | Stored as config in `reference_series` sheet; `JPP/IPGKKB/100-1/2/2026` is a placeholder only |
 | 3 | No database transactions on Sheets | All check-then-write runs inside `withLock()` (LockService); concurrency test AT-04 targets it |

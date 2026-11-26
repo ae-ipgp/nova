@@ -1,13 +1,13 @@
-# CLAUDE.md — NO.VA Digital Secretariat
+# CLAUDE.md — NoVA (Notion of Virtual Assistance)
 
 `docs/NOVA_Product_Blueprint_v1.0.pdf` is the primary specification. Do not silently change
 product scope, roles, module names, approval rules or design direction.
 
 ## Binding product decisions
 - One modular app, eight modules (M01–M08), public portal + authenticated workspace. JPP IPGKKB only.
-- SUAK is the operational owner with full administrative authority inside NO.VA.
+- SUAK is the operational owner with full administrative authority inside NoVA.
 - System Administrator is technical only — never inherits content/reference approval powers.
-- NO.VA is separate from HiPER; no HiPER integration in v1.0.
+- NoVA is separate from HiPER; no HiPER integration in v1.0.
 - Storage (ADR-0001): Google Sheets for records, Google Drive for files, Google Apps Script
   gateway (`backend/`) as the only server. Supabase is for login ONLY — no tables, storage or functions.
 - Sign-in (ADR-0002): DELIMa Google accounts only (`@moe-dl.edu.my`, `shared/identity.ts`), no passwords.
@@ -20,6 +20,8 @@ product scope, roles, module names, approval rules or design direction.
 - Design tokens live only in `src/styles/tokens.css`. Do not use raw hex or default Tailwind colours.
 - Blue Editorial Futurism: navy/blue/white, editorial type, restrained visuals. No gradients
   everywhere, glassmorphism, emoji navigation or decorative charts. Illustrations on the landing page only.
+  **Owner-approved update (NoVA redesign):** a friendlier card-based look (20–28 px radii, soft shadows, curved navy module rail,
+  light dashboard with the mascot). The palette and the no-decorative-charts rule still apply.
 - The browser never talks to Sheets/Drive. Add every operation as a gateway action in
   `shared/api-contract.ts` + `backend/src/router.ts`, with an explicit access rule and role check.
 - Frontend guards are UX only; authorisation happens in the gateway.
@@ -63,6 +65,19 @@ product scope, roles, module names, approval rules or design direction.
 - System e-mails (`backend/src/notify.ts`) are best-effort and must never block or roll back the action that triggers them.
   Security notices cannot be switched off by the user.
 - Search is role-filtered in the gateway (`search.global`); the public search returns published rows only.
+
+## Rules added with the NoVA rename and editable content
+- The product is **NoVA** (Notion of Virtual Assistance), formerly NO.VA. Never write "NO.VA". The logo files are
+  `public/brand/logo-main.png` (nav, favicon source) and `logo-full.png` (footer); SUAK can still override the main logo in Tetapan.
+- Editable page content: wrap texts in `<Cms id="page.section.name" ms="Malay source" />`, buttons/links in `<CmsLink>`,
+  photos in `<CmsImage>`, downloads in `<CmsFile>`, repeating blocks with `useCmsList`. SUAK edits them in "Mod suntingan"
+  (`site_content` sheet; `admin.content.set`). Ids are stable: never rename one without a migration. Links are validated
+  (`https://`, `/path`, `mailto:`, `tel:` only).
+- Contacts, phone numbers, the JPP portal link and social links live in Tetapan (not in the page code). Phone links are built
+  by `src/lib/phone.ts`. The visitor counter only increments a number (`public.visit`); nothing about the visitor is stored.
+- The workspace and the public site share one header (`SiteHeader`). The Google profile name and photo come from the
+  Supabase token (`useAuth().identity`); the CSP allows `https://*.googleusercontent.com` for images only.
+- English term: "Pejabat Setiausaha Agung Kehormat" = "The Secretary's Office". The role "Sekretariat" stays "Secretariat".
 
 ## Working method
 1. Inspect before changing. 2. Propose the smallest safe step. 3. Implement only the agreed phase.

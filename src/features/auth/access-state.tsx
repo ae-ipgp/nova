@@ -21,7 +21,7 @@ export function AccessState({
   return (
     <div className="flex min-h-dvh flex-col bg-ice">
       <header className="container-content flex h-header items-center">
-        <Link to="/" aria-label={t('Laman utama NO.VA')}>
+        <Link to="/" aria-label={t('Laman utama NoVA')}>
           <Logo />
         </Link>
       </header>
